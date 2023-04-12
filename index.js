@@ -329,6 +329,7 @@ app.post('/upload', (req, res) => {
                      // // row.getCell(12).value = 3
                  // // } 
 				 
+<<<<<<< HEAD
 				 // if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
                      // row.getCell(12).value = 3
                  // }
@@ -343,6 +344,22 @@ app.post('/upload', (req, res) => {
 				// if (row.values[1] == "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua" &&  row.values[11] == "Menunggu Konfirmasimu") {
                     // row.getCell(12).value = 3
                 // }
+=======
+				 if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
+                     row.getCell(12).value = 'Tolak'
+                 }
+                if (row.values[1].includes("Fernco Kaos Polos Lengan Panjang Katun Combed 30s") &&  row.values[11] == "Menunggu Konfirmasimu") {
+                    row.getCell(12).value = 'Tolak'
+                }
+				
+				if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s") &&  row.values[11] == "Menunggu Konfirmasimu") {
+                    row.getCell(12).value = 'Tolak'
+                }
+				
+				if (row.values[1] == "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua" &&  row.values[11] == "Menunggu Konfirmasimu") {
+                    row.getCell(12).value = 'Tolak'
+                }
+>>>>>>> 9110a6281553ff52b7513c32f4a5ce170996b271
             });
 
             const buffer = await workbook.xlsx.writeBuffer();
