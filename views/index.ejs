@@ -8,7 +8,7 @@
     <title>document</title>
 
     <style>
-        #loading { 
+        #loading {
             display: none;
         }
 
@@ -34,8 +34,13 @@
         const inpFile  = document.getElementById("inpFile");
 
         inpFile.addEventListener('click' , () => {
-            document.getElementById("loading").classList.toggle("active")
+            document.getElementById("loading").classList.add("active")
         })
+
+        inpFile.addEventListener('change' , () => {
+            document.getElementById("loading").classList.remove("active")
+        })
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
