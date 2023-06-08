@@ -53,7 +53,7 @@ const polosAnakS = 14900,
 
 
 
-app.use("/script", path.join(__dirname, 'dist'));
+app.use("/script", express.static(path.join(__dirname, 'dist')));
 app.use(fileUpload());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
