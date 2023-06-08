@@ -469,6 +469,7 @@ app.post('/upload', (req, res) => {
                  // if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
                      // row.getCell(6).value = 35900
                      // row.getCell(7).value = 35900
+<<<<<<< HEAD
                      // row.getCell(12).value = 'Ubah'
                  // }
 
@@ -476,6 +477,31 @@ app.post('/upload', (req, res) => {
                      row.getCell(12).value = 'Tolak'
                  }
 
+=======
+                     // row.getCell(12).value = 1
+                 // } 
+				 
+				 // // if (row.values[1].includes("KAOS POLOS PANJANG COTTON COMBED 30S - KAOS LENGAN PANJANG PRIA ROUND NECK REGULER FIT") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
+                     // // row.getCell(12).value = 3
+                 // // } 
+				 
+<<<<<<< HEAD
+				 // if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
+                     // row.getCell(12).value = 3
+                 // }
+                // if (row.values[1].includes("Fernco Kaos Polos Lengan Panjang Katun Combed 30s") &&  row.values[11] == "Menunggu Konfirmasimu") {
+                    // row.getCell(12).value = 3
+                // }
+				
+				// if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek Katun Combed 30s") &&  row.values[11] == "Menunggu Konfirmasimu") {
+                    // row.getCell(12).value = 3
+                // }
+				
+				// if (row.values[1] == "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua" &&  row.values[11] == "Menunggu Konfirmasimu") {
+                    // row.getCell(12).value = 3
+                // }
+=======
+>>>>>>> 318f1bbb7472f9c4138c77aa0d8c8cb9d29647b5
 				 if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
                      row.getCell(12).value = 'Tolak'
                  }
@@ -490,6 +516,7 @@ app.post('/upload', (req, res) => {
 				if (row.values[1] == "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua" &&  row.values[11] == "Menunggu Konfirmasimu") {
                     row.getCell(12).value = 'Tolak'
                 }
+>>>>>>> 9110a6281553ff52b7513c32f4a5ce170996b271
             });
 
             const buffer = await workbook.xlsx.writeBuffer();
