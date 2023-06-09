@@ -47,13 +47,8 @@ const polosAnakS = 14900,
 	    celanaAnakXL = 21900
 
 
-
-
-
-
-
-
-app.use("/script", express.static(path.join(__dirname, 'dist')));
+app.use("/dist", express.static(path.join(__dirname, 'dist')));
+app.use("/public", express.static(path.join(__dirname, 'public')))
 app.use(fileUpload());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -67,7 +62,6 @@ app.post('/upload', (req, res) => {
             const worksheet = workbook.getWorksheet('Sheet1');
 
             worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
-				console.log(row.values[1])
 
                  if (row.values[3].includes("Kuning")) {
 
@@ -168,7 +162,6 @@ app.post('/upload', (req, res) => {
                     }
 
 				if (row.values[1] == "KAOS ANAK LAKI LAKI SAKU KEREN" && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-						console.log(row.values[3])
                         if (row.values[3].toLowerCase().includes(",s")) {
 
                             row.getCell(6).value = salurAnakS
@@ -194,7 +187,6 @@ app.post('/upload', (req, res) => {
                     }
 
 										if (row.values[1] == "KAOS ANAK SAKU  HAWAI" && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-												console.log(row.values[3])
 						                        if (row.values[3].toLowerCase().includes(",s")) {
 
 						                            row.getCell(6).value = sakuHawaiiAnakS
@@ -219,7 +211,6 @@ app.post('/upload', (req, res) => {
 
 						     }
 										if (row.values[1] == "KAOS ANAK SAKU GARIS W" && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-												console.log(row.values[3])
 						                        if (row.values[3].toLowerCase().includes(",s")) {
 
 						                            row.getCell(6).value = sakuWAnakS
@@ -244,7 +235,6 @@ app.post('/upload', (req, res) => {
 
 						     }
 										if (row.values[1] == "KAOS ANAK LAKI LAKI . BAJU ANAK LAKI LAKI SAKU KEREN" && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-												console.log(row.values[3])
 						                        if (row.values[3].toLowerCase().includes("s,")) {
 
 						                            row.getCell(6).value = sakuWarnaAnakS
@@ -269,7 +259,6 @@ app.post('/upload', (req, res) => {
 
 						     }
 										if (row.values[1] == "KAOS ANAK  SAKU BATIK" && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-												console.log(row.values[3])
 						                        if (row.values[3].toLowerCase().includes(",s")) {
 
 						                            row.getCell(6).value = sakuBatikAnakS
@@ -295,16 +284,7 @@ app.post('/upload', (req, res) => {
 						     }
 
 
-                if (row.values[1] == "CELANA PENDEK ANAK BAHAN LEMBUT KATUN COMBED 30S USIA 0-12 TAHUN" &&  row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-
-                        // if (row.values[3].toLowerCase().includes("putih,s")) {
-
-                            // row.getCell(6).value = celanaAnakS
-                            // row.getCell(7).value = celanaAnakS
-                            // row.getCell(12).value = 'Ubah'
-                        // }else
-
-						if (row.values[3] != "PUTIH,S") {
+          if (row.values[1] == "CELANA PENDEK ANAK BAHAN LEMBUT KATUN COMBED 30S USIA 0-12 TAHUN" &&  row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
 
                             if (row.values[3].toLowerCase().includes(",s")) {
                                 row.getCell(6).value = celanaAnakS
@@ -327,7 +307,6 @@ app.post('/upload', (req, res) => {
                                 row.getCell(7).value = celanaAnakXL
                                 row.getCell(12).value = 'Ubah'
                             }
-                        }
                 }
                 if (row.values[1] == "STELAN BAYI DAN ANAK, KAOS STELAN BAHAN KATUN COMBED 30S USIA 0-12 TAHUN" &&  row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
 
@@ -337,11 +316,6 @@ app.post('/upload', (req, res) => {
                             row.getCell(7).value = stelanAnakS
                             row.getCell(12).value = 'Ubah'
 
-							// if (row.values[3].toLowerCase().includes("putih,s")) {
-								// row.getCell(6).value = stelanAnakM
-								// row.getCell(7).value = stelanAnakM
-								// row.getCell(12).value = 'Ubah'
-							// }
                         }else if (row.values[3].toLowerCase().includes(",m")) {
 
                             row.getCell(6).value = stelanAnakM
@@ -471,7 +445,6 @@ app.post('/upload', (req, res) => {
                  // if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
                      // row.getCell(6).value = 35900
                      // row.getCell(7).value = 35900
-// <<<<<<< HEAD
                      // row.getCell(12).value = 'Ubah'
                  // }
 
@@ -479,15 +452,10 @@ app.post('/upload', (req, res) => {
                      row.getCell(12).value = 'Tolak'
                  }
 
-// =======
-                     // row.getCell(12).value = 1
-                 // }
 
 				 // // if (row.values[1].includes("KAOS POLOS PANJANG COTTON COMBED 30S - KAOS LENGAN PANJANG PRIA ROUND NECK REGULER FIT") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
                      // // row.getCell(12).value = 3
                  // // }
-
-// <<<<<<< HEAD
 				 // if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
                      // row.getCell(12).value = 3
                  // }
@@ -502,8 +470,6 @@ app.post('/upload', (req, res) => {
 				// if (row.values[1] == "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua" &&  row.values[11] == "Menunggu Konfirmasimu") {
                     // row.getCell(12).value = 3
                 // }
-// =======
-// >>>>>>> 318f1bbb7472f9c4138c77aa0d8c8cb9d29647b5
 				 if (row.values[1].includes("Fernco Kaos Polos Lengan Pendek  Katun Combed 30s Warna") && row.values[11] == "Menunggu Konfirmasimu" && row.values[7] >= 5) {
                      row.getCell(12).value = 'Tolak'
                  }
@@ -518,7 +484,6 @@ app.post('/upload', (req, res) => {
 				if (row.values[1] == "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua" &&  row.values[11] == "Menunggu Konfirmasimu") {
                     row.getCell(12).value = 'Tolak'
                 }
-// >>>>>>> 9110a6281553ff52b7513c32f4a5ce170996b271
             });
 
             const buffer = await workbook.xlsx.writeBuffer();

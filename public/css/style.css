@@ -1,0 +1,57 @@
+.container {
+  margin: 30px 20px;
+}
+
+
+#loading {
+    display: none;
+}
+
+.error {
+  height: 30px;
+  margin-bottom: 8px;
+}
+
+#error {
+    display: none;
+}
+
+#process {
+  display: none;
+}
+
+#btnUpload {
+  border: none;
+  border-radius: 15px;
+  padding: 10px;
+  background: #084cdf;
+  color: #fff;
+  cursor: pointer;
+}
+
+#btnUpload:hover {
+  background: #0d45a5;
+}
+
+#inpFile {
+  margin-right: 10px;
+}
+
+#inpFile::file-selector-button {
+  margin-right: 20px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+}
+
+#inpFile::file-selector-button:hover {
+  background: #a9a9a9;
+}
+
+
+
+.active {
+    display: block !important;
+}
