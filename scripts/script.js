@@ -1,7 +1,7 @@
 const btn = document.getElementById("btnUpload"),
     inpFile = document.getElementById("inpFile"),
-    ExcelJS = require('exceljs'),
-    workbook = new ExcelJS.Workbook(),
+    // ExcelJS = require('exceljs'),
+    // workbook = new ExcelJS.Workbook(),
     loading = document.getElementById("loading"),
     process = document.getElementById("process"),
     arrs = [];
@@ -55,7 +55,7 @@ btn.addEventListener('click', async () => {
     }else {
         const formData = new FormData()
 
-        formData.append("ExcelFile", inpFile.files[0])
+        formData.append("ZipFile", inpFile.files[0])
 
         process.classList.add("active")
         process.textContent = "Processing..."
