@@ -1,6 +1,6 @@
 {
   "name": "text-excel",
-  "version": "1.0.0",
+  "version": "2",
   "description": "exploring excel",
   "main": "index.js",
   "scripts": {
