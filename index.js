@@ -3,58 +3,396 @@ workbook = new ExcelJS.Workbook(),
 express = require('express'),
 app = express(),
 fileUpload = require("express-fileupload"),
+decompress = require('decompress'),
+fs = require('fs'),
 path = require('path'),
-decompress = require('decompress');
+bodyParser = require('body-parser');
 
 
 
-const polosAnakS = 14900,
-		polosAnakM = 16899,
-		polosAnakL = 18899,
-		polosAnakXL = 23899,
-	  salurAnakS = 17500,
-	    salurAnakM = 19500,
-	    salurAnakL = 21500,
-	    salurAnakXL = 25500,
-	  sakuBatikAnakS = 18900,
-	    sakuBatikAnakM = 19900,
-	    sakuBatikAnakL = 22900,
-	    sakuBatikAnakXL = 25900,
-	  sakuHawaiiAnakS = 18900,
-	    sakuHawaiiAnakM = 19900,
-	    sakuHawaiiAnakL = 22900,
-	    sakuHawaiiAnakXL = 25900,
-	  sakuWAnakS = 18900,
-	    sakuWAnakM = 19900,
-	    sakuWAnakL = 22900,
-	    sakuWAnakXL = 25900,
-	  sakuWarnaAnakS = 18900,
-	    sakuWarnaAnakM = 19900,
-	    sakuWarnaAnakL = 22900,
-	    sakuWarnaAnakXL = 25900,
-	  stelanAnakS = 26900,
-	    stelanAnakM = 29900,
-	    stelanAnakL = 34900,
-	    stelanAnakXL = 43900,
-	    // stelanAnakL = 34899,
-	    // stelanAnakXL = 43899,
-	  stelanAnakRegelanS = 29900,
-	    stelanAnakRegelanM = 35900,
-	    stelanAnakRegelanL = 39900,
-	    stelanAnakRegelanXL = 45900,
-	  celanaAnakS = 13900,
-	    celanaAnakM = 15900,
-	    celanaAnakL = 17900,
-	    celanaAnakXL = 21900
+// const polosAnakS = 14900,
+// 		polosAnakM = 16899,
+// 		polosAnakL = 18899,
+// 		polosAnakXL = 23899,
+// 	  salurAnakS = 17500,
+// 	    salurAnakM = 19500,
+// 	    salurAnakL = 21500,
+// 	    salurAnakXL = 25500,
+// 	  sakuBatikAnakS = 18900,
+// 	    sakuBatikAnakM = 19900,
+// 	    sakuBatikAnakL = 22900,
+// 	    sakuBatikAnakXL = 25900,
+// 	  sakuHawaiiAnakS = 18900,
+// 	    sakuHawaiiAnakM = 19900,
+// 	    sakuHawaiiAnakL = 22900,
+// 	    sakuHawaiiAnakXL = 25900,
+// 	  sakuWAnakS = 18900,
+// 	    sakuWAnakM = 19900,
+// 	    sakuWAnakL = 22900,
+// 	    sakuWAnakXL = 25900,
+// 	  sakuWarnaAnakS = 18900,
+// 	    sakuWarnaAnakM = 19900,
+// 	    sakuWarnaAnakL = 22900,
+// 	    sakuWarnaAnakXL = 25900,
+// 	  stelanAnakS = 26900,
+// 	    stelanAnakM = 29900,
+// 	    stelanAnakL = 34900,
+// 	    stelanAnakXL = 43900,
+// 	  stelanAnakRegelanS = 29900,
+// 	    stelanAnakRegelanM = 35900,
+// 	    stelanAnakRegelanL = 39900,
+// 	    stelanAnakRegelanXL = 45900,
+// 	  celanaAnakS = 13900,
+// 	    celanaAnakM = 15900,
+// 	    celanaAnakL = 17900,
+// 	    celanaAnakXL = 21900
+
+let polosAnakS = null,
+		polosAnakM = null,
+		polosAnakL = null,
+		polosAnakXL = null,
+	  salurAnakS = null,
+	    salurAnakM = null,
+	    salurAnakL = null,
+	    salurAnakXL = null,
+	  sakuBatikAnakS = null,
+	    sakuBatikAnakM = null,
+	    sakuBatikAnakL = null,
+	    sakuBatikAnakXL = null,
+	  sakuHawaiiAnakS = null,
+	    sakuHawaiiAnakM = null,
+	    sakuHawaiiAnakL = null,
+	    sakuHawaiiAnakXL = null,
+	  sakuWAnakS = null,
+	    sakuWAnakM = null,
+	    sakuWAnakL = null,
+	    sakuWAnakXL = null,
+	  sakuWarnaAnakS = null,
+	    sakuWarnaAnakM = null,
+	    sakuWarnaAnakL = null,
+	    sakuWarnaAnakXL = null,
+	  stelanAnakS = null,
+	    stelanAnakM = null,
+	    stelanAnakL = null,
+	    stelanAnakXL = null,
+	  stelanAnakRegelanS = null,
+	    stelanAnakRegelanM = null,
+	    stelanAnakRegelanL = null,
+	    stelanAnakRegelanXL = null,
+	  celanaAnakS = null,
+	    celanaAnakM = null,
+	    celanaAnakL = null,
+	    celanaAnakXL = null
 
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
 app.use("/public", express.static(path.join(__dirname, 'public')))
+app.use(bodyParser.json()); // Parse JSON-encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(fileUpload());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.get('/', (req, res) => res.render('index'));
+const directoryPath = 'public/json/'; // Specify the directory path here
+const fileName = 'products.json'; // Specify the file name here
+
+const filePath = path.join(directoryPath, fileName);
+
+// Function to read and edit a JSON file
+function getJSONFile(filename) {
+	try {
+		const jsonData = fs.readFileSync(filename, 'utf8');
+		const data = JSON.parse(jsonData);
+
+		for (var i = 0; i < data.length; i++) {
+				if (data[i].name.toLowerCase() == "polos anak") {
+					if (data[i].sizes.S) {
+						polosAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						polosAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						polosAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						polosAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "saku salur anak") {
+					if (data[i].sizes.S) {
+						salurAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						salurAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						salurAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						salurAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "saku anak batik") {
+					if (data[i].sizes.S) {
+						sakuBatikAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						sakuBatikAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						sakuBatikAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						sakuBatikAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "saku anak hawaii") {
+					if (data[i].sizes.S) {
+						sakuHawaiiAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						sakuHawaiiAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						sakuHawaiiAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						sakuHawaiiAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "saku anak garis w") {
+					if (data[i].sizes.S) {
+						sakuWAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						sakuWAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						sakuWAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						sakuWAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "saku anak warna") {
+					if (data[i].sizes.S) {
+						sakuWarnaAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						sakuWarnaAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						sakuWarnaAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						sakuWarnaAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "stelan anak") {
+					if (data[i].sizes.S) {
+						stelanAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						stelanAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						stelanAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						stelanAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "stelan regelan anak") {
+					if (data[i].sizes.S) {
+						stelanAnakRegelanS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						stelanAnakRegelanM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						stelanAnakRegelanL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						stelanAnakRegelanXL = data[i]["sizes"]["XL"]
+					}
+				}
+
+				if (data[i].name.toLowerCase() == "celana anak") {
+					if (data[i].sizes.S) {
+						celanaAnakS = data[i]["sizes"]["S"]
+					}
+
+					if (data[i].sizes.M) {
+						celanaAnakM = data[i]["sizes"]["M"]
+					}
+
+					if (data[i].sizes.L) {
+						celanaAnakL = data[i]["sizes"]["L"]
+					}
+
+					if (data[i].sizes.XL) {
+						celanaAnakXL = data[i]["sizes"]["XL"]
+					}
+				}
+		}
+	} catch (err) {
+		console.error(`Error editing ${filename}:`, err);
+	}
+}
+
+app.get('/', (req, res) => {
+	getJSONFile(filePath);
+	res.render('index')
+});
+
+app.get('/products', (req, res) => {
+  const directoryPath = 'public/json/';
+  const fileName = "products.json";
+  const filePath = path.join(directoryPath, fileName);
+  // Check if the file exists
+      fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+          res.statusCode = 404;
+          res.end('File not found');
+        } else {
+          // Read the JSON file
+          fs.readFile(filePath, (err, data) => {
+            if (err) {
+              res.statusCode = 500;
+              res.end('Error reading file');
+            } else {
+              try {
+                const jsonData = JSON.parse(data);
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(jsonData));
+              } catch (error) {
+                res.statusCode = 500;
+                res.end('Error parsing JSON');
+              }
+            }
+          });
+        }
+      });
+})
+
+app.post('/products/:id/edit', (req, res) => {
+
+  const productId = req.params.id
+	const formData = req.body;
+
+	let nameProduct = null;
+	let priceProductSizeS = null;
+  let priceProductSizeM = null;
+  let priceProductSizeL = null;
+  let priceProductSizeXL = null;
+
+	const directoryPath = 'public/json/'; // Specify the directory path here
+	const fileName = 'products.json'; // Specify the file name here
+
+	const filePath = path.join(directoryPath, fileName);
+
+  let priceProduct = {
+    S: null,
+    M: null,
+    L: null,
+    XL: null
+  }
+
+  if (formData.priceProductSizeS) {
+		priceProduct.S = parseInt(formData.priceProductSizeS)
+	}
+
+  if (formData.priceProductSizeM) {
+		priceProduct.M = parseInt(formData.priceProductSizeM)
+	}
+
+  if (formData.priceProductSizeL) {
+		priceProduct.L = parseInt(formData.priceProductSizeL)
+	}
+
+  if (formData.priceProductSizeXL) {
+		priceProduct.XL = parseInt(formData.priceProductSizeXL)
+	}
+
+  if (formData.nameProduct) {
+		nameProduct = formData.nameProduct;
+	}
+
+  // Function to read and edit a JSON file
+  function editJSONFile(filename) {
+    try {
+      const jsonData = fs.readFileSync(filename, 'utf8');
+      const data = JSON.parse(jsonData);
+      let index = data.findIndex(x => x.id == productId);
+
+      if (index != -1) {
+        for (var key in priceProduct) {
+          if (priceProduct[key] === null) {
+            priceProduct[key] = parseInt(data[index]["sizes"][key])
+          }
+        }
+        if (nameProduct !== null) {
+          data[index].name = nameProduct
+          data[index].sizes = priceProduct
+        }else {
+          data[index].name = data[index].name
+          data[index].sizes = priceProduct
+        }
+
+        const updatedJsonData = JSON.stringify(data, null, 2);
+        fs.writeFileSync(filename, updatedJsonData);
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({
+					status: 200,
+					message: "Updated successfully"
+				}));
+        console.log(`Updated ${filename} successfully.`);
+      }
+    } catch (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({
+				status: 400,
+				message: "Updated failed"
+			}));
+      console.error(`Error editing ${filename}:`, err);
+    }
+  }
+
+
+  editJSONFile(filePath);
+})
 
 app.post('/upload', (req, res) => {
 	// console.log(req.files)

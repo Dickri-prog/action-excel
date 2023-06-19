@@ -1,7 +1,7 @@
 {
-  "name": "text-excel",
+  "name": "action-excel-tools",
   "version": "2",
-  "description": "exploring excel",
+  "description": "action-excel-tools shopee",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,6 +9,7 @@
   "author": "m.d",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.20.2",
     "decompress": "^4.2.1",
     "ejs": "^3.1.8",
     "exceljs": "^4.3.0",
