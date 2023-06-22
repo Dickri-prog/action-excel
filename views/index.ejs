@@ -15,17 +15,75 @@
 <body>
     <div class="container">
 
-          <h1>File Upload</h1>
+          <section>
+            <h1>File Upload</h1>
 
-          <div class="error">
-            <h4 id="error" style="color: red"></h4>
-          </div>
+            <div class="error">
+              <h4 id="error" style="color: red"></h4>
+            </div>
 
-            <input type="file" name="excelFile" id="inpFile">
-            <button type="submit" id="btnUpload">Upload!</button>
-            <p id="loading">Loading...</p>
-            <p id="process"></p>
+              <input type="file" name="excelFile" id="inpFile">
+              <button type="submit" id="btnUpload">Upload!</button>
+              <p id="loading">Loading...</p>
+              <p id="process"></p>
+          </section>
+
+          <section>
+            <div class="dropdown-center">
+              <button type="button" class="btn btn-warning dropdown-toggle action" data-bs-toggle="dropdown" aria-expanded="false">
+                        Action
+              </button>
+                <ul class="dropdown-menu ul-action">
+                      <li><a class="dropdown-item" href="#"><button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#products" style="width: 200px; text-align: center" id="productsEditBtn">
+                                            products </button></a></li>
+                </ul>
+            </div>
+          </section>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="products" tabindex="-1" aria-labelledby="product-edit" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="product-edit">Products</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="data-container-product">
+
+          </div>
+          <div id="loading-product">Loading...</div>
+          <div class="modal-footer" id="pagination-container-product">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Modal -->
+<div class="modal fade" id="product-detail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="product-detail-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="product-detail-label">Product Detail</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="product-detail-body">
+
+      </div>
+      <div class="modal-footer">
+        <div class="alert op-0" role="alert">
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#products">
+          Back
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous">

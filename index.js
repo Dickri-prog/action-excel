@@ -8,45 +8,6 @@ fs = require('fs'),
 path = require('path'),
 bodyParser = require('body-parser');
 
-
-
-// const polosAnakS = 14900,
-// 		polosAnakM = 16899,
-// 		polosAnakL = 18899,
-// 		polosAnakXL = 23899,
-// 	  salurAnakS = 17500,
-// 	    salurAnakM = 19500,
-// 	    salurAnakL = 21500,
-// 	    salurAnakXL = 25500,
-// 	  sakuBatikAnakS = 18900,
-// 	    sakuBatikAnakM = 19900,
-// 	    sakuBatikAnakL = 22900,
-// 	    sakuBatikAnakXL = 25900,
-// 	  sakuHawaiiAnakS = 18900,
-// 	    sakuHawaiiAnakM = 19900,
-// 	    sakuHawaiiAnakL = 22900,
-// 	    sakuHawaiiAnakXL = 25900,
-// 	  sakuWAnakS = 18900,
-// 	    sakuWAnakM = 19900,
-// 	    sakuWAnakL = 22900,
-// 	    sakuWAnakXL = 25900,
-// 	  sakuWarnaAnakS = 18900,
-// 	    sakuWarnaAnakM = 19900,
-// 	    sakuWarnaAnakL = 22900,
-// 	    sakuWarnaAnakXL = 25900,
-// 	  stelanAnakS = 26900,
-// 	    stelanAnakM = 29900,
-// 	    stelanAnakL = 34900,
-// 	    stelanAnakXL = 43900,
-// 	  stelanAnakRegelanS = 29900,
-// 	    stelanAnakRegelanM = 35900,
-// 	    stelanAnakRegelanL = 39900,
-// 	    stelanAnakRegelanXL = 45900,
-// 	  celanaAnakS = 13900,
-// 	    celanaAnakM = 15900,
-// 	    celanaAnakL = 17900,
-// 	    celanaAnakXL = 21900
-
 let polosAnakS = null,
 		polosAnakM = null,
 		polosAnakL = null,
@@ -281,30 +242,38 @@ app.get('/products', (req, res) => {
   const directoryPath = 'public/json/';
   const fileName = "products.json";
   const filePath = path.join(directoryPath, fileName);
-  // Check if the file exists
-      fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) {
-          res.statusCode = 404;
-          res.end('File not found');
-        } else {
-          // Read the JSON file
-          fs.readFile(filePath, (err, data) => {
-            if (err) {
-              res.statusCode = 500;
-              res.end('Error reading file');
-            } else {
-              try {
-                const jsonData = JSON.parse(data);
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(jsonData));
-              } catch (error) {
-                res.statusCode = 500;
-                res.end('Error parsing JSON');
-              }
-            }
-          });
-        }
-      });
+
+	const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+
+  // Read the JSON data from the file
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    const jsonData = JSON.parse(data);
+
+    // Calculate the starting and ending index for the current page
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    // Slice the items array based on the calculated indices
+    const paginatedItems = jsonData.slice(startIndex, endIndex);
+
+    // Calculate the total number of pages
+    const totalPages = Math.ceil(jsonData.length / limit);
+
+    // Prepare the response object
+    const response = {
+      items: paginatedItems,
+      totalPages: totalPages,
+    };
+
+    res.json(response);
+})
 })
 
 app.post('/products/:id/edit', (req, res) => {
