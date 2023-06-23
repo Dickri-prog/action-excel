@@ -7,7 +7,7 @@ const btn = document.getElementById("btnUpload"),
     process = document.getElementById("process"),
     productsEditBtn = document.getElementById("productsEditBtn"),
     productDetailBody = document.getElementById("product-detail-body"),
-    apiEndpoint = '/products', // Replace with your API endpoint
+    apiEndpoint = 'https://kydigital.epizy.com/json/products', // Replace with your API endpoint
     itemsPerPage = 5; // Number of items to display per page
     currentPage = 1; // Initial page number
     arrs = [];
@@ -94,7 +94,7 @@ productsEditBtn.addEventListener('click', () => {
 
 
 function fetchDataProducts(page) {
-  const url = `${apiEndpoint}?page=${page}&limit=${itemsPerPage}`;
+  const url = `${apiEndpoint}?page=${page}`;
 
   showLoadingProduct();
 
