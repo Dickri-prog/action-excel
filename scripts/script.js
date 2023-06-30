@@ -5,8 +5,10 @@ const btn = document.getElementById("btnUpload"),
     loading = document.getElementById("loading"),
     process = document.getElementById("process"),
     productsEditBtn = document.getElementById("productsEditBtn"),
+    exportJsonBtn = document.getElementById("exportJson"),
     productDetailBody = document.getElementById("product-detail-body"),
-    apiEndpoint = 'https://kydigital.epizy.com/json/products', // Replace with your API endpoint
+    uploadFileDetailBody = document.getElementById("product-detail-body"),
+    apiEndpoint = '/products', // Replace with your API endpoint
     itemsPerPage = 5; // Number of items to display per page
     currentPage = 1; // Initial page number
     arrs = [];
@@ -65,7 +67,7 @@ btn.addEventListener('click', async () => {
         process.classList.add("active")
         process.textContent = "Processing..."
 
-        const excel = await fetch('/upload', {
+        await fetch('/upload', {
             method: 'POST',
             body: formData
         }).then(response => response.arrayBuffer()).then(array => {
@@ -91,9 +93,81 @@ productsEditBtn.addEventListener('click', () => {
 })
 
 
+uploadFileBtn.addEventListener('click', fetchDataUpload)
+
+exportJsonBtn.addEventListener('click', exportJsonData)
+
+
+
+function exportJsonData() {
+fetch('/export',)
+.then(res => res.json())
+.then(data => {
+
+  let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+let dlAnchorElem = document.createElement('a');
+dlAnchorElem.href = dataStr;
+dlAnchorElem.setAttribute("download", "products.json");
+dlAnchorElem.click();
+})
+}
+
+
+function fetchDataUpload() {
+  const url = `file-upload`;
+  const dataContainer = document.getElementById('data-container-upload');
+  const alert = document.querySelector('#pagination-container-upload .alert')
+
+  if (alert.classList.contains('alert-danger')) {
+    alert.classList.remove('alert-danger')
+  }
+
+  if (alert.classList.contains('alert-success')) {
+    alert.classList.remove('alert-success')
+  }
+
+
+  showLoadingImportExport();
+
+  fetch(url)
+    .then(res => res.json())
+    .then(result => {
+      hideLoadingImportExport()
+
+
+      if (result.status === 200) {
+        const inputElement = dataContainer.querySelector('.form-group > input#file-template')
+
+        if (result.files.length > 0) {
+          inputElement.disabled = true
+        }else {
+          inputElement.disabled = false
+        }
+
+        displayDataImportExport(result.files)
+      }else if (result.status === 500) {
+        alert.classList.add('alert-danger')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+      }else if (result.status === 404) {
+        alert.classList.add('alert-danger')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      hideLoadingProduct();
+    });
+
+}
+
+
 
 function fetchDataProducts(page) {
-  const url = `${apiEndpoint}?page=${page}`;
+  const url = `${apiEndpoint}?page=${page}&limit=${itemsPerPage}`;
 
   showLoadingProduct();
 
@@ -101,8 +175,16 @@ function fetchDataProducts(page) {
     .then(response => response.json())
     .then(data => {
       hideLoadingProduct();
-      displayDataProducts(data.items); // Assume the API response contains an 'items' array
-      createPaginationProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+      if (data.items.length > 0) {
+        displayDataProducts(data.items); // Assume the API response contains an 'items' array
+        createPaginationProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+      }else {
+        const dataContainer = document.getElementById('data-container-product');
+
+        dataContainer.innerHTML = `
+            <h2>No data item</h2>
+        `
+      }
     })
     .catch(error => {
       console.error('Error:', error);
@@ -197,11 +279,73 @@ function displayDetailProduct(item) {
     productnameInput.disabled = true
   })
 
-  productnameInput.addEventListener('focusout', (e) => {
-    productnameCloseBtn.classList.remove('active')
-    productnameForwardBtn.classList.remove('active')
-    productnameEditBtn.classList.add('active')
-    e.target.disabled = true
+  productnameForwardBtn.addEventListener('click', () => {
+    productnameInput.disabled = true
+
+    const values = {}
+
+    const alert = document.querySelector('#product-detail .alert')
+
+    const label = "nameProduct"
+
+    values[label] = productnameInput.value
+
+    var formBody = [];
+    for (var property in values) {
+      var encodedKey = encodeURIComponent(property);
+      var encodedValue = encodeURIComponent(values[property]);
+      formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
+
+    fetch(`${apiEndpoint}/${item['id']}/edit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: formBody
+    }).then(res => res.json()).then(result => {
+      productnameEditBtn.classList.add('active')
+      productnameForwardBtn.classList.remove('active')
+      productnameCloseBtn.classList.remove('active')
+
+
+
+      if (result.status === 200) {
+        alert.classList.add('alert-success')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+
+        setTimeout(() => {
+          alert.classList.remove('alert-success')
+          alert.classList.add('op-0')
+          alert.textContent = ""
+        }, 1500)
+      }else {
+        alert.classList.add('alert-danger')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+
+        setTimeout(() => {
+          alert.classList.remove('alert-danger')
+          alert.classList.add('op-0')
+          alert.textContent = ""
+        }, 1500)
+      }
+    }).catch(error => {
+      alert.classList.add('alert-danger')
+      alert.classList.remove('op-0')
+
+      alert.textContent = "something wrong!"
+
+      setTimeout(() => {
+        alert.classList.remove('alert-danger')
+        alert.classList.add('op-0')
+        alert.textContent = ""
+      }, 1500)
+    })
   })
 
 
@@ -284,6 +428,7 @@ function displayDetailProduct(item) {
       const values = {}
 
       const label = productPricesInput.parentElement.querySelector('label')
+      const alert = document.querySelector('#product-detail .alert')
 
       let labelSplit = label.textContent.split(' ')
 
@@ -305,12 +450,14 @@ function displayDetailProduct(item) {
           'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
         },
         body: formBody
-      }).then(res => res.json()).then(result => {
+      })
+        .then(res => res.json())
+        .then(result => {
         productPricesEditBtn.classList.add('active')
         productPricesForwardBtn.classList.remove('active')
         productPricesCloseBtn.classList.remove('active')
 
-        const alert = document.querySelector('#product-detail .alert')
+
 
         if (result.status === 200) {
           alert.classList.add('alert-success')
@@ -334,8 +481,8 @@ function displayDetailProduct(item) {
             alert.classList.add('op-0')
             alert.textContent = ""
           }, 1500)
-        }
-      }).catch(error => {
+        }})
+        .catch(error => {
         alert.classList.add('alert-danger')
         alert.classList.remove('op-0')
 
@@ -445,7 +592,6 @@ function createPaginationProducts(totalPages) {
 
 }
 
-
 function showLoadingProduct() {
   const loadingElement = document.getElementById('loading-product');
   loadingElement.style.display = 'block';
@@ -453,5 +599,154 @@ function showLoadingProduct() {
 
 function hideLoadingProduct() {
   const loadingElement = document.getElementById('loading-product');
+  loadingElement.style.display = 'none';
+}
+
+function displayDataImportExport(item) {
+  const dataContainer = document.getElementById('data-container-upload'),
+        filenameElement = dataContainer.querySelector('.filename > p'),
+        filenameInput = dataContainer.querySelector('.form-group > input#file-template'),
+        divBtns = dataContainer.querySelector('.form-group > .btns')
+
+  filenameElement.textContent = item[0]
+
+  const filenameEditBtn = document.createElement('img')
+  const filenameCloseBtn = document.createElement('img')
+  const filenameForwardBtn = document.createElement('img')
+
+  filenameEditBtn.classList.add('active')
+  filenameEditBtn.src =  '../public/img/pencil-square.svg'
+  filenameEditBtn.width = 20
+  filenameEditBtn.alt = "Edit button"
+
+  filenameForwardBtn.src =  '../public/img/forward-fill.svg'
+  filenameForwardBtn.width = 25
+  filenameForwardBtn.alt = "Forward button"
+
+  filenameCloseBtn.src =  '../public/img/x-circle.svg'
+  filenameCloseBtn.width = 20
+  filenameCloseBtn.alt = "close button"
+
+  if (divBtns.querySelectorAll('img').length === 0) {
+    divBtns.appendChild(filenameEditBtn)
+    divBtns.appendChild(filenameForwardBtn)
+    divBtns.appendChild(filenameCloseBtn)
+  }
+
+  filenameEditBtn.addEventListener('click', (e) => {
+    e.target.disabled = true
+    e.target.classList.remove('active')
+    filenameCloseBtn.classList.add('active')
+    filenameForwardBtn.classList.add('active')
+    filenameCloseBtn.disabled = false
+    filenameForwardBtn.disabled = false
+    filenameInput.disabled = false
+  })
+
+  filenameCloseBtn.addEventListener('click', (e) => {
+    e.target.classList.remove('active')
+    e.target.disabled = true
+    filenameForwardBtn.disabled = true
+    filenameEditBtn.disabled = false
+    filenameForwardBtn.classList.remove('active')
+    filenameEditBtn.classList.add('active')
+    filenameInput.disabled = true
+    filenameInput.value = ""
+  })
+
+  filenameForwardBtn.addEventListener('click', () => {
+    filenameInput.disabled = true
+
+    const alert = document.querySelector('#pagination-container-upload .alert')
+
+    if (filenameInput.files.length <= 0) {
+      alert.classList.add('alert-danger')
+      alert.classList.remove('op-0')
+
+      alert.textContent = "No file choosen!!!"
+
+      filenameInput.disabled = false;
+
+      setTimeout(() => {
+        alert.classList.remove('alert-danger')
+        alert.classList.add('op-0')
+        alert.textContent = ""
+      }, 1500)
+
+      return;
+    }
+
+    const formData = new FormData()
+
+    formData.append('jsonFile', filenameInput.files[0])
+
+    fetch(`file-upload`, {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => res.json())
+      .then(result => {
+      filenameEditBtn.classList.add('active')
+      filenameForwardBtn.classList.remove('active')
+      filenameCloseBtn.classList.remove('active')
+      filenameForwardBtn.disabled = true
+      filenameCloseBtn.disabled = true
+      filenameEditBtn.disabled = false
+
+      if (result.status === 200) {
+        alert.classList.add('alert-success')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+
+        setTimeout(() => {
+          alert.classList.remove('alert-success')
+          alert.classList.add('op-0')
+          alert.textContent = ""
+        }, 1500)
+
+        window.location.href = "/migrate"
+      }else {
+        alert.classList.add('alert-danger')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+
+        setTimeout(() => {
+          alert.classList.remove('alert-danger')
+          alert.classList.add('op-0')
+          alert.textContent = ""
+        }, 1500)
+
+      }
+
+      filenameInput.value = ""
+
+    })
+      .catch(error => {
+        console.log(error)
+      alert.classList.add('alert-danger')
+      alert.classList.remove('op-0')
+
+      alert.textContent = error.message
+
+      setTimeout(() => {
+        alert.classList.remove('alert-danger')
+        alert.classList.add('op-0')
+        alert.textContent = ""
+      }, 1500)
+
+      filenameInput.value = ""
+    })
+  })
+}
+
+function showLoadingImportExport() {
+  const loadingElement = document.getElementById('loading-upload');
+  loadingElement.style.display = 'block';
+}
+
+function hideLoadingImportExport() {
+  const loadingElement = document.getElementById('loading-upload');
   loadingElement.style.display = 'none';
 }

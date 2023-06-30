@@ -1,0 +1,246 @@
+[
+  {
+    "id": 1,
+    "name": "POLOS ANAK",
+    "sizes": {
+      "S": 14900,
+      "M": 16900,
+      "L": 18900,
+      "XL": 23900
+    }
+  },
+  {
+    "id": 2,
+    "name": "SAKU ANAK SALUR",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 3,
+    "name": "SAKU ANAK BATIK",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 4,
+    "name": "SAKU ANAK HAWAII",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 5,
+    "name": "SAKU ANAK GARIS W",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 6,
+    "name": "SAKU ANAK WARNA",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 7,
+    "name": "LENGAN ANAK",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 8,
+    "name": "RINGGER ANAK",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900
+    }
+  },
+  {
+    "id": 9,
+    "name": "STELAN ANAK",
+    "sizes": {
+      "S": 26900,
+      "M": 29900,
+      "L": 34900,
+      "XL": 43900
+    }
+  },
+  {
+    "id": 10,
+    "name": "CELANA ANAK",
+    "sizes": {
+      "S": 13900,
+      "M": 15900,
+      "L": 17900,
+      "XL": 21900
+    }
+  },
+  {
+    "id": 11,
+    "name": "STELAN REGELAN ANAK",
+    "sizes": {
+      "S": 29900,
+      "M": 35900,
+      "L": 39900,
+      "XL": 45900
+    }
+  },
+  {
+    "id": 12,
+    "name": "POLOS DEWASA",
+    "sizes": {
+      "M": 35900,
+      "L": 35900,
+      "XL": 35900
+    }
+  },
+  {
+    "id": 13,
+    "name": "POLOS PANJANG",
+    "sizes": {
+      "M": 43900,
+      "L": 43900,
+      "XL": 43900
+    }
+  },
+  {
+    "id": 14,
+    "name": "SALUR DEWASA",
+    "sizes": {
+      "M": 38900,
+      "L": 38900,
+      "XL": 38900
+    }
+  },
+  {
+    "id": 15,
+    "name": "MISTY DEWASA",
+    "sizes": {
+      "M": 39900,
+      "L": 39900,
+      "XL": 39900
+    }
+  },
+  {
+    "id": 16,
+    "name": "BATIK DEWASA",
+    "sizes": {
+      "M": 39900,
+      "L": 39900,
+      "XL": 39900
+    }
+  },
+  {
+    "id": 17,
+    "name": "SAKU HAWAII DEWASA",
+    "sizes": {
+      "M": 39900,
+      "L": 39900,
+      "XL": 39900
+    }
+  },
+  {
+    "id": 18,
+    "name": "UTRO BIASA",
+    "sizes": {
+      "M": 44900,
+      "L": 44900,
+      "XL": 44900
+    }
+  },
+  {
+    "id": 19,
+    "name": "RINGGER DEWASA",
+    "sizes": {
+      "M": 38900,
+      "L": 38900,
+      "XL": 38900
+    }
+  },
+  {
+    "id": 20,
+    "name": "A 003",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 21,
+    "name": "UTRO LORENG",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 22,
+    "name": "SAKU LORENG",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 23,
+    "name": "UTRO HAWAII",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 24,
+    "name": "KURTA",
+    "sizes": {
+      "M": 54900,
+      "L": 54900,
+      "XL": 54900
+    }
+  },
+  {
+    "id": 25,
+    "name": "A004",
+    "sizes": {
+      "M": 55900,
+      "L": 55900,
+      "XL": 55900
+    }
+  },
+  {
+    "id": 26,
+    "name": "A005",
+    "sizes": {
+      "M": 55900,
+      "L": 55900,
+      "XL": 55900
+    }
+  }
+]

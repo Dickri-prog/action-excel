@@ -6,7 +6,11 @@ fileUpload = require("express-fileupload"),
 decompress = require('decompress'),
 fs = require('fs'),
 path = require('path'),
-bodyParser = require('body-parser');
+bodyParser = require('body-parser'),
+multer = require('multer')
+
+const session = require('express-session');
+const flash = require('connect-flash');
 
 let polosAnakS = null,
 		polosAnakM = null,
@@ -45,188 +49,237 @@ let polosAnakS = null,
 	    celanaAnakL = null,
 	    celanaAnakXL = null
 
+let isIntegrate = null;
+
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
 app.use("/public", express.static(path.join(__dirname, 'public')))
+
+app.use(session({
+  secret: 'action-excel-v3',
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Set up flash middleware
+app.use(flash());
+
+// Set up a global middleware to make the flash messages available in all views
+app.use((req, res, next) => {
+  res.locals.flashMessages = req.flash();
+  next();
+});
+
+app.use('file-upload', fileUpload());
 app.use(bodyParser.json()); // Parse JSON-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(fileUpload());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+let jsonDataContent = []
 
 const directoryPath = 'public/json/'; // Specify the directory path here
 const fileName = 'products.json'; // Specify the file name here
 
 const filePath = path.join(directoryPath, fileName);
 
+// Set up multer storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads'); // Destination folder for uploaded files
+  },
+  filename: function (req, file, cb) {
+		const filename = 'products.json'
+		// if (fs.existsSync('uploads/' + uniqueName)) {
+    //   // Remove the existing file
+    //   fs.unlinkSync('uploads/' + uniqueName);
+    // }
+    cb(null, filename); // Use original file name
+  }
+});
+
+const fileFilter = function (req, file, cb) {
+  const extname = path.extname(file.originalname);
+  if (extname.toLowerCase() === '.json') {
+    cb(null, true); // Accept the file
+  } else {
+    cb(new Error('Only JSON files are allowed')); // Reject the file
+  }
+};
+
+const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+
 // Function to read and edit a JSON file
-function getJSONFile(filename) {
+function getJSONFile(filename = null) {
 	try {
-		const jsonData = fs.readFileSync(filename, 'utf8');
-		const data = JSON.parse(jsonData);
+		// const jsonData = fs.readFileSync(filename, 'utf8');
+		if (jsonDataContent.length > 0) {
+			const data = jsonDataContent;
 
-		for (var i = 0; i < data.length; i++) {
-				if (data[i].name.toLowerCase() == "polos anak") {
-					if (data[i].sizes.S) {
-						polosAnakS = data[i]["sizes"]["S"]
+			for (var i = 0; i < data.length; i++) {
+					if (data[i].name.toLowerCase() == "polos anak") {
+						if (data[i].sizes.S) {
+							polosAnakS = data[i]["sizes"]["S"]
+						}
+
+						if (data[i].sizes.M) {
+							polosAnakM = data[i]["sizes"]["M"]
+						}
+
+						if (data[i].sizes.L) {
+							polosAnakL = data[i]["sizes"]["L"]
+						}
+
+						if (data[i].sizes.XL) {
+							polosAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.M) {
-						polosAnakM = data[i]["sizes"]["M"]
+					if (data[i].name.toLowerCase() == "saku salur anak") {
+						if (data[i].sizes.S) {
+							salurAnakS = data[i]["sizes"]["S"]
+						}
+
+						if (data[i].sizes.M) {
+							salurAnakM = data[i]["sizes"]["M"]
+						}
+
+						if (data[i].sizes.L) {
+							salurAnakL = data[i]["sizes"]["L"]
+						}
+
+						if (data[i].sizes.XL) {
+							salurAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.L) {
-						polosAnakL = data[i]["sizes"]["L"]
+					if (data[i].name.toLowerCase() == "saku anak batik") {
+						if (data[i].sizes.S) {
+							sakuBatikAnakS = data[i]["sizes"]["S"]
+						}
+
+						if (data[i].sizes.M) {
+							sakuBatikAnakM = data[i]["sizes"]["M"]
+						}
+
+						if (data[i].sizes.L) {
+							sakuBatikAnakL = data[i]["sizes"]["L"]
+						}
+
+						if (data[i].sizes.XL) {
+							sakuBatikAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.XL) {
-						polosAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
+					if (data[i].name.toLowerCase() == "saku anak hawaii") {
+						if (data[i].sizes.S) {
+							sakuHawaiiAnakS = data[i]["sizes"]["S"]
+						}
 
-				if (data[i].name.toLowerCase() == "saku salur anak") {
-					if (data[i].sizes.S) {
-						salurAnakS = data[i]["sizes"]["S"]
-					}
+						if (data[i].sizes.M) {
+							sakuHawaiiAnakM = data[i]["sizes"]["M"]
+						}
 
-					if (data[i].sizes.M) {
-						salurAnakM = data[i]["sizes"]["M"]
-					}
+						if (data[i].sizes.L) {
+							sakuHawaiiAnakL = data[i]["sizes"]["L"]
+						}
 
-					if (data[i].sizes.L) {
-						salurAnakL = data[i]["sizes"]["L"]
-					}
-
-					if (data[i].sizes.XL) {
-						salurAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
-
-				if (data[i].name.toLowerCase() == "saku anak batik") {
-					if (data[i].sizes.S) {
-						sakuBatikAnakS = data[i]["sizes"]["S"]
+						if (data[i].sizes.XL) {
+							sakuHawaiiAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.M) {
-						sakuBatikAnakM = data[i]["sizes"]["M"]
+					if (data[i].name.toLowerCase() == "saku anak garis w") {
+						if (data[i].sizes.S) {
+							sakuWAnakS = data[i]["sizes"]["S"]
+						}
+
+						if (data[i].sizes.M) {
+							sakuWAnakM = data[i]["sizes"]["M"]
+						}
+
+						if (data[i].sizes.L) {
+							sakuWAnakL = data[i]["sizes"]["L"]
+						}
+
+						if (data[i].sizes.XL) {
+							sakuWAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.L) {
-						sakuBatikAnakL = data[i]["sizes"]["L"]
+					if (data[i].name.toLowerCase() == "saku anak warna") {
+						if (data[i].sizes.S) {
+							sakuWarnaAnakS = data[i]["sizes"]["S"]
+						}
+
+						if (data[i].sizes.M) {
+							sakuWarnaAnakM = data[i]["sizes"]["M"]
+						}
+
+						if (data[i].sizes.L) {
+							sakuWarnaAnakL = data[i]["sizes"]["L"]
+						}
+
+						if (data[i].sizes.XL) {
+							sakuWarnaAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.XL) {
-						sakuBatikAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
+					if (data[i].name.toLowerCase() == "stelan anak") {
+						if (data[i].sizes.S) {
+							stelanAnakS = data[i]["sizes"]["S"]
+						}
 
-				if (data[i].name.toLowerCase() == "saku anak hawaii") {
-					if (data[i].sizes.S) {
-						sakuHawaiiAnakS = data[i]["sizes"]["S"]
-					}
+						if (data[i].sizes.M) {
+							stelanAnakM = data[i]["sizes"]["M"]
+						}
 
-					if (data[i].sizes.M) {
-						sakuHawaiiAnakM = data[i]["sizes"]["M"]
-					}
+						if (data[i].sizes.L) {
+							stelanAnakL = data[i]["sizes"]["L"]
+						}
 
-					if (data[i].sizes.L) {
-						sakuHawaiiAnakL = data[i]["sizes"]["L"]
-					}
-
-					if (data[i].sizes.XL) {
-						sakuHawaiiAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
-
-				if (data[i].name.toLowerCase() == "saku anak garis w") {
-					if (data[i].sizes.S) {
-						sakuWAnakS = data[i]["sizes"]["S"]
+						if (data[i].sizes.XL) {
+							stelanAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.M) {
-						sakuWAnakM = data[i]["sizes"]["M"]
+					if (data[i].name.toLowerCase() == "stelan regelan anak") {
+						if (data[i].sizes.S) {
+							stelanAnakRegelanS = data[i]["sizes"]["S"]
+						}
+
+						if (data[i].sizes.M) {
+							stelanAnakRegelanM = data[i]["sizes"]["M"]
+						}
+
+						if (data[i].sizes.L) {
+							stelanAnakRegelanL = data[i]["sizes"]["L"]
+						}
+
+						if (data[i].sizes.XL) {
+							stelanAnakRegelanXL = data[i]["sizes"]["XL"]
+						}
 					}
 
-					if (data[i].sizes.L) {
-						sakuWAnakL = data[i]["sizes"]["L"]
-					}
+					if (data[i].name.toLowerCase() == "celana anak") {
+						if (data[i].sizes.S) {
+							celanaAnakS = data[i]["sizes"]["S"]
+						}
 
-					if (data[i].sizes.XL) {
-						sakuWAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
+						if (data[i].sizes.M) {
+							celanaAnakM = data[i]["sizes"]["M"]
+						}
 
-				if (data[i].name.toLowerCase() == "saku anak warna") {
-					if (data[i].sizes.S) {
-						sakuWarnaAnakS = data[i]["sizes"]["S"]
-					}
+						if (data[i].sizes.L) {
+							celanaAnakL = data[i]["sizes"]["L"]
+						}
 
-					if (data[i].sizes.M) {
-						sakuWarnaAnakM = data[i]["sizes"]["M"]
+						if (data[i].sizes.XL) {
+							celanaAnakXL = data[i]["sizes"]["XL"]
+						}
 					}
-
-					if (data[i].sizes.L) {
-						sakuWarnaAnakL = data[i]["sizes"]["L"]
-					}
-
-					if (data[i].sizes.XL) {
-						sakuWarnaAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
-
-				if (data[i].name.toLowerCase() == "stelan anak") {
-					if (data[i].sizes.S) {
-						stelanAnakS = data[i]["sizes"]["S"]
-					}
-
-					if (data[i].sizes.M) {
-						stelanAnakM = data[i]["sizes"]["M"]
-					}
-
-					if (data[i].sizes.L) {
-						stelanAnakL = data[i]["sizes"]["L"]
-					}
-
-					if (data[i].sizes.XL) {
-						stelanAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
-
-				if (data[i].name.toLowerCase() == "stelan regelan anak") {
-					if (data[i].sizes.S) {
-						stelanAnakRegelanS = data[i]["sizes"]["S"]
-					}
-
-					if (data[i].sizes.M) {
-						stelanAnakRegelanM = data[i]["sizes"]["M"]
-					}
-
-					if (data[i].sizes.L) {
-						stelanAnakRegelanL = data[i]["sizes"]["L"]
-					}
-
-					if (data[i].sizes.XL) {
-						stelanAnakRegelanXL = data[i]["sizes"]["XL"]
-					}
-				}
-
-				if (data[i].name.toLowerCase() == "celana anak") {
-					if (data[i].sizes.S) {
-						celanaAnakS = data[i]["sizes"]["S"]
-					}
-
-					if (data[i].sizes.M) {
-						celanaAnakM = data[i]["sizes"]["M"]
-					}
-
-					if (data[i].sizes.L) {
-						celanaAnakL = data[i]["sizes"]["L"]
-					}
-
-					if (data[i].sizes.XL) {
-						celanaAnakXL = data[i]["sizes"]["XL"]
-					}
-				}
+			}
 		}
 	} catch (err) {
 		console.error(`Error editing ${filename}:`, err);
@@ -234,134 +287,279 @@ function getJSONFile(filename) {
 }
 
 app.get('/', (req, res) => {
-	getJSONFile(filePath);
+	getJSONFile();
 	res.render('index')
 });
 
 app.get('/products', (req, res) => {
-  const directoryPath = 'public/json/';
-  const fileName = "products.json";
-  const filePath = path.join(directoryPath, fileName);
-
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
-  // Read the JSON data from the file
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Internal Server Error');
-      return;
-    }
+	if (jsonDataContent.length > 0) {
+		const jsonData = jsonDataContent;
 
-    const jsonData = JSON.parse(data);
+		// Calculate the starting and ending index for the current page
+		const startIndex = (page - 1) * limit;
+		const endIndex = startIndex + limit;
 
-    // Calculate the starting and ending index for the current page
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
+		// Slice the items array based on the calculated indices
+		const paginatedItems = jsonData.slice(startIndex, endIndex);
 
-    // Slice the items array based on the calculated indices
-    const paginatedItems = jsonData.slice(startIndex, endIndex);
+		// Calculate the total number of pages
+		const totalPages = Math.ceil(jsonData.length / limit);
 
-    // Calculate the total number of pages
-    const totalPages = Math.ceil(jsonData.length / limit);
+		// Prepare the response object
+		const response = {
+			items: paginatedItems,
+			totalPages: totalPages,
+		};
 
-    // Prepare the response object
-    const response = {
-      items: paginatedItems,
-      totalPages: totalPages,
-    };
+		res.json(response);
+	}else if (jsonDataContent.length <= 0) {
+		const response = {
+			items: 0,
+			totalPages: 0,
+			message: "Json Data empty!!!"
+		}
 
-    res.json(response);
+		res.json(response)
+	}
 })
+
+app.post('/products/:id/edit',  (req, res) => {
+
+	try {
+		const productId = req.params.id
+		const formData = req.body;
+
+		let nameProduct = null;
+		let priceProductSizeS = null;
+		let priceProductSizeM = null;
+		let priceProductSizeL = null;
+		let priceProductSizeXL = null;
+
+
+		let priceProduct = {
+			S: null,
+			M: null,
+			L: null,
+			XL: null
+		}
+
+		let formSize = [
+			"priceProductSizeS",
+			"priceProductSizeM",
+			"priceProductSizeL",
+			"priceProductSizeXL"
+		]
+
+		if (formData[formSize[0]]) {
+			if (isNaN(parseInt(formData[formSize[0]]))) {
+				throw new Error("Input is not a number")
+			}else {
+				priceProduct.S = parseInt(formData[formSize[0]])
+			}
+		}
+
+		if (formData[formSize[1]]) {
+			if (isNaN(parseInt(formData[formSize[1]]))) {
+				throw new Error("Input is not a number")
+			}else {
+				priceProduct.M = parseInt(formData[formSize[1]])
+			}
+		}
+
+		if (formData[formSize[2]]) {
+			if (isNaN(parseInt(formData[formSize[2]]))) {
+				throw new Error("Input is not a number")
+			}else {
+				priceProduct.L = parseInt(formData[formSize[2]])
+			}
+		}
+
+		if (formData[formSize[3]]) {
+			if (isNaN(parseInt(formData[formSize[3]]))) {
+				throw new Error("Input is not a number")
+			}else {
+				priceProduct.XL = parseInt(formData[formSize[3]])
+			}
+		}
+
+		if (formData.nameProduct) {
+			nameProduct = formData.nameProduct;
+		}
+
+		let index = null;
+
+		for (var key in formData) {
+			index = formSize.findIndex(x => x == key)
+			if (index == -1) {
+				throw new Error("Something wrong input!!!")
+			}
+		}
+
+		// Function to read and edit a JSON file
+		function editJSONFile(filename) {
+			try {
+				if (jsonDataContent.length > 0) {
+					const data = jsonDataContent;
+					let index = data.findIndex(x => x.id == productId);
+
+					if (index != -1) {
+						for (var key in priceProduct) {
+							if (data[index]["sizes"][key] === undefined) {
+							 delete	priceProduct[key]
+							}
+							if (priceProduct[key] === null) {
+								priceProduct[key] = parseInt(data[index]["sizes"][key])
+							}
+						}
+
+						if (nameProduct !== null) {
+							data[index].name = nameProduct
+							data[index].sizes = priceProduct
+						}else {
+							data[index].name = data[index].name
+							data[index].sizes = priceProduct
+						}
+
+
+						res.json({
+							status: 200,
+							message: "Updated successfully"
+						});
+						console.log(`Updated ${filename} successfully.`);
+					}else {
+						res.json({
+							status: 404,
+							message: "Updated failed item not found!!!"
+						});
+						console.log(`Updated ${filename} failed.`);
+					}
+				}else if (jsonDataContent <= 0) {
+					res.json({
+						status: 500,
+						message: "Updated failed No data!!!"
+					});
+					console.log(`Updated ${filename} failed.`);
+				}
+			} catch (err) {
+				res.json({
+					status: 400,
+					message: "Updated failed"
+				});
+				console.error(`Error editing ${filename}:`, err);
+			}
+		}
+
+		editJSONFile(filePath);
+	} catch (e) {
+		res.json({
+			status: 400,
+			message: e.message });
+	}
 })
 
-app.post('/products/:id/edit', (req, res) => {
+app.get('/migrate', (req, res) => {
+	function migrateJsonFile(filename) {
+		try {
+				const jsonData = fs.readFileSync(filename, 'utf8');
+				const data = JSON.parse(jsonData);
 
-  const productId = req.params.id
-	const formData = req.body;
+				if (jsonDataContent.length > 0) {
+					jsonDataContent = []
+				}
 
-	let nameProduct = null;
-	let priceProductSizeS = null;
-  let priceProductSizeM = null;
-  let priceProductSizeL = null;
-  let priceProductSizeXL = null;
+				data.forEach((data, i) => {
+					jsonDataContent.push(data)
+				});
 
-	const directoryPath = 'public/json/'; // Specify the directory path here
-	const fileName = 'products.json'; // Specify the file name here
+				req.flash('success', 'Migrating successfully!!!');
+				res.redirect('/');
 
-	const filePath = path.join(directoryPath, fileName);
 
-  let priceProduct = {
-    S: null,
-    M: null,
-    L: null,
-    XL: null
-  }
+		} catch (e) {
+			req.flash('error', 'Something Wrong!!!');
+  		res.redirect('/');
 
-  if (formData.priceProductSizeS) {
-		priceProduct.S = parseInt(formData.priceProductSizeS)
+			res.json(response);
+		}
 	}
 
-  if (formData.priceProductSizeM) {
-		priceProduct.M = parseInt(formData.priceProductSizeM)
+	migrateJsonFile(filePath)
+})
+
+app.get('/file-upload', (req, res) => {
+
+	try {
+		const folderPath = 'public/uploads';
+
+		fs.readdir(folderPath, (err, files) => {
+		  if (err) {
+				res.json({
+					status: 404,
+				 files: 0});
+		    return;
+		  }
+
+		  // files.forEach(file => {
+			//
+		  // });
+
+			res.json({
+				status: 200,
+				files: files });
+		});
+	} catch (e) {
+		res.json({
+			status: 500,
+			files: 0 });
 	}
+})
 
-  if (formData.priceProductSizeL) {
-		priceProduct.L = parseInt(formData.priceProductSizeL)
-	}
+// Define a route to handle file uploads
+// app.post('/upload-file', upload.single('file'), (req, res) => {
+//   res.json({ message: 'File uploaded successfully.' });
+// });
 
-  if (formData.priceProductSizeXL) {
-		priceProduct.XL = parseInt(formData.priceProductSizeXL)
-	}
 
-  if (formData.nameProduct) {
-		nameProduct = formData.nameProduct;
-	}
+app.get('/export', (req, res) => {
+	res.json(jsonDataContent)
+})
 
-  // Function to read and edit a JSON file
-  function editJSONFile(filename) {
-    try {
-      const jsonData = fs.readFileSync(filename, 'utf8');
-      const data = JSON.parse(jsonData);
-      let index = data.findIndex(x => x.id == productId);
+app.get('/integrate', (req, res) => {
 
-      if (index != -1) {
-        for (var key in priceProduct) {
-          if (priceProduct[key] === null) {
-            priceProduct[key] = parseInt(data[index]["sizes"][key])
-          }
-        }
-        if (nameProduct !== null) {
-          data[index].name = nameProduct
-          data[index].sizes = priceProduct
-        }else {
-          data[index].name = data[index].name
-          data[index].sizes = priceProduct
-        }
+})
 
-        const updatedJsonData = JSON.stringify(data, null, 2);
-        fs.writeFileSync(filename, updatedJsonData);
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({
-					status: 200,
-					message: "Updated successfully"
-				}));
-        console.log(`Updated ${filename} successfully.`);
+app.post('/file-upload', (req, res, next) => {
+  upload.single('jsonFile')(req, res, (err) => {
+		console.log(err)
+    if (err instanceof multer.MulterError) {
+      // A Multer error occurred during upload
+
+      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({
+					 status: 400,
+					 message: 'Unexpected number of files uploaded.' });
       }
-    } catch (err) {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({
-				status: 400,
-				message: "Updated failed"
-			}));
-      console.error(`Error editing ${filename}:`, err);
+      return res.status(500).json({
+				 status: 500,
+				 message: 'Internal server error.' });
+    } else if (err) {
+      // An unknown error occurred during upload
+      return res.status(500).json({
+				status: 500,
+				message: 'Internal server error.' });
     }
-  }
 
+    res.json({
+			status: 200,
+			message: 'File uploaded successfully.'
+		});
 
-  editJSONFile(filePath);
-})
+  // console.log(req.file)
+  });
+});
 
 app.post('/upload', (req, res) => {
 	// console.log(req.files)
@@ -808,6 +1006,6 @@ app.post('/upload', (req, res) => {
 
     })
 
-const port = 3001;
+const port = 3002;
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
