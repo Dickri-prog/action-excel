@@ -26,37 +26,6 @@
               <button type="submit" id="btnUpload">Upload!</button>
               <p id="loading">Loading...</p>
               <p id="process"></p>
-              <% if (typeof flashMessages !== 'undefined') { %>
-                <% if (flashMessages.success) { %>
-                  <div style="height: 75px;">
-                    <div class="alert alert-success mt-5" role="alert">
-                      <%= flashMessages.success %>
-                    </div>
-                  </div>
-                  <script>
-                  setTimeout(() => {
-                    const alert = document.querySelector('#fileUploaderInput .alert')
-                    alert.classList.remove('alert-success')
-                    alert.classList.add('op-0')
-                    alert.textContent = ""
-                  }, 1500)
-                  </script>
-                  <% } else if (flashMessages.error) { %>
-                    <div style="height: 75px;">
-                      <div class="alert alert-danger mt-5" role="alert">
-                        <%= flashMessages.error %>
-                      </div>
-                    </div>
-                    <script>
-                    setTimeout(() => {
-                      const alert = document.querySelector('#fileUploaderInput .alert')
-                      alert.classList.remove('alert-success')
-                      alert.classList.add('op-0')
-                      alert.textContent = ""
-                    }, 1500)
-                    </script>
-                <% } %>
-              <% } %>
 
 
           </section>
@@ -105,17 +74,15 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="uploadFileLabel">Upload File</h5>
-            <button type="button" class="btn btn-primary" id="exportJson">Export</button>
+            <h5 class="modal-title" id="uploadFileLabel">Upload JSON</h5>
+            <button type="button" class="btn btn-primary ms-5" id="exportJson">Export</button>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" id="data-container-upload">
-          <div class="filename">
-              <h3>Filename</h3>
-              <p></p>
-          </div>
           <div class="form-group">
-          <input type="file" id="file-template">
+            <div class="form-floating jsonTextarea">
+              <textarea class="form-control" placeholder="Leave a JSON here" id="jsonTextarea" disabled></textarea>
+            </div>
           <div class="btns">
           </div>
           </div>
@@ -130,51 +97,51 @@
     </div>
 
     <!-- Modal -->
-<div class="modal fade" id="upload-detail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="upload-detail-label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="upload-detail-label">upload File Detail</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="upload-detail-body">
+    <div class="modal fade" id="upload-detail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="upload-detail-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="upload-detail-label">upload File Detail</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="upload-detail-body">
 
-      </div>
-      <div class="modal-footer">
-        <div class="alert op-0" role="alert">
+          </div>
+          <div class="modal-footer">
+            <div class="alert op-0" role="alert">
+            </div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadFile">
+              Back
+            </button>
+          </div>
         </div>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadFile">
-          Back
-        </button>
       </div>
     </div>
-  </div>
-</div>
 
 
     <!-- Modal -->
-<div class="modal fade" id="product-detail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="product-detail-label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="product-detail-label">Product Detail</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="product-detail-body">
+    <div class="modal fade" id="product-detail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="product-detail-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="product-detail-label">Product Detail</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="product-detail-body">
 
-      </div>
-      <div class="modal-footer">
-        <div class="alert op-0" role="alert">
+          </div>
+          <div class="modal-footer">
+            <div class="alert op-0" role="alert">
+            </div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="backToProductBtn">
+              Back
+            </button>
+          </div>
         </div>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#products">
-          Back
-        </button>
       </div>
     </div>
-  </div>
-</div>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"

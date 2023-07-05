@@ -8,6 +8,7 @@ const btn = document.getElementById("btnUpload"),
     exportJsonBtn = document.getElementById("exportJson"),
     productDetailBody = document.getElementById("product-detail-body"),
     uploadFileDetailBody = document.getElementById("product-detail-body"),
+    backToProductBtn = document.getElementById("backToProductBtn"),
     apiEndpoint = '/products', // Replace with your API endpoint
     itemsPerPage = 5; // Number of items to display per page
     currentPage = 1; // Initial page number
@@ -98,6 +99,11 @@ uploadFileBtn.addEventListener('click', fetchDataUpload)
 exportJsonBtn.addEventListener('click', exportJsonData)
 
 
+backToProductBtn.addEventListener('click', () => {
+  productsEditBtn.click()
+})
+
+
 
 function exportJsonData() {
 fetch('/export',)
@@ -114,7 +120,7 @@ dlAnchorElem.click();
 
 
 function fetchDataUpload() {
-  const url = `file-upload`;
+  const url = `migrate`;
   const dataContainer = document.getElementById('data-container-upload');
   const alert = document.querySelector('#pagination-container-upload .alert')
 
@@ -130,36 +136,54 @@ function fetchDataUpload() {
   showLoadingImportExport();
 
   fetch(url)
-    .then(res => res.json())
+    .then(res => {
+      if (res.ok) {
+        return res.json()
+      }else {
+      throw res.json();
+      }
+    })
     .then(result => {
       hideLoadingImportExport()
 
+        const textareaElement = dataContainer.querySelector('.form-group > textarea#jsonTextarea')
 
-      if (result.status === 200) {
-        const inputElement = dataContainer.querySelector('.form-group > input#file-template')
+        // if (result.data.length > 0) {
+        //   textareaElement.disabled = true
+        // }else {
+        //   textareaElement.disabled = false
+        // }
 
-        if (result.files.length > 0) {
-          inputElement.disabled = true
-        }else {
-          inputElement.disabled = false
-        }
-
-        displayDataImportExport(result.files)
-      }else if (result.status === 500) {
-        alert.classList.add('alert-danger')
-        alert.classList.remove('op-0')
-
-        alert.textContent = result.message
-      }else if (result.status === 404) {
-        alert.classList.add('alert-danger')
-        alert.classList.remove('op-0')
-
-        alert.textContent = result.message
-      }
+        displayDataImportExport(result.data)
     })
     .catch(error => {
-      console.error('Error:', error);
-      hideLoadingProduct();
+      displayDataImportExport()
+
+      error.then(function(json) {
+        hideLoadingImportExport();
+        if (json.status === 404) {
+          alert.classList.add('alert-warning')
+        }else {
+          alert.classList.add('alert-danger')
+        }
+        alert.classList.remove('op-0')
+
+        alert.textContent = json.message
+
+        setTimeout(() => {
+          if (json.status === 404) {
+            alert.classList.remove('alert-warning')
+          }else {
+            alert.classList.remove('alert-danger')
+          }
+          alert.classList.add('op-0')
+          alert.textContent = ""
+        }, 1500)
+
+
+       });
+
+
     });
 
 }
@@ -298,20 +322,36 @@ function displayDetailProduct(item) {
     }
     formBody = formBody.join("&");
 
+    if (alert.classList.contains('alert-warning')) {
+        alert.classList.remove('alert-warning')
+    }
+    
+    if (alert.classList.contains('alert-danger')) {
+        alert.classList.remove('alert-danger')
+    }
+
+    if (alert.classList.contains('alert-success')) {
+        alert.classList.remove('alert-success')
+    }
+
     fetch(`${apiEndpoint}/${item['id']}/edit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
       },
       body: formBody
-    }).then(res => res.json()).then(result => {
+    }).then(res => {
+      if (res.ok) {
+        return res.json()
+      }else {
+        throw res.json()
+      }
+    }).then(result => {
       productnameEditBtn.classList.add('active')
       productnameForwardBtn.classList.remove('active')
       productnameCloseBtn.classList.remove('active')
 
 
-
-      if (result.status === 200) {
         alert.classList.add('alert-success')
         alert.classList.remove('op-0')
 
@@ -322,29 +362,30 @@ function displayDetailProduct(item) {
           alert.classList.add('op-0')
           alert.textContent = ""
         }, 1500)
-      }else {
-        alert.classList.add('alert-danger')
+
+    }).catch(error => {
+      error.then(function(json) {
+        if (json.status === 404) {
+          alert.classList.add('alert-warning')
+        }else {
+          alert.classList.add('alert-danger')
+        }
         alert.classList.remove('op-0')
 
-        alert.textContent = result.message
+        alert.textContent = json.message
 
         setTimeout(() => {
-          alert.classList.remove('alert-danger')
+          if (json.status === 404) {
+            alert.classList.remove('alert-warning')
+          }else {
+            alert.classList.remove('alert-danger')
+          }
           alert.classList.add('op-0')
           alert.textContent = ""
         }, 1500)
-      }
-    }).catch(error => {
-      alert.classList.add('alert-danger')
-      alert.classList.remove('op-0')
 
-      alert.textContent = "something wrong!"
 
-      setTimeout(() => {
-        alert.classList.remove('alert-danger')
-        alert.classList.add('op-0')
-        alert.textContent = ""
-      }, 1500)
+       });
     })
   })
 
@@ -451,15 +492,18 @@ function displayDetailProduct(item) {
         },
         body: formBody
       })
-        .then(res => res.json())
+        .then(res => {
+          if (res.ok) {
+            return res.json()
+          }else {
+            throw res.json()
+          }
+        })
         .then(result => {
         productPricesEditBtn.classList.add('active')
         productPricesForwardBtn.classList.remove('active')
         productPricesCloseBtn.classList.remove('active')
 
-
-
-        if (result.status === 200) {
           alert.classList.add('alert-success')
           alert.classList.remove('op-0')
 
@@ -470,29 +514,30 @@ function displayDetailProduct(item) {
             alert.classList.add('op-0')
             alert.textContent = ""
           }, 1500)
-        }else {
-          alert.classList.add('alert-danger')
-          alert.classList.remove('op-0')
-
-          alert.textContent = result.message
-
-          setTimeout(() => {
-            alert.classList.remove('alert-danger')
-            alert.classList.add('op-0')
-            alert.textContent = ""
-          }, 1500)
-        }})
+        })
         .catch(error => {
-        alert.classList.add('alert-danger')
-        alert.classList.remove('op-0')
+          error.then(function(json) {
+            if (json.status === 404) {
+              alert.classList.add('alert-warning')
+            }else {
+              alert.classList.add('alert-danger')
+            }
+            alert.classList.remove('op-0')
 
-        alert.textContent = "something wrong!"
+            alert.textContent = json.message
 
-        setTimeout(() => {
-          alert.classList.remove('alert-danger')
-          alert.classList.add('op-0')
-          alert.textContent = ""
-        }, 1500)
+            setTimeout(() => {
+              if (json.status === 404) {
+                alert.classList.remove('alert-warning')
+              }else {
+                alert.classList.remove('alert-danger')
+              }
+              alert.classList.add('op-0')
+              alert.textContent = ""
+            }, 1500)
+
+
+           });
       })
     })
   }
@@ -602,70 +647,74 @@ function hideLoadingProduct() {
   loadingElement.style.display = 'none';
 }
 
-function displayDataImportExport(item) {
+function displayDataImportExport(items = "") {
   const dataContainer = document.getElementById('data-container-upload'),
-        filenameElement = dataContainer.querySelector('.filename > p'),
-        filenameInput = dataContainer.querySelector('.form-group > input#file-template'),
+        textareaElement = dataContainer.querySelector('.form-group textarea#jsonTextarea'),
         divBtns = dataContainer.querySelector('.form-group > .btns')
 
-  filenameElement.textContent = item[0]
 
-  const filenameEditBtn = document.createElement('img')
-  const filenameCloseBtn = document.createElement('img')
-  const filenameForwardBtn = document.createElement('img')
+    if (items != "") {
+      const stringVariable = items.map(obj => JSON.stringify(obj)).join(', \n');
 
-  filenameEditBtn.classList.add('active')
-  filenameEditBtn.src =  '../public/img/pencil-square.svg'
-  filenameEditBtn.width = 20
-  filenameEditBtn.alt = "Edit button"
+      textareaElement.value = `[${stringVariable}]`
+    }
 
-  filenameForwardBtn.src =  '../public/img/forward-fill.svg'
-  filenameForwardBtn.width = 25
-  filenameForwardBtn.alt = "Forward button"
 
-  filenameCloseBtn.src =  '../public/img/x-circle.svg'
-  filenameCloseBtn.width = 20
-  filenameCloseBtn.alt = "close button"
+  const textareaEditBtn = document.createElement('img')
+  const textareaCloseBtn = document.createElement('img')
+  const textareaForwardBtn = document.createElement('img')
+
+  textareaEditBtn.classList.add('active')
+  textareaEditBtn.src =  '../public/img/pencil-square.svg'
+  textareaEditBtn.width = 20
+  textareaEditBtn.alt = "Edit button"
+
+  textareaForwardBtn.src =  '../public/img/forward-fill.svg'
+  textareaForwardBtn.width = 25
+  textareaForwardBtn.alt = "Forward button"
+
+  textareaCloseBtn.src =  '../public/img/x-circle.svg'
+  textareaCloseBtn.width = 20
+  textareaCloseBtn.alt = "close button"
 
   if (divBtns.querySelectorAll('img').length === 0) {
-    divBtns.appendChild(filenameEditBtn)
-    divBtns.appendChild(filenameForwardBtn)
-    divBtns.appendChild(filenameCloseBtn)
+    divBtns.appendChild(textareaEditBtn)
+    divBtns.appendChild(textareaForwardBtn)
+    divBtns.appendChild(textareaCloseBtn)
   }
 
-  filenameEditBtn.addEventListener('click', (e) => {
+  textareaEditBtn.addEventListener('click', (e) => {
     e.target.disabled = true
     e.target.classList.remove('active')
-    filenameCloseBtn.classList.add('active')
-    filenameForwardBtn.classList.add('active')
-    filenameCloseBtn.disabled = false
-    filenameForwardBtn.disabled = false
-    filenameInput.disabled = false
+    textareaCloseBtn.classList.add('active')
+    textareaForwardBtn.classList.add('active')
+    textareaCloseBtn.disabled = false
+    textareaForwardBtn.disabled = false
+    textareaElement.disabled = false
   })
 
-  filenameCloseBtn.addEventListener('click', (e) => {
+  textareaCloseBtn.addEventListener('click', (e) => {
     e.target.classList.remove('active')
     e.target.disabled = true
-    filenameForwardBtn.disabled = true
-    filenameEditBtn.disabled = false
-    filenameForwardBtn.classList.remove('active')
-    filenameEditBtn.classList.add('active')
-    filenameInput.disabled = true
-    filenameInput.value = ""
+    textareaForwardBtn.disabled = true
+    textareaEditBtn.disabled = false
+    textareaForwardBtn.classList.remove('active')
+    textareaEditBtn.classList.add('active')
+    textareaElement.disabled = true
   })
 
-  filenameForwardBtn.addEventListener('click', () => {
-    filenameInput.disabled = true
+  textareaForwardBtn.addEventListener('click', () => {
+    textareaElement.disabled = true
 
     const alert = document.querySelector('#pagination-container-upload .alert')
 
-    if (filenameInput.files.length <= 0) {
+    if (textareaElement.value == "" && textareaElement.value == " ") {
       alert.classList.add('alert-danger')
       alert.classList.remove('op-0')
 
-      alert.textContent = "No file choosen!!!"
+      alert.textContent = "No json!!!"
 
-      filenameInput.disabled = false;
+      textareaElement.disabled = false;
 
       setTimeout(() => {
         alert.classList.remove('alert-danger')
@@ -676,68 +725,123 @@ function displayDataImportExport(item) {
       return;
     }
 
-    const formData = new FormData()
+    // const jsonData = JSON.stringify(textareaElement.value)
 
-    formData.append('jsonFile', filenameInput.files[0])
+    const data = textareaElement.value
 
-    fetch(`file-upload`, {
-      method: 'POST',
-      body: formData
-    })
-      .then(res => res.json())
-      .then(result => {
-      filenameEditBtn.classList.add('active')
-      filenameForwardBtn.classList.remove('active')
-      filenameCloseBtn.classList.remove('active')
-      filenameForwardBtn.disabled = true
-      filenameCloseBtn.disabled = true
-      filenameEditBtn.disabled = false
+    // console.log(jsonData)
+    console.log(typeof data)
 
-      if (result.status === 200) {
-        alert.classList.add('alert-success')
-        alert.classList.remove('op-0')
+    // fetch(`migrate`, {
+    //   method: 'POST',
+    //   header: {
+    //     'Accept': 'application/json',
+    //     'Content-Type' : 'application/json'
+    //   },
+    //   body: data
+    // })
+    //   .then(res => res.json())
+    //   .then(result => {
+    //   textareaEditBtn.classList.add('active')
+    //   textareaForwardBtn.classList.remove('active')
+    //   textareaCloseBtn.classList.remove('active')
+    //   textareaForwardBtn.disabled = true
+    //   textareaCloseBtn.disabled = true
+    //   textareaEditBtn.disabled = false
+    //
+    //   if (result.status === 200) {
+    //     alert.classList.add('alert-success')
+    //     alert.classList.remove('op-0')
+    //
+    //     alert.textContent = result.message
+    //
+    //     setTimeout(() => {
+    //       alert.classList.remove('alert-success')
+    //       alert.classList.add('op-0')
+    //       alert.textContent = ""
+    //     }, 1500)
+    //   }else {
+    //     alert.classList.add('alert-danger')
+    //     alert.classList.remove('op-0')
+    //
+    //     alert.textContent = result.message
+    //
+    //     setTimeout(() => {
+    //       alert.classList.remove('alert-danger')
+    //       alert.classList.add('op-0')
+    //       alert.textContent = ""
+    //     }, 1500)
+    //
+    //   }
+    //
+    // })
+    //   .catch(error => {
+    //     console.log(error)
+    //   alert.classList.add('alert-danger')
+    //   alert.classList.remove('op-0')
+    //
+    //   alert.textContent = error.message
+    //
+    //   setTimeout(() => {
+    //     alert.classList.remove('alert-danger')
+    //     alert.classList.add('op-0')
+    //     alert.textContent = ""
+    //   }, 1500)
+    // })
 
-        alert.textContent = result.message
 
-        setTimeout(() => {
-          alert.classList.remove('alert-success')
-          alert.classList.add('op-0')
-          alert.textContent = ""
-        }, 1500)
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "migrate");
+      xhr.setRequestHeader("Accept", "application/json");
+      xhr.setRequestHeader("Content-Type", "application/json");
 
-        window.location.href = "/migrate"
-      }else {
-        alert.classList.add('alert-danger')
-        alert.classList.remove('op-0')
+      xhr.responseType = 'json';
 
-        alert.textContent = result.message
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          // console.log(xhr.status);
+          // console.log(xhr.responseText);
 
-        setTimeout(() => {
-          alert.classList.remove('alert-danger')
-          alert.classList.add('op-0')
-          alert.textContent = ""
-        }, 1500)
 
-      }
+          textareaEditBtn.classList.add('active')
+          textareaForwardBtn.classList.remove('active')
+          textareaCloseBtn.classList.remove('active')
+          textareaForwardBtn.disabled = true
+          textareaCloseBtn.disabled = true
+          textareaEditBtn.disabled = false
 
-      filenameInput.value = ""
+          let jsonResponse = xhr.response
+          //
+          // console.log(jsonResponse)
 
-    })
-      .catch(error => {
-        console.log(error)
-      alert.classList.add('alert-danger')
-      alert.classList.remove('op-0')
 
-      alert.textContent = error.message
 
-      setTimeout(() => {
-        alert.classList.remove('alert-danger')
-        alert.classList.add('op-0')
-        alert.textContent = ""
-      }, 1500)
+          if (xhr.status === 200) {
+            alert.classList.add('alert-success')
+            alert.classList.remove('op-0')
+            alert.textContent = jsonResponse.message
 
-      filenameInput.value = ""
-    })
+            setTimeout(() => {
+              alert.classList.remove('alert-success')
+              alert.classList.add('op-0')
+              alert.textContent = ""
+            }, 1500)
+          }else {
+            alert.classList.add('alert-danger')
+            alert.classList.remove('op-0')
+
+            alert.textContent = jsonResponse.message
+
+            setTimeout(() => {
+              alert.classList.remove('alert-danger')
+              alert.classList.add('op-0')
+              alert.textContent = ""
+            }, 1500)
+
+          }
+        }};
+
+      xhr.send(data);
   })
 }
 
