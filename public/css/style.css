@@ -184,3 +184,17 @@ i.excla-action {
 #fileUploaderInput .alert.op-0 {
   opacity: !important 0;
 }
+
+#data-container-cancelled-product ul {
+
+}
+
+#data-container-cancelled-product ul li {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+
+#data-container-cancelled-product ul li button {
+  height: 35px;
+}

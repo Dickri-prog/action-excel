@@ -54,13 +54,38 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="product-edit">Products</h5>
+            <button type="button" class="btn btn-primary ms-5" id="addProduct">add</button>
+            <button type="button" class="btn btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#cancelled-products" style="width: 200px; text-align: center" id="cancelledProductBtn">
+                                  cancelled </button>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" id="data-container-product">
 
           </div>
-          <div id="loading-product">Loading...</div>
+          <div class="loading-product">Loading...</div>
           <div class="modal-footer" id="pagination-container-product">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="cancelled-products" tabindex="-1" aria-labelledby="cancelledProduct" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cancelledProduct">Cancelled Products</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="data-container-cancelled-product">
+
+          </div>
+          <div class="loading-product">Loading...</div>
+          <div class="modal-footer" id="pagination-container-cancelled-product">
+            <button type="button" class="btn btn-primary backToProductBtn">
+              Back
+            </button>
 
           </div>
         </div>
@@ -96,29 +121,6 @@
       </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="upload-detail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="upload-detail-label" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="upload-detail-label">upload File Detail</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="upload-detail-body">
-
-          </div>
-          <div class="modal-footer">
-            <div class="alert op-0" role="alert">
-            </div>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadFile">
-              Back
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
 
     <!-- Modal -->
     <div class="modal fade" id="product-detail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="product-detail-label" aria-hidden="true">
@@ -135,7 +137,7 @@
             <div class="alert op-0" role="alert">
             </div>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="backToProductBtn">
+            <button type="button" class="btn btn-primary backToProductBtn">
               Back
             </button>
           </div>

@@ -6,7 +6,8 @@ fileUpload = require("express-fileupload"),
 decompress = require('decompress'),
 fs = require('fs'),
 path = require('path'),
-bodyParser = require('body-parser')
+bodyParser = require('body-parser'),
+{ Octokit } = require("octokit")
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
 app.use("/public", express.static(path.join(__dirname, 'public')))
@@ -19,6 +20,9 @@ app.set('view engine', 'ejs');
 
 let jsonDataContent = []
 
+let shaData = null
+let fetchedData = false
+
 let cancelDataArr = {
     nameSize: [
       "kuning",
@@ -30,13 +34,71 @@ let cancelDataArr = {
     ]
 }
 
+const directoryPath = 'public/json/'; // Specify the directory path here
+const fileName = 'products.json'; // Specify the file name here
 
+const filePath = path.join(directoryPath, fileName);
+
+const octokit = new Octokit({
+  auth: process.env.githubSecretKey
+})
+
+async function fetchContentFile() {
+  const fetchingData = await octokit.request('GET /repos/Dickri-prog/jsonData/contents/product-price/products.json', {
+    owner: 'Dickri-prog',
+    repo: 'jsonData',
+    path: 'product-price/products.json',
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28'
+    }
+  }).then((result) => {
+    shaData = result['data']['sha']
+    const base64Data = result['data']['content']
+    const buffer = Buffer.from(base64Data, 'base64');
+    const originalString = buffer.toString();
+    //
+    jsonDataContent = JSON.parse(originalString)
+    console.log("fetched")
+    return true
+  }).catch(error => {
+    console.error(error.message)
+    return false
+  })
+
+  return fetchingData
+}
+
+function checkingData(req, res, next) {
+
+  if (fetchedData === false) {
+    fetchedData = fetchContentFile().then(result => {
+      if (result) {
+        next()
+      } else {
+        return res.json({
+          isLoggedin: false,
+          message: "Something Wrong, contact us"
+        })
+      }
+    })
+  } else {
+    next()
+  }
+}
 
 app.get('/', (req, res) => {
 	res.render('index')
 });
 
-app.get('/products', (req, res) => {
+// app.get('/products/json', (req, res) => {
+//   const jsonData = fs.readFileSync(filePath, 'utf8');
+//   const data = JSON.parse(jsonData);
+//
+//   res.json(data)
+//
+// })
+
+app.get('/products', checkingData , (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
@@ -52,6 +114,50 @@ app.get('/products', (req, res) => {
 
 		// Calculate the total number of pages
 		const totalPages = Math.ceil(jsonData.length / limit);
+
+		// Prepare the response object
+		const response = {
+			items: paginatedItems,
+			totalPages: totalPages,
+		};
+
+		res.json(response);
+	}else if (jsonDataContent.length <= 0) {
+		const response = {
+			items: 0,
+			totalPages: 0,
+			message: "Json Data empty!!!"
+		}
+
+		res.json(response)
+	}
+})
+
+app.get('/products/cancelled', (req, res) => {
+	const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+
+  let data = null;
+
+  if (cancelDataArr["nameSize"].length > 0 && cancelDataArr["nameProduct"].length > 0) {
+     data = cancelDataArr["nameSize"].concat(cancelDataArr["nameProduct"])
+  }else if (cancelDataArr["nameSize"].length > 0) {
+    data = cancelDataArr["nameSize"]
+  }else if (cancelDataArr["nameProduct"].length > 0) {
+    data = cancelDataArr["nameProduct"]
+  }
+
+	if (data.length > 0) {
+
+		// Calculate the starting and ending index for the current page
+		const startIndex = (page - 1) * limit;
+		const endIndex = startIndex + limit;
+
+		// Slice the items array based on the calculated indices
+		const paginatedItems = data.slice(startIndex, endIndex);
+
+		// Calculate the total number of pages
+		const totalPages = Math.ceil(data.length / limit);
 
 		// Prepare the response object
 		const response = {
@@ -200,45 +306,45 @@ app.post('/products/:id/edit',  (req, res) => {
 	}
 })
 
-app.get('/migrate', (req, res) => {
-	try {
+// app.get('/migrate', (req, res) => {
+// 	try {
+//
+// 			if (jsonDataContent.length > 0) {
+// 				res.json({
+// 					data: jsonDataContent
+// 				})
+// 			}else {
+// 				res.status(404).json({
+// 					status: 404,
+// 					message: "Json has no content!!!"
+// 				})
+// 			}
+//
+// 	} catch (e) {
+// 		res.status(500).json({
+// 			status: 500,
+// 			message: "Something wrong!!!"
+// 		});
+// 	}
+// })
 
-			if (jsonDataContent.length > 0) {
-				res.json({
-					data: jsonDataContent
-				})
-			}else {
-				res.status(404).json({
-					status: 404,
-					message: "Json has no content!!!"
-				})
-			}
-
-	} catch (e) {
-		res.status(500).json({
-			status: 500,
-			message: "Something wrong!!!"
-		});
-	}
-})
-
-app.post('/migrate', (req, res) => {
-	try {
-			let formData = req.body
-
-			jsonDataContent = formData
-
-			res.json({
-				message: "Migrating successfully!!!"
-			});
-
-	} catch (e) {
-
-		res.status(500).json({
-			message: "Something Wrong!!!"
-		});
-	}
-})
+// app.post('/migrate', (req, res) => {
+// 	try {
+// 			let formData = req.body
+//
+// 			jsonDataContent = formData
+//
+// 			res.json({
+// 				message: "Migrating successfully!!!"
+// 			});
+//
+// 	} catch (e) {
+//
+// 		res.status(500).json({
+// 			message: "Something Wrong!!!"
+// 		});
+// 	}
+// })
 
 app.get('/export', (req, res) => {
 	res.json(jsonDataContent)

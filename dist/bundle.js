@@ -9,10 +9,12 @@ const btn = document.getElementById("btnUpload"),
     exportJsonBtn = document.getElementById("exportJson"),
     productDetailBody = document.getElementById("product-detail-body"),
     uploadFileDetailBody = document.getElementById("product-detail-body"),
-    backToProductBtn = document.getElementById("backToProductBtn"),
-    apiEndpoint = '/products', // Replace with your API endpoint
-    itemsPerPage = 5; // Number of items to display per page
-    currentPage = 1; // Initial page number
+    cancelledProductBtn = document.getElementById("cancelledProductBtn"),
+    backToProductBtn = document.querySelectorAll(".backToProductBtn"),
+    apiEndpoint = '/products'; // Replace with your API endpoint
+let itemsPerPage = 5, // Number of items to display per page
+    currentPage = 1, // Initial page number
+    currentPageCancelled = 1,
     arrs = [];
 
 let header = null
@@ -94,15 +96,25 @@ productsEditBtn.addEventListener('click', () => {
   fetchDataProducts(currentPage)
 })
 
+cancelledProductBtn.addEventListener('click', () => {
+  fetchDataCancelledProducts(currentPageCancelled)
+})
+
 
 uploadFileBtn.addEventListener('click', fetchDataUpload)
 
 exportJsonBtn.addEventListener('click', exportJsonData)
 
 
-backToProductBtn.addEventListener('click', () => {
-  productsEditBtn.click()
-})
+
+
+if (backToProductBtn.length > 0) {
+  for (var i = 0; i < backToProductBtn.length; i++) {
+    backToProductBtn[i].addEventListener('click', () => {
+      productsEditBtn.click()
+    })
+  }
+}
 
 
 
@@ -216,6 +228,31 @@ function fetchDataProducts(page) {
       hideLoadingProduct();
     });
 }
+function fetchDataCancelledProducts(page) {
+  const url = `${apiEndpoint}/cancelled/?page=${page}&limit=${itemsPerPage}`;
+
+  showLoadingProduct();
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      hideLoadingProduct();
+      if (data.items.length > 0) {
+        displayDataCancelledProducts(data.items); // Assume the API response contains an 'items' array
+        // createPaginationProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+      }else {
+        const dataContainer = document.getElementById('data-container-product');
+
+        dataContainer.innerHTML = `
+            <h2>No data item</h2>
+        `
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      hideLoadingProduct();
+    });
+}
 
 
 
@@ -239,6 +276,33 @@ function displayDataProducts(items) {
     })
     dataContainer.appendChild(button);
   });
+}
+
+function displayDataCancelledProducts(items) {
+  const dataContainer = document.getElementById('data-container-cancelled-product');
+  const ul = document.createElement('ul')
+  dataContainer.innerHTML = '';
+
+  items.forEach((item, index) => {
+    const li = document.createElement('li')
+    const button = document.createElement('button')
+    const p = document.createElement('p')
+
+    button.type = 'button'
+    button.classList.add('btn')
+    button.classList.add('btn-primary')
+    p.textContent = item; // Display the item property you want
+    button.textContent = "Enable"; // Display the item property you want
+    button.addEventListener('click', () => {
+
+      console.log('clicked!!!');
+
+    })
+    li.appendChild(p)
+    li.appendChild(button)
+    ul.appendChild(li);
+  });
+  dataContainer.appendChild(ul)
 }
 
 function displayDetailProduct(item) {
@@ -326,7 +390,7 @@ function displayDetailProduct(item) {
     if (alert.classList.contains('alert-warning')) {
         alert.classList.remove('alert-warning')
     }
-    
+
     if (alert.classList.contains('alert-danger')) {
         alert.classList.remove('alert-danger')
     }
@@ -639,13 +703,21 @@ function createPaginationProducts(totalPages) {
 }
 
 function showLoadingProduct() {
-  const loadingElement = document.getElementById('loading-product');
-  loadingElement.style.display = 'block';
+  const loadingElement = document.querySelectorAll('.loading-product');
+  if (loadingElement.length > 0) {
+    for (var i = 0; i < loadingElement.length; i++) {
+      loadingElement[i].style.display = 'block';
+    }
+  }
 }
 
 function hideLoadingProduct() {
-  const loadingElement = document.getElementById('loading-product');
-  loadingElement.style.display = 'none';
+  const loadingElement = document.querySelectorAll('.loading-product');
+  if (loadingElement.length > 0) {
+    for (var i = 0; i < loadingElement.length; i++) {
+      loadingElement[i].style.display = 'none';
+    }
+  }
 }
 
 function displayDataImportExport(items = "") {

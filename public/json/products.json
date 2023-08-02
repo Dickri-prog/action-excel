@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "name": "POLOS ANAK",
+    "name": "KAOS POLOS ANAK",
     "sizes": {
       "S": 14900,
       "M": 16900,
@@ -11,27 +11,27 @@
   },
   {
     "id": 2,
-    "name": "SAKU ANAK SALUR",
+    "name": "KAOS POLOS ANAK LENGAN PENDEK COTTON COMBED 30S BAJU KAOS KIDS UMUR 0- 12 TAHUN",
     "sizes": {
-      "S": 18900,
-      "M": 19900,
-      "L": 22900,
-      "XL": 25900
+      "S": 14900,
+      "M": 16900,
+      "L": 18900,
+      "XL": 23900
     }
   },
   {
     "id": 3,
-    "name": "SAKU ANAK BATIK",
+    "name": "KAOS POLOS ANAK LENGAN PENDEK COTTON COMBED 30S BAJU KAOS KIDS WARNA SOLID",
     "sizes": {
-      "S": 18900,
-      "M": 19900,
-      "L": 22900,
-      "XL": 25900
+      "S": 14900,
+      "M": 16900,
+      "L": 18900,
+      "XL": 23900
     }
   },
   {
     "id": 4,
-    "name": "SAKU ANAK HAWAII",
+    "name": "KAOS ANAK LAKI LAKI SAKU KEREN",
     "sizes": {
       "S": 18900,
       "M": 19900,
@@ -41,7 +41,7 @@
   },
   {
     "id": 5,
-    "name": "SAKU ANAK GARIS W",
+    "name": "KAOS ANAK SAKU BATIK",
     "sizes": {
       "S": 18900,
       "M": 19900,
@@ -51,7 +51,7 @@
   },
   {
     "id": 6,
-    "name": "SAKU ANAK WARNA",
+    "name": "KAOS ANAK SAKU HAWAI",
     "sizes": {
       "S": 18900,
       "M": 19900,
@@ -61,7 +61,7 @@
   },
   {
     "id": 7,
-    "name": "LENGAN ANAK",
+    "name": "KAOS ANAK SAKU GARIS W",
     "sizes": {
       "S": 18900,
       "M": 19900,
@@ -71,7 +71,27 @@
   },
   {
     "id": 8,
-    "name": "RINGGER ANAK",
+    "name": "KAOS ANAK LAKI LAKI . BAJU ANAK LAKI LAKI SAKU KEREN",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 9,
+    "name": "BAJU ANAK LAKI LAKI . KAOS ANAK LAKI LAKI KOMBINASI KEREN",
+    "sizes": {
+      "S": 18900,
+      "M": 19900,
+      "L": 22900,
+      "XL": 25900
+    }
+  },
+  {
+    "id": 10,
+    "name": "Fernco Junior Baju Kaos Anak Laki Laki 2-8 tahun",
     "sizes": {
       "S": 18900,
       "M": 19900,
@@ -79,8 +99,8 @@
     }
   },
   {
-    "id": 9,
-    "name": "STELAN ANAK",
+    "id": 11,
+    "name": "STELAN BAYI DAN ANAK, KAOS STELAN BAHAN KATUN COMBED 30S USIA 0-12 TAHUN",
     "sizes": {
       "S": 26900,
       "M": 29900,
@@ -89,8 +109,8 @@
     }
   },
   {
-    "id": 10,
-    "name": "CELANA ANAK",
+    "id": 12,
+    "name": "CELANA PENDEK ANAK BAHAN LEMBUT KATUN COMBED 30S USIA 0-12 TAHUN",
     "sizes": {
       "S": 13900,
       "M": 15900,
@@ -99,8 +119,8 @@
     }
   },
   {
-    "id": 11,
-    "name": "STELAN REGELAN ANAK",
+    "id": 13,
+    "name": "PAKAIAN STELAN ANAK MODEL REGLAN BAHAN KATUN COMBED 30S U 0-12 TAHUN",
     "sizes": {
       "S": 29900,
       "M": 35900,
@@ -109,8 +129,8 @@
     }
   },
   {
-    "id": 12,
-    "name": "POLOS DEWASA",
+    "id": 14,
+    "name": "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua",
     "sizes": {
       "M": 35900,
       "L": 35900,
@@ -118,8 +138,8 @@
     }
   },
   {
-    "id": 13,
-    "name": "POLOS PANJANG",
+    "id": 15,
+    "name": "KAOS POLOS PANJANG COTTON COMBED 30S - KAOS LENGAN PANJANG PRIA ROUND NECK REGULER FIT",
     "sizes": {
       "M": 43900,
       "L": 43900,
@@ -127,8 +147,17 @@
     }
   },
   {
-    "id": 14,
-    "name": "SALUR DEWASA",
+    "id": 16,
+    "name": "Fernco Kaos Polos Lengan Panjang Katun Combed 30s",
+    "sizes": {
+      "M": 43900,
+      "L": 43900,
+      "XL": 43900
+    }
+  },
+  {
+    "id": 17,
+    "name": "Fernco Kaos Pocket. Baju Saku Kombinasi Cotton Combed 30s",
     "sizes": {
       "M": 38900,
       "L": 38900,
@@ -136,35 +165,44 @@
     }
   },
   {
-    "id": 15,
-    "name": "MISTY DEWASA",
-    "sizes": {
-      "M": 39900,
-      "L": 39900,
-      "XL": 39900
-    }
-  },
-  {
-    "id": 16,
-    "name": "BATIK DEWASA",
-    "sizes": {
-      "M": 39900,
-      "L": 39900,
-      "XL": 39900
-    }
-  },
-  {
-    "id": 17,
-    "name": "SAKU HAWAII DEWASA",
-    "sizes": {
-      "M": 39900,
-      "L": 39900,
-      "XL": 39900
-    }
-  },
-  {
     "id": 18,
-    "name": "UTRO BIASA",
+    "name": "Fernco Kaos Pocket Misty. Baju Saku Kombinasi Cotton Combed 30s",
+    "sizes": {
+      "M": 39900,
+      "L": 39900,
+      "XL": 39900
+    }
+  },
+  {
+    "id": 19,
+    "name": "Fernco Kaos Saku Pria Batik . Baju Saku Kombinasi Pria",
+    "sizes": {
+      "M": 39900,
+      "L": 39900,
+      "XL": 39900
+    }
+  },
+  {
+    "id": 20,
+    "name": "KAOS DEWASA SAKU HAWAII WARNA PUTIH",
+    "sizes": {
+      "M": 39900,
+      "L": 39900,
+      "XL": 39900
+    }
+  },
+  {
+    "id": 21,
+    "name": "Fernco Kaos Saku Pria Hawaii. Baju Pocket Kombinasi",
+    "sizes": {
+      "M": 39900,
+      "L": 39900,
+      "XL": 39900
+    }
+  },
+  {
+    "id": 22,
+    "name": "Fernco Kaos Utro Tee. Baju Kombinasi Cotton Combed 30s",
     "sizes": {
       "M": 44900,
       "L": 44900,
@@ -172,8 +210,8 @@
     }
   },
   {
-    "id": 19,
-    "name": "RINGGER DEWASA",
+    "id": 23,
+    "name": "Fernco Kaos Ringger Tee. Baju Kombinasi Cotton Combed 30s",
     "sizes": {
       "M": 38900,
       "L": 38900,
@@ -181,44 +219,44 @@
     }
   },
   {
-    "id": 20,
-    "name": "A 003",
-    "sizes": {
-      "M": 49900,
-      "L": 49900,
-      "XL": 49900
-    }
-  },
-  {
-    "id": 21,
-    "name": "UTRO LORENG",
-    "sizes": {
-      "M": 49900,
-      "L": 49900,
-      "XL": 49900
-    }
-  },
-  {
-    "id": 22,
-    "name": "SAKU LORENG",
-    "sizes": {
-      "M": 49900,
-      "L": 49900,
-      "XL": 49900
-    }
-  },
-  {
-    "id": 23,
-    "name": "UTRO HAWAII",
-    "sizes": {
-      "M": 49900,
-      "L": 49900,
-      "XL": 49900
-    }
-  },
-  {
     "id": 24,
-    "name": "KURTA",
+    "name": "Kaos Kombinasi Pria [A003]. Baju Kaos Distro Pria",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 25,
+    "name": "Fernco Kaos Utro Tee Loreng Camo. Baju Kombinasi Cotton Combed 30s",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 26,
+    "name": "Fernco Kaos Pocket Loreng Camo. Baju Kombinasi Cotton Combed 30s",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 27,
+    "name": "Fernco Kaos Utro Tee . Baju Kombinasi Hawaii",
+    "sizes": {
+      "M": 49900,
+      "L": 49900,
+      "XL": 49900
+    }
+  },
+  {
+    "id": 28,
+    "name": "Kurta Kaos Bahan Premium Cotton Combed 30's",
     "sizes": {
       "M": 54900,
       "L": 54900,
@@ -226,8 +264,8 @@
     }
   },
   {
-    "id": 25,
-    "name": "A004",
+    "id": 29,
+    "name": "Kaos  Kombinasi Pria Distro [A004]. Baju Kaos Loreng Camo",
     "sizes": {
       "M": 55900,
       "L": 55900,
@@ -235,8 +273,8 @@
     }
   },
   {
-    "id": 26,
-    "name": "A005",
+    "id": 30,
+    "name": "Kaos  Kombinasi Pria Distro [A005]. Baju Kaos Loreng Camo",
     "sizes": {
       "M": 55900,
       "L": 55900,
