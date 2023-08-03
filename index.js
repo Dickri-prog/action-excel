@@ -34,11 +34,6 @@ let cancelDataArr = {
     ]
 }
 
-const directoryPath = 'public/json/'; // Specify the directory path here
-const fileName = 'products.json'; // Specify the file name here
-
-const filePath = path.join(directoryPath, fileName);
-
 const octokit = new Octokit({
   auth: process.env.githubSecretKey
 })
@@ -306,27 +301,24 @@ app.post('/products/:id/edit',  (req, res) => {
 	}
 })
 
-// app.get('/migrate', (req, res) => {
-// 	try {
-//
-// 			if (jsonDataContent.length > 0) {
-// 				res.json({
-// 					data: jsonDataContent
-// 				})
-// 			}else {
-// 				res.status(404).json({
-// 					status: 404,
-// 					message: "Json has no content!!!"
-// 				})
-// 			}
-//
-// 	} catch (e) {
-// 		res.status(500).json({
-// 			status: 500,
-// 			message: "Something wrong!!!"
-// 		});
-// 	}
-// })
+app.get('/products/json', checkingData, (req, res) => {
+	try {
+				if (jsonDataContent.length > 0) {
+          res.json({
+  					data: jsonDataContent
+  				})
+        }else {
+          throw new Error('No data')
+        }
+
+	} catch (e) {
+    console.log(e.message)
+
+		res.status(500).json({
+			message: "Something wrong!!!"
+		});
+	}
+})
 
 // app.post('/migrate', (req, res) => {
 // 	try {
@@ -346,9 +338,9 @@ app.post('/products/:id/edit',  (req, res) => {
 // 	}
 // })
 
-app.get('/export', (req, res) => {
-	res.json(jsonDataContent)
-})
+// app.get('/export', (req, res) => {
+// 	res.json(jsonDataContent)
+// })
 
 app.post('/upload', (req, res) => {
 

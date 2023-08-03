@@ -1,11 +1,9 @@
 const btn = document.getElementById("btnUpload"),
     inpFile = document.getElementById("inpFile"),
-    // ExcelJS = require('exceljs'),
-    // workbook = new ExcelJS.Workbook(),
     loading = document.getElementById("loading"),
     process = document.getElementById("process"),
     productsEditBtn = document.getElementById("productsEditBtn"),
-    exportJsonBtn = document.getElementById("exportJson"),
+    // exportJsonBtn = document.getElementById("exportJson"),
     productDetailBody = document.getElementById("product-detail-body"),
     uploadFileDetailBody = document.getElementById("product-detail-body"),
     cancelledProductBtn = document.getElementById("cancelledProductBtn"),
@@ -17,33 +15,6 @@ let itemsPerPage = 5, // Number of items to display per page
     arrs = [];
 
 let header = null
-
-// inpFile.addEventListener('change', function (e) {
-    // const file = e.target.files[0];
-    // const reader = new FileReader();
-
-    // loading.innerText = "complete!!!"
-
-    // reader.readAsArrayBuffer(file)
-
-    // reader.onload = () => {
-        // const buffer = reader.result;
-        // workbook.xlsx.load(buffer).then(workbook => {
-            // workbook.eachSheet((sheet, id) => {
-
-                // if (sheet.findRow(1)) {
-                    // header = sheet.getRow(1).values
-                    // sheet.getRow(1).destroy()
-                // }
-                // sheet.eachRow((row, rowIndex) => {
-                    // row.values.forEach(value => arrs.push(value))
-                // })
-            // })
-        // })
-    // }
-
-
-// })
 
 inpFile.addEventListener('click' , () => {
     document.getElementById("loading").classList.add("active")
@@ -100,9 +71,9 @@ cancelledProductBtn.addEventListener('click', () => {
 })
 
 
-uploadFileBtn.addEventListener('click', fetchDataUpload)
+// uploadFileBtn.addEventListener('click', fetchDataUpload)
 
-exportJsonBtn.addEventListener('click', exportJsonData)
+// exportJsonBtn.addEventListener('click', exportJsonData)
 
 
 
@@ -117,90 +88,123 @@ if (backToProductBtn.length > 0) {
 
 
 
-function exportJsonData() {
-fetch('/export',)
-.then(res => res.json())
-.then(data => {
+// function exportJsonData(e) {
+//   e.target.disabled = true
+//
+//   const alert = document.querySelector('#pagination-container-upload .alert')
+//
+//   fetch(`${apiEndpoint}/json`)
+//   .then(res => {
+//     if (!res.ok) {
+//       throw res.json()
+//     }
+//
+//     return res.json()
+//   })
+//   .then(result => {
+//     try {
+//       e.target.disabled = false
+//
+//       let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result.data));
+//       let dlAnchorElem = document.createElement('a');
+//       dlAnchorElem.href = dataStr;
+//       dlAnchorElem.setAttribute("download", "products.json");
+//       dlAnchorElem.click();
+//
+//       alert.classList.add('alert-success')
+//       alert.classList.remove('op-0')
+//
+//       alert.textContent = "Succesfully exported!!!"
+//
+//       setTimeout(() => {
+//         alert.classList.remove('alert-success')
+//         alert.classList.add('op-0')
+//         alert.textContent = ""
+//       }, 1500)
+//     } catch (e) {
+//       alert.classList.add('alert-danger')
+//       alert.classList.remove('op-0')
+//
+//       alert.textContent = "Something wrong!!!"
+//
+//       setTimeout(() => {
+//         alert.classList.remove('alert-danger')
+//         alert.classList.add('op-0')
+//         alert.textContent = ""
+//       }, 1500)
+//     }
+//   })
+//   .catch(error => {
+//     e.target.disabled = false
+//     if (!error.message) {
+//       alert.classList.add('alert-danger')
+//       alert.classList.remove('op-0')
+//
+//       alert.textContent = error.message
+//
+//       setTimeout(() => {
+//         alert.classList.remove('alert-danger')
+//         alert.classList.add('op-0')
+//         alert.textContent = ""
+//       }, 1500)
+//     }
+//   })
+// }
 
-  let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-let dlAnchorElem = document.createElement('a');
-dlAnchorElem.href = dataStr;
-dlAnchorElem.setAttribute("download", "products.json");
-dlAnchorElem.click();
-})
-}
-
-
-function fetchDataUpload() {
-  const url = `migrate`;
-  const dataContainer = document.getElementById('data-container-upload');
-  const alert = document.querySelector('#pagination-container-upload .alert')
-
-  if (alert.classList.contains('alert-danger')) {
-    alert.classList.remove('alert-danger')
-  }
-
-  if (alert.classList.contains('alert-success')) {
-    alert.classList.remove('alert-success')
-  }
-
-
-  showLoadingImportExport();
-
-  fetch(url)
-    .then(res => {
-      if (res.ok) {
-        return res.json()
-      }else {
-      throw res.json();
-      }
-    })
-    .then(result => {
-      hideLoadingImportExport()
-
-        const textareaElement = dataContainer.querySelector('.form-group > textarea#jsonTextarea')
-
-        // if (result.data.length > 0) {
-        //   textareaElement.disabled = true
-        // }else {
-        //   textareaElement.disabled = false
-        // }
-
-        displayDataImportExport(result.data)
-    })
-    .catch(error => {
-      displayDataImportExport()
-
-      error.then(function(json) {
-        hideLoadingImportExport();
-        if (json.status === 404) {
-          alert.classList.add('alert-warning')
-        }else {
-          alert.classList.add('alert-danger')
-        }
-        alert.classList.remove('op-0')
-
-        alert.textContent = json.message
-
-        setTimeout(() => {
-          if (json.status === 404) {
-            alert.classList.remove('alert-warning')
-          }else {
-            alert.classList.remove('alert-danger')
-          }
-          alert.classList.add('op-0')
-          alert.textContent = ""
-        }, 1500)
-
-
-       });
-
-
-    });
-
-}
-
-
+// function fetchDataUpload() {
+//   const url = `${apiEndpoint}/json`;
+//   const dataContainer = document.getElementById('data-container-upload');
+//   const alert = document.querySelector('#pagination-container-upload .alert')
+//
+//   if (alert.classList.contains('alert-danger')) {
+//     alert.classList.remove('alert-danger')
+//   }
+//
+//   if (alert.classList.contains('alert-success')) {
+//     alert.classList.remove('alert-success')
+//   }
+//
+//
+//   showLoadingImportExport();
+//
+//   fetch(url)
+//     .then(res => {
+//       if (res.ok) {
+//         return res.json()
+//       }else {
+//       throw res.json();
+//       }
+//     })
+//     .then(result => {
+//         hideLoadingImportExport()
+//
+//         const textareaElement = dataContainer.querySelector('.form-group > textarea#jsonTextarea')
+//
+//         displayDataImportExport(result.data)
+//     })
+//     .catch(error => {
+//       displayDataImportExport()
+//
+//       error.then(function(json) {
+//         hideLoadingImportExport();
+//
+//         alert.classList.add('alert-danger')
+//         alert.classList.remove('op-0')
+//
+//         alert.textContent = json.message
+//
+//         setTimeout(() => {
+//           alert.classList.remove('alert-danger')
+//           alert.classList.add('op-0')
+//           alert.textContent = ""
+//         }, 1500)
+//
+//        });
+//
+//
+//     });
+//
+// }
 
 function fetchDataProducts(page) {
   const url = `${apiEndpoint}?page=${page}&limit=${itemsPerPage}`;
@@ -227,6 +231,7 @@ function fetchDataProducts(page) {
       hideLoadingProduct();
     });
 }
+
 function fetchDataCancelledProducts(page) {
   const url = `${apiEndpoint}/cancelled/?page=${page}&limit=${itemsPerPage}`;
 
@@ -252,8 +257,6 @@ function fetchDataCancelledProducts(page) {
       hideLoadingProduct();
     });
 }
-
-
 
 function displayDataProducts(items) {
   const dataContainer = document.getElementById('data-container-product');
@@ -719,210 +722,140 @@ function hideLoadingProduct() {
   }
 }
 
-function displayDataImportExport(items = "") {
-  const dataContainer = document.getElementById('data-container-upload'),
-        textareaElement = dataContainer.querySelector('.form-group textarea#jsonTextarea'),
-        divBtns = dataContainer.querySelector('.form-group > .btns')
+// function displayDataImportExport(items = "") {
+//   const dataContainer = document.getElementById('data-container-upload'),
+//         textareaElement = dataContainer.querySelector('.form-group textarea#jsonTextarea'),
+//         divBtns = dataContainer.querySelector('.form-group > .btns')
+//
+//
+//     if (items != "") {
+//       const stringVariable = items.map(obj => JSON.stringify(obj)).join(', \n');
+//
+//       textareaElement.value = `[${stringVariable}]`
+//     }
+//
+//
+//   const textareaEditBtn = document.createElement('img')
+//   const textareaCloseBtn = document.createElement('img')
+//   const textareaForwardBtn = document.createElement('img')
+//
+//   textareaEditBtn.classList.add('active')
+//   textareaEditBtn.src =  '../public/img/pencil-square.svg'
+//   textareaEditBtn.width = 20
+//   textareaEditBtn.alt = "Edit button"
+//
+//   textareaForwardBtn.src =  '../public/img/forward-fill.svg'
+//   textareaForwardBtn.width = 25
+//   textareaForwardBtn.alt = "Forward button"
+//
+//   textareaCloseBtn.src =  '../public/img/x-circle.svg'
+//   textareaCloseBtn.width = 20
+//   textareaCloseBtn.alt = "close button"
+//
+//   if (divBtns.querySelectorAll('img').length === 0) {
+//     divBtns.appendChild(textareaEditBtn)
+//     divBtns.appendChild(textareaForwardBtn)
+//     divBtns.appendChild(textareaCloseBtn)
+//   }
+//
+//   textareaEditBtn.addEventListener('click', (e) => {
+//     e.target.disabled = true
+//     e.target.classList.remove('active')
+//     textareaCloseBtn.classList.add('active')
+//     textareaForwardBtn.classList.add('active')
+//     textareaCloseBtn.disabled = false
+//     textareaForwardBtn.disabled = false
+//     textareaElement.disabled = false
+//   })
+//
+//   textareaCloseBtn.addEventListener('click', (e) => {
+//     e.target.classList.remove('active')
+//     e.target.disabled = true
+//     textareaForwardBtn.disabled = true
+//     textareaEditBtn.disabled = false
+//     textareaForwardBtn.classList.remove('active')
+//     textareaEditBtn.classList.add('active')
+//     textareaElement.disabled = true
+//   })
+//
+//   textareaForwardBtn.addEventListener('click', () => {
+//     textareaElement.disabled = true
+//
+//     const alert = document.querySelector('#pagination-container-upload .alert')
+//
+//     if (textareaElement.value == "" && textareaElement.value == " ") {
+//       alert.classList.add('alert-danger')
+//       alert.classList.remove('op-0')
+//
+//       alert.textContent = "No json!!!"
+//
+//       textareaElement.disabled = false;
+//
+//       setTimeout(() => {
+//         alert.classList.remove('alert-danger')
+//         alert.classList.add('op-0')
+//         alert.textContent = ""
+//       }, 1500)
+//
+//       return;
+//     }
+//
+//       const data = textareaElement.value
+//
+//       let xhr = new XMLHttpRequest();
+//       xhr.open("POST", "migrate");
+//       xhr.setRequestHeader("Accept", "application/json");
+//       xhr.setRequestHeader("Content-Type", "application/json");
+//
+//       xhr.responseType = 'json';
+//
+//       xhr.onreadystatechange = function () {
+//         if (xhr.readyState === 4) {
+//
+//           textareaEditBtn.classList.add('active')
+//           textareaForwardBtn.classList.remove('active')
+//           textareaCloseBtn.classList.remove('active')
+//           textareaForwardBtn.disabled = true
+//           textareaCloseBtn.disabled = true
+//           textareaEditBtn.disabled = false
+//
+//           let jsonResponse = xhr.response
+//
+//           if (xhr.status === 200) {
+//             alert.classList.add('alert-success')
+//             alert.classList.remove('op-0')
+//             alert.textContent = jsonResponse.message
+//
+//             setTimeout(() => {
+//               alert.classList.remove('alert-success')
+//               alert.classList.add('op-0')
+//               alert.textContent = ""
+//             }, 1500)
+//           }else {
+//             alert.classList.add('alert-danger')
+//             alert.classList.remove('op-0')
+//
+//             alert.textContent = jsonResponse.message
+//
+//             setTimeout(() => {
+//               alert.classList.remove('alert-danger')
+//               alert.classList.add('op-0')
+//               alert.textContent = ""
+//             }, 1500)
+//
+//           }
+//         }};
+//
+//       xhr.send(data);
+//   })
+// }
 
-
-    if (items != "") {
-      const stringVariable = items.map(obj => JSON.stringify(obj)).join(', \n');
-
-      textareaElement.value = `[${stringVariable}]`
-    }
-
-
-  const textareaEditBtn = document.createElement('img')
-  const textareaCloseBtn = document.createElement('img')
-  const textareaForwardBtn = document.createElement('img')
-
-  textareaEditBtn.classList.add('active')
-  textareaEditBtn.src =  '../public/img/pencil-square.svg'
-  textareaEditBtn.width = 20
-  textareaEditBtn.alt = "Edit button"
-
-  textareaForwardBtn.src =  '../public/img/forward-fill.svg'
-  textareaForwardBtn.width = 25
-  textareaForwardBtn.alt = "Forward button"
-
-  textareaCloseBtn.src =  '../public/img/x-circle.svg'
-  textareaCloseBtn.width = 20
-  textareaCloseBtn.alt = "close button"
-
-  if (divBtns.querySelectorAll('img').length === 0) {
-    divBtns.appendChild(textareaEditBtn)
-    divBtns.appendChild(textareaForwardBtn)
-    divBtns.appendChild(textareaCloseBtn)
-  }
-
-  textareaEditBtn.addEventListener('click', (e) => {
-    e.target.disabled = true
-    e.target.classList.remove('active')
-    textareaCloseBtn.classList.add('active')
-    textareaForwardBtn.classList.add('active')
-    textareaCloseBtn.disabled = false
-    textareaForwardBtn.disabled = false
-    textareaElement.disabled = false
-  })
-
-  textareaCloseBtn.addEventListener('click', (e) => {
-    e.target.classList.remove('active')
-    e.target.disabled = true
-    textareaForwardBtn.disabled = true
-    textareaEditBtn.disabled = false
-    textareaForwardBtn.classList.remove('active')
-    textareaEditBtn.classList.add('active')
-    textareaElement.disabled = true
-  })
-
-  textareaForwardBtn.addEventListener('click', () => {
-    textareaElement.disabled = true
-
-    const alert = document.querySelector('#pagination-container-upload .alert')
-
-    if (textareaElement.value == "" && textareaElement.value == " ") {
-      alert.classList.add('alert-danger')
-      alert.classList.remove('op-0')
-
-      alert.textContent = "No json!!!"
-
-      textareaElement.disabled = false;
-
-      setTimeout(() => {
-        alert.classList.remove('alert-danger')
-        alert.classList.add('op-0')
-        alert.textContent = ""
-      }, 1500)
-
-      return;
-    }
-
-    // const jsonData = JSON.stringify(textareaElement.value)
-
-    const data = textareaElement.value
-
-    // console.log(jsonData)
-    console.log(typeof data)
-
-    // fetch(`migrate`, {
-    //   method: 'POST',
-    //   header: {
-    //     'Accept': 'application/json',
-    //     'Content-Type' : 'application/json'
-    //   },
-    //   body: data
-    // })
-    //   .then(res => res.json())
-    //   .then(result => {
-    //   textareaEditBtn.classList.add('active')
-    //   textareaForwardBtn.classList.remove('active')
-    //   textareaCloseBtn.classList.remove('active')
-    //   textareaForwardBtn.disabled = true
-    //   textareaCloseBtn.disabled = true
-    //   textareaEditBtn.disabled = false
-    //
-    //   if (result.status === 200) {
-    //     alert.classList.add('alert-success')
-    //     alert.classList.remove('op-0')
-    //
-    //     alert.textContent = result.message
-    //
-    //     setTimeout(() => {
-    //       alert.classList.remove('alert-success')
-    //       alert.classList.add('op-0')
-    //       alert.textContent = ""
-    //     }, 1500)
-    //   }else {
-    //     alert.classList.add('alert-danger')
-    //     alert.classList.remove('op-0')
-    //
-    //     alert.textContent = result.message
-    //
-    //     setTimeout(() => {
-    //       alert.classList.remove('alert-danger')
-    //       alert.classList.add('op-0')
-    //       alert.textContent = ""
-    //     }, 1500)
-    //
-    //   }
-    //
-    // })
-    //   .catch(error => {
-    //     console.log(error)
-    //   alert.classList.add('alert-danger')
-    //   alert.classList.remove('op-0')
-    //
-    //   alert.textContent = error.message
-    //
-    //   setTimeout(() => {
-    //     alert.classList.remove('alert-danger')
-    //     alert.classList.add('op-0')
-    //     alert.textContent = ""
-    //   }, 1500)
-    // })
-
-
-      let xhr = new XMLHttpRequest();
-      xhr.open("POST", "migrate");
-      xhr.setRequestHeader("Accept", "application/json");
-      xhr.setRequestHeader("Content-Type", "application/json");
-
-      xhr.responseType = 'json';
-
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          // console.log(xhr.status);
-          // console.log(xhr.responseText);
-
-
-          textareaEditBtn.classList.add('active')
-          textareaForwardBtn.classList.remove('active')
-          textareaCloseBtn.classList.remove('active')
-          textareaForwardBtn.disabled = true
-          textareaCloseBtn.disabled = true
-          textareaEditBtn.disabled = false
-
-          let jsonResponse = xhr.response
-          //
-          // console.log(jsonResponse)
-
-
-
-          if (xhr.status === 200) {
-            alert.classList.add('alert-success')
-            alert.classList.remove('op-0')
-            alert.textContent = jsonResponse.message
-
-            setTimeout(() => {
-              alert.classList.remove('alert-success')
-              alert.classList.add('op-0')
-              alert.textContent = ""
-            }, 1500)
-          }else {
-            alert.classList.add('alert-danger')
-            alert.classList.remove('op-0')
-
-            alert.textContent = jsonResponse.message
-
-            setTimeout(() => {
-              alert.classList.remove('alert-danger')
-              alert.classList.add('op-0')
-              alert.textContent = ""
-            }, 1500)
-
-          }
-        }};
-
-      xhr.send(data);
-  })
-}
-
-function showLoadingImportExport() {
-  const loadingElement = document.getElementById('loading-upload');
-  loadingElement.style.display = 'block';
-}
-
-function hideLoadingImportExport() {
-  const loadingElement = document.getElementById('loading-upload');
-  loadingElement.style.display = 'none';
-}
+// function showLoadingImportExport() {
+//   const loadingElement = document.getElementById('loading-upload');
+//   loadingElement.style.display = 'block';
+// }
+//
+// function hideLoadingImportExport() {
+//   const loadingElement = document.getElementById('loading-upload');
+//   loadingElement.style.display = 'none';
+// }
