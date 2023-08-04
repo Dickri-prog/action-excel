@@ -316,11 +316,13 @@ function displayDetailProduct(item) {
   productnameP.style = `margin-top: 10px;`
 
   if (item.isEnabled) {
-    isEnabledBtn.innerText = "Disable"
-    isEnabledBtn.dataset.isEnabled = true
-  }else {
     isEnabledBtn.innerText = "Enable"
+    isEnabledBtn.dataset.isEnabled = true
+    isEnabledBtn.dataset.id = item.id
+  }else {
+    isEnabledBtn.innerText = "Disable"
     isEnabledBtn.dataset.isEnabled = false
+    isEnabledBtn.dataset.id = item.id
   }
 
 
