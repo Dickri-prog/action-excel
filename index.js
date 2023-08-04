@@ -330,7 +330,7 @@ app.post('/products/:id/edit',  (req, res) => {
 	}
 })
 
-app.post('/products/:id/is-enabled', (req, res) => {
+app.post('/products/:id/is-enabled', async (req, res) => {
   try {
     const id = req.params.id
     const isEnabled = req.body.isEnabled
