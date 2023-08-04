@@ -328,7 +328,7 @@ function displayDetailProduct(item) {
     isEnabledBtn.classList.add('btn-danger')
   }else {
     isEnabledBtn.innerText = "Enable"
-    isEnabledBtn.dataset.isEnabled = false
+    isEnabledBtn.dataset.isEnabled = true
     isEnabledBtn.dataset.id = item.id
     isEnabledBtn.classList.add('btn-primary')
     isEnabledBtn.classList.remove('btn-danger')
