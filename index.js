@@ -189,7 +189,7 @@ app.get('/products/cancelled', (req, res) => {
 app.post('/products/:id/name', checkingData,  async (req, res) => {
   try {
     const productId = req.params.id
-    let productname = req.body.productName
+    let productName = req.body.productName
     productName = productName.trim()
 
     const findIndexOfProduct = jsonDataContent.findIndex(item => item.id === productId)
