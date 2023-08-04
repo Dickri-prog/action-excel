@@ -392,7 +392,7 @@ function displayDetailProduct(item) {
         alert.classList.remove('alert-success')
     }
 
-    fetch(`${apiEndpoint}/edit?id=${item['id']}`, {
+    fetch(`${apiEndpoint}/${item['id']}/edit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'

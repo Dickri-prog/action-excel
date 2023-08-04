@@ -188,8 +188,7 @@ app.get('/products/cancelled', (req, res) => {
 
 app.post('/products/:id/name', checkingData,  async (req, res) => {
   try {
-    const productId = req.params.id
-    console.log(productId, typeof productId)
+    const productId = parseInt(req.params.id)
     let productName = req.body.productName
     productName = productName.trim()
 
@@ -379,31 +378,36 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-    console.log(id, typeof id)
     let isEnabled = req.body.isEnabled
     const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
 
     if (indexOfItem != -1) {
-      isEnabled = (isEnabled == 'true');
-      jsonDataContent[indexOfItem].isEnabled = isEnabled
+      // isEnabled = ();
+      if (isEnabled !== undefined) {
+        if (isEnabled == 'true' || isEnabled == 'false') {
+          jsonDataContent[indexOfItem].isEnabled = (isEnabled == 'true')
 
-      const updatedContent = await updateFile()
+          const updatedContent = await updateFile()
 
-      if (updatedContent) {
-        res.json({
-          isEnabled: jsonDataContent[indexOfItem].isEnabled,
-          message: "Succesfully!!!"
-        })
-      } else {
-        res.status(400).json({
-          isEnabled: jsonDataContent[indexOfItem].isEnabled,
-          message: "Failed!!!"
-        })
+          if (updatedContent) {
+            res.json({
+              isEnabled: jsonDataContent[indexOfItem].isEnabled,
+              message: "Succesfully!!!"
+            })
+          } else {
+            res.status(400).json({
+              isEnabled: jsonDataContent[indexOfItem].isEnabled,
+              message: "Failed!!!"
+            })
+          }
+        }else {
+          throw new Error('Something Wrong input!!!')
+        }
+      }else {
+        throw new Error('Something Wrong input!!!')
       }
     }else {
-      res.json({
-        message: "product not found!!!"
-      })
+      throw new Error('product not found!!!')
 
     }
   } catch (e) {
