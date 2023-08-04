@@ -359,6 +359,7 @@ app.post('/products/:id/is-enabled', async (req, res) => {
 
     }
   } catch (e) {
+    console.log(e)
     if (e.name == 'Error') {
       res.status(500).json({
   			message: e.message
