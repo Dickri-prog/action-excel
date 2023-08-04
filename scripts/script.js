@@ -368,7 +368,7 @@ function displayDetailProduct(item) {
 
     const alert = document.querySelector('#product-detail .alert')
 
-    const label = "nameProduct"
+    const label = "productName"
 
     values[label] = productnameInput.value
 
@@ -392,7 +392,7 @@ function displayDetailProduct(item) {
         alert.classList.remove('alert-success')
     }
 
-    fetch(`${apiEndpoint}/${item['id']}/edit`, {
+    fetch(`${apiEndpoint}/${item['id']}/name`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
