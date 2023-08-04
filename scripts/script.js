@@ -106,7 +106,7 @@ isEnabledBtn.addEventListener('click', (e) => {
 
     if (result.isEnabled !== undefined) {
       console.log(result.isEnabled, typeof result.isEnabled)
-      if (result.isEnabled == 'true') {
+      if (result.isEnabled) {
         isEnabledBtn.innerText = "Disable"
         isEnabledBtn.dataset.isEnabled = result.isEnabled
         isEnabledBtn.classList.remove('btn-primary')
