@@ -186,7 +186,7 @@ app.get('/products/cancelled', (req, res) => {
 	}
 })
 
-app.post('/products/:id/edit', async (req, res) => {
+app.post('/products/:id/edit', (req, res) => {
 
 	try {
 		const productId = req.params.id
@@ -259,7 +259,7 @@ app.post('/products/:id/edit', async (req, res) => {
 		}
 
 		// Function to read and edit a JSON file
-		function editJSON() {
+		async function editJSON() {
 			try {
 				if (jsonDataContent.length > 0) {
 					let index = jsonDataContent.findIndex(x => x.id == productId);
