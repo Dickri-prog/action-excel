@@ -109,12 +109,12 @@ isEnabledBtn.addEventListener('click', (e) => {
       console.log(result.isEnabled, typeof result.isEnabled)
       if (result.isEnabled) {
         isEnabledBtn.innerText = "Disable"
-        isEnabledBtn.dataset.isEnabled = result.isEnabled
+        isEnabledBtn.dataset.isEnabled = false
         isEnabledBtn.classList.remove('btn-primary')
         isEnabledBtn.classList.add('btn-danger')
       }else {
         isEnabledBtn.innerText = "Enable"
-        isEnabledBtn.dataset.isEnabled = result.isEnabled
+        isEnabledBtn.dataset.isEnabled = true
         isEnabledBtn.classList.remove('btn-danger')
         isEnabledBtn.classList.add('btn-primary')
       }
