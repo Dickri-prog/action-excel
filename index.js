@@ -186,13 +186,58 @@ app.get('/products/cancelled', (req, res) => {
 	}
 })
 
-app.post('/products/:id/edit', (req, res) => {
+app.post('products/:id/name', checkingData,  async (req, res) => {
+  try {
+    const productId = req.params.id
+    let productname = req.body.productName
+    productName = productName.trim()
+
+    const findIndexOfProduct = jsonDataContent.findIndex(item => item.id === productId)
+
+    if (findIndexOfProduct != -1) {
+      if (productName != '' && productName != ' ') {
+        jsonDataContent[findIndexOfProduct][name] = productName
+
+        const updatedContent = await updateFile()
+
+        if (updatedContent) {
+          res.json({
+            message: "Updated successfully!!!"
+          })
+          console.log(`Updated successfully.`);
+        } else {
+          throw new Error('Updated Failed!!!')
+
+          console.log(`Updated Failed!!!.`);
+        }
+
+      }else {
+        throw new Error('Product Name should fill!!!')
+      }
+    }else {
+      throw new Error('Product not found!!!')
+    }
+
+  } catch (e) {
+    if (e.name == 'Error') {
+      return res.status(400).json({
+        message: e.message
+      })
+    }
+
+    res.status(500).json({
+      message: 'Something Wrong!!!'
+    })
+  }
+})
+
+app.post('/products/:id/edit', checkingData,  async (req, res) => {
 
 	try {
 		const productId = req.params.id
 		const formData = req.body;
 
-		let nameProduct = null;
+		// let nameProduct = null;
 		let priceProductSizeS = null;
 		let priceProductSizeM = null;
 		let priceProductSizeL = null;
@@ -245,9 +290,9 @@ app.post('/products/:id/edit', (req, res) => {
 			}
 		}
 
-		if (formData.nameProduct) {
-			nameProduct = formData.nameProduct;
-		}
+		// if (formData.nameProduct) {
+		// 	nameProduct = formData.nameProduct;
+		// }
 
 		let index = null;
 
@@ -259,8 +304,8 @@ app.post('/products/:id/edit', (req, res) => {
 		}
 
 		// Function to read and edit a JSON file
-		async function editJSON() {
-			try {
+		// async function editJSON() {
+		// 	try {
 				if (jsonDataContent.length > 0) {
 					let index = jsonDataContent.findIndex(x => x.id == productId);
 
@@ -274,13 +319,13 @@ app.post('/products/:id/edit', (req, res) => {
 							}
 						}
 
-						if (nameProduct !== null) {
-							jsonDataContent[index].name = nameProduct
+						// if (nameProduct !== null) {
+						// 	jsonDataContent[index].name = nameProduct
+						// 	jsonDataContent[index].sizes = priceProduct
+						// }else {
+						// 	jsonDataContent[index].name = jsonDataContent[index].name
 							jsonDataContent[index].sizes = priceProduct
-						}else {
-							jsonDataContent[index].name = jsonDataContent[index].name
-							jsonDataContent[index].sizes = priceProduct
-						}
+						// }
 
             const updatedContent = await updateFile()
 
@@ -290,47 +335,44 @@ app.post('/products/:id/edit', (req, res) => {
               })
               console.log(`Updated successfully.`);
             } else {
-              res.status(400).json({
-                message: "Updated Failed!!!"
-              })
+              throw new Error('Updated Failed!!!')
+
               console.log(`Updated Failed!!!.`);
             }
 
 					}else {
-						res.status(404).json({
-							message: "Updated failed item not found!!!"
-						});
+            throw new Error('Updated failed item not found!!!')
+
 						console.log(`Updated failed.`);
 					}
 				}else if (jsonDataContent <= 0) {
-					res.status(400).json({
-						message: "Updated failed No data!!!"
-					});
+          throw new Error('Updated failed No data!!!')
+
 					console.log(`Updated failed.`);
 				}
-			} catch (err) {
-				res.status(500).json({
-					message: "Updated failed"
-				});
-				console.error(`Error editing :`, err);
-			}
-		}
+			// } catch (err) {
+			// 	res.status(500).json({
+			// 		message: "Updated failed"
+			// 	});
+			// 	console.error(`Error editing :`, err);
+			// }
+		// }
 
-		editJSON();
+		// editJSON();
 	} catch (e) {
 		if (e.name == 'Error') {
-      res.status(500).json({
+      return res.status(400).json({
   			message: e.message
       });
-    }else {
-      res.status(500).json({
+    }
+
+      return res.status(500).json({
   			message: "Something wrong!!!"
       });
-    }
 	}
 })
 
-app.post('/products/:id/is-enabled', async (req, res) => {
+app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     let isEnabled = req.body.isEnabled
