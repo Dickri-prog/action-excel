@@ -108,13 +108,13 @@ isEnabledBtn.addEventListener('click', (e) => {
       if (result.isEnabled) {
         isEnabledBtn.innerText = "Disable"
         isEnabledBtn.dataset.isEnabled = result.isEnabled
-        isEnabledBtn.classList.add('btn-primary')
-        isEnabledBtn.classList.remove('btn-danger')
+        isEnabledBtn.classList.remove('btn-primary')
+        isEnabledBtn.classList.add('btn-danger')
       }else {
         isEnabledBtn.innerText = "Enable"
         isEnabledBtn.dataset.isEnabled = result.isEnabled
-        isEnabledBtn.classList.add('btn-primary')
         isEnabledBtn.classList.remove('btn-danger')
+        isEnabledBtn.classList.add('btn-primary')
       }
 
       if (alert.classList.contains('alert-warning')) {
