@@ -333,16 +333,17 @@ app.post('/products/:id/edit', (req, res) => {
 app.post('/products/:id/is-enabled', async (req, res) => {
   try {
     const id = req.params.id
-    const isEnabled = req.body.isEnabled
+    let isEnabled = req.body.isEnabled
     const indexOfItem  = jsonDataContent.findIndex(item => item.id = id)
 
     if (indexOfItem != -1) {
       console.log(isEnabled)
-      if (isEnabled == "true") {
-        jsonDataContent[indexOfItem].isEnabled = false
-      }else {
-        jsonDataContent[indexOfItem].isEnabled = true
-      }
+      isEnabled = (isEnabled == 'true');
+      jsonDataContent[indexOfItem].isEnabled = isEnabled
+      // if (isEnabled == "true") {
+      // }else {
+      //   jsonDataContent[indexOfItem].isEnabled = true
+      // }
       console.log(jsonDataContent[indexOfItem].isEnabled)
 
       const updatedContent = await updateFile()

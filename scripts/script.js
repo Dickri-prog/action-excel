@@ -105,7 +105,7 @@ isEnabledBtn.addEventListener('click', (e) => {
   .then(result => {
 
     if (result.isEnabled !== undefined) {
-      console.log(isEnabled)
+      console.log(result.isEnabled, typeof result.isEnabled)
       if (result.isEnabled == 'true') {
         isEnabledBtn.innerText = "Disable"
         isEnabledBtn.dataset.isEnabled = result.isEnabled
