@@ -337,14 +337,8 @@ app.post('/products/:id/is-enabled', async (req, res) => {
     const indexOfItem  = jsonDataContent.findIndex(item => item.id = id)
 
     if (indexOfItem != -1) {
-      console.log(isEnabled)
       isEnabled = (isEnabled == 'true');
       jsonDataContent[indexOfItem].isEnabled = isEnabled
-      // if (isEnabled == "true") {
-      // }else {
-      //   jsonDataContent[indexOfItem].isEnabled = true
-      // }
-      console.log(jsonDataContent[indexOfItem].isEnabled)
 
       const updatedContent = await updateFile()
 
