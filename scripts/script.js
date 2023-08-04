@@ -75,7 +75,6 @@ isEnabledBtn.addEventListener('click', (e) => {
   const isEnabled = e.target.dataset.isEnabled
   const alert = document.querySelector('#product-detail .alert')
 
-
   let values = {
     isEnabled
   }
