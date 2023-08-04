@@ -333,9 +333,8 @@ app.post('/products/:id/edit', (req, res) => {
 app.post('/products/:id/is-enabled', async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-    console.log(id)
     let isEnabled = req.body.isEnabled
-    const indexOfItem  = jsonDataContent.findIndex(item => item.id = id)
+    const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
 
     if (indexOfItem != -1) {
       isEnabled = (isEnabled == 'true');
