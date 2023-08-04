@@ -338,7 +338,7 @@ app.post('/products/:id/is-enabled', async (req, res) => {
 
     if (indexOfItem != -1) {
       console.log(isEnabled)
-      if (jsonDataContent[indexOfItem].isEnabled == "true") {
+      if (isEnabled == "true") {
         jsonDataContent[indexOfItem].isEnabled = false
       }else {
         jsonDataContent[indexOfItem].isEnabled = true
