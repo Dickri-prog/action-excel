@@ -79,7 +79,7 @@ function checkingData(req, res, next) {
 }
 
 async function updateFile() {
-  const updatedContent = Buffer.from(JSON.stringify(templatesData, null, 2)).toString('base64');
+  const updatedContent = Buffer.from(JSON.stringify(jsonDataContent, null, 2)).toString('base64');
   const updatedData = await octokit.request('PUT /repos/Dickri-prog/jsonData/contents/product-price/products.json', {
     owner: 'Dickri-prog',
     repo: 'jsonData',
