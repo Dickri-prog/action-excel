@@ -196,7 +196,7 @@ app.post('/products/:id/name', checkingData,  async (req, res) => {
 
     if (findIndexOfProduct != -1) {
       if (productName != '' && productName != ' ') {
-        jsonDataContent[findIndexOfProduct][name] = productName
+        jsonDataContent[findIndexOfProduct]["name"] = productName
 
         const updatedContent = await updateFile()
 
