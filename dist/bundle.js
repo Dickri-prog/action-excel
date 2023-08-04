@@ -107,11 +107,15 @@ isEnabledBtn.addEventListener('click', (e) => {
 
     if (result.isEnabled !== undefined) {
       if (result.isEnabled) {
-        isEnabledBtn.innerText = "disable"
-        isEnabled.dataset.isEnabled = result.isEnabled
+        isEnabledBtn.innerText = "Disable"
+        isEnabledBtn.dataset.isEnabled = result.isEnabled
+        isEnabledBtn.classList.add('btn-primary')
+        isEnabledBtn.classList.remove('btn-danger')
       }else {
-        isEnabledBtn.innerText = "unable"
-        isEnabled.dataset.isEnabled = result.isEnabled
+        isEnabledBtn.innerText = "Enable"
+        isEnabledBtn.dataset.isEnabled = result.isEnabled
+        isEnabledBtn.classList.add('btn-primary')
+        isEnabledBtn.classList.remove('btn-danger')
       }
 
       if (alert.classList.contains('alert-warning')) {
@@ -317,17 +321,17 @@ function displayDetailProduct(item) {
   productnameP.style = `margin-top: 10px;`
 
   if (item.isEnabled) {
-    isEnabledBtn.innerText = "Enable"
-    isEnabledBtn.dataset.isEnabled = true
-    isEnabledBtn.dataset.id = item.id
-    isEnabledBtn.classList.add('btn-primary')
-    isEnabledBtn.classList.remove('btn-danger')
-  }else {
     isEnabledBtn.innerText = "Disable"
     isEnabledBtn.dataset.isEnabled = false
     isEnabledBtn.dataset.id = item.id
     isEnabledBtn.classList.remove('btn-primary')
     isEnabledBtn.classList.add('btn-danger')
+  }else {
+    isEnabledBtn.innerText = "Enable"
+    isEnabledBtn.dataset.isEnabled = false
+    isEnabledBtn.dataset.id = item.id
+    isEnabledBtn.classList.add('btn-primary')
+    isEnabledBtn.classList.remove('btn-danger')
   }
 
 

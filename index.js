@@ -54,7 +54,7 @@ async function fetchContentFile() {
     console.log("fetched")
     return true
   }).catch(error => {
-    console.error(error.message)
+    console.error(error)
     return false
   })
 
