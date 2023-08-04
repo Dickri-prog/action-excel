@@ -321,7 +321,7 @@ function displayDetailProduct(item) {
   productnameP.textContent = "Sizes :"
   productnameP.style = `margin-top: 10px;`
 
-  if (item.isEnabled == 'true') {
+  if (item.isEnabled) {
     isEnabledBtn.innerText = "Disable"
     isEnabledBtn.dataset.isEnabled = false
     isEnabledBtn.dataset.id = item.id
