@@ -224,6 +224,7 @@ app.post('/products/:id/name', checkingData,  async (req, res) => {
         message: e.message
       })
     }
+    console.log(e)
 
     res.status(500).json({
       message: 'Something Wrong!!!'
@@ -366,6 +367,8 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
       });
     }
 
+    console.log(e)
+
       return res.status(500).json({
   			message: "Something wrong!!!"
       });
@@ -426,7 +429,7 @@ app.get('/products/json', checkingData, (req, res) => {
         }
 
 	} catch (e) {
-    console.log(e.message)
+    console.log(e)
 
 		res.status(500).json({
 			message: "Something wrong!!!"
