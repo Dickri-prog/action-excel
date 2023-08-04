@@ -186,7 +186,7 @@ app.get('/products/cancelled', (req, res) => {
 	}
 })
 
-app.post('/products/:id/edit',  (req, res) => {
+app.post('/products/:id/edit', async (req, res) => {
 
 	try {
 		const productId = req.params.id
