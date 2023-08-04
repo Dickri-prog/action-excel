@@ -189,6 +189,7 @@ app.get('/products/cancelled', (req, res) => {
 app.post('/products/name', checkingData,  async (req, res) => {
   try {
     const productId = req.params.id
+    console.log(productId, typeof productId)
     let productName = req.body.productName
     productName = productName.trim()
 
@@ -378,6 +379,7 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 app.post('/products/is-enabled', checkingData,  async (req, res) => {
   try {
     const id = parseInt(req.params.id)
+    console.log(id, typeof id)
     let isEnabled = req.body.isEnabled
     const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
 
