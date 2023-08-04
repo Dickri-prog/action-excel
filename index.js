@@ -186,7 +186,7 @@ app.get('/products/cancelled', (req, res) => {
 	}
 })
 
-app.post('/products/:id/name', checkingData,  async (req, res) => {
+app.post('/products/name', checkingData,  async (req, res) => {
   try {
     const productId = req.params.id
     let productName = req.body.productName
@@ -375,7 +375,7 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 	}
 })
 
-app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
+app.post('/products/is-enabled', checkingData,  async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     let isEnabled = req.body.isEnabled
