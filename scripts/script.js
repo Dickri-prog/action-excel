@@ -319,10 +319,14 @@ function displayDetailProduct(item) {
     isEnabledBtn.innerText = "Enable"
     isEnabledBtn.dataset.isEnabled = true
     isEnabledBtn.dataset.id = item.id
+    isEnabled.classList.add('btn-primary')
+    isEnabled.classList.remove('btn-danger')
   }else {
     isEnabledBtn.innerText = "Disable"
     isEnabledBtn.dataset.isEnabled = false
     isEnabledBtn.dataset.id = item.id
+    isEnabled.classList.remove('btn-primary')
+    isEnabled.classList.add('btn-danger')
   }
 
 
