@@ -9,20 +9,10 @@ path = require('path'),
 bodyParser = require('body-parser'),
 { Octokit } = require("octokit")
 
-app.use("/dist", express.static(path.join(__dirname, 'dist')));
-app.use("/public", express.static(path.join(__dirname, 'public')))
-
-app.use('/upload', fileUpload());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-let jsonDataContent = []
-
 let shaData = null
 let fetchedData = false
 
+let jsonDataContent = []
 let cancelDataArr = {
     nameSize: [
       "kuning",
@@ -33,6 +23,14 @@ let cancelDataArr = {
       "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua"
     ]
 }
+
+app.use("/dist", express.static(path.join(__dirname, 'dist')));
+app.use("/public", express.static(path.join(__dirname, 'public')))
+app.use('/upload', fileUpload());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 const octokit = new Octokit({
   auth: process.env.githubSecretKey
@@ -64,34 +62,50 @@ async function fetchContentFile() {
 }
 
 function checkingData(req, res, next) {
+    if (fetchedData === false) {
+      fetchedData = fetchContentFile().then(result => {
+        if (result) {
+          next()
+        } else {
+          return res.json({
+            isLoggedin: false,
+            message: "Something Wrong, contact us"
+          })
+        }
+      })
+    } else {
+      next()
+    }
+}
 
-  if (fetchedData === false) {
-    fetchedData = fetchContentFile().then(result => {
-      if (result) {
-        next()
-      } else {
-        return res.json({
-          isLoggedin: false,
-          message: "Something Wrong, contact us"
-        })
-      }
+async function updateFile() {
+  const updatedContent = Buffer.from(JSON.stringify(templatesData, null, 2)).toString('base64');
+  const updatedData = await octokit.request('PUT /repos/Dickri-prog/jsonData/contents/product-price/products.json', {
+    owner: 'Dickri-prog',
+    repo: 'jsonData',
+    sha: shaData,
+    path: 'product-price/products.json',
+    message: 'update products.json',
+    content: updatedContent,
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28'
+    }
+  })
+    .then(result => {
+      shaData = result['data']['content']['sha']
+      return true
     })
-  } else {
-    next()
-  }
+    .catch(error => {
+      console.error(error.message);
+      return false
+    })
+
+  return updatedData
 }
 
 app.get('/', (req, res) => {
 	res.render('index')
 });
-
-// app.get('/products/json', (req, res) => {
-//   const jsonData = fs.readFileSync(filePath, 'utf8');
-//   const data = JSON.parse(jsonData);
-//
-//   res.json(data)
-//
-// })
 
 app.get('/products', checkingData , (req, res) => {
 	const page = parseInt(req.query.page);
@@ -248,32 +262,40 @@ app.post('/products/:id/edit',  (req, res) => {
 		function editJSON() {
 			try {
 				if (jsonDataContent.length > 0) {
-					const data = jsonDataContent;
-					let index = data.findIndex(x => x.id == productId);
+					let index = jsonDataContent.findIndex(x => x.id == productId);
 
 					if (index != -1) {
 						for (var key in priceProduct) {
-							if (data[index]["sizes"][key] === undefined) {
+							if (jsonDataContent[index]["sizes"][key] === undefined) {
 							 delete	priceProduct[key]
 							}
 							if (priceProduct[key] === null) {
-								priceProduct[key] = parseInt(data[index]["sizes"][key])
+								priceProduct[key] = parseInt(jsonDataContent[index]["sizes"][key])
 							}
 						}
 
 						if (nameProduct !== null) {
-							data[index].name = nameProduct
-							data[index].sizes = priceProduct
+							jsonDataContent[index].name = nameProduct
+							jsonDataContent[index].sizes = priceProduct
 						}else {
-							data[index].name = data[index].name
-							data[index].sizes = priceProduct
+							jsonDataContent[index].name = jsonDataContent[index].name
+							jsonDataContent[index].sizes = priceProduct
 						}
 
+            const updatedContent = await updateFile()
 
-						res.json({
-							message: "Updated successfully"
-						});
-						console.log(`Updated successfully.`);
+            if (updatedContent) {
+              res.json({
+                message: "Updated successfully!!!"
+              })
+              console.log(`Updated successfully.`);
+            } else {
+              res.status(400).json({
+                message: "Updated Failed!!!"
+              })
+              console.log(`Updated Failed!!!.`);
+            }
+
 					}else {
 						res.status(404).json({
 							message: "Updated failed item not found!!!"
@@ -296,9 +318,57 @@ app.post('/products/:id/edit',  (req, res) => {
 
 		editJSON();
 	} catch (e) {
-		res.status(500).json({
-			message: e.message });
+		if (e.name == 'Error') {
+      res.status(500).json({
+  			message: e.message
+      });
+    }else {
+      res.status(500).json({
+  			message: "Something wrong!!!"
+      });
+    }
 	}
+})
+
+app.post('/products/:id/is-enabled', (req, res) => {
+  try {
+    const id = req.params.id
+    const isEnabled = req.body.isEnabled
+    const indexOfItem  = jsonDataContent.findIndex(item => item.id = id)
+
+    if (indexOfItem != -1) {
+      jsonDataContent[indexOfItem].isEnabled = isEnabled
+
+      const updatedContent = await updateFile()
+
+      if (updatedContent) {
+        res.json({
+          isEnabled: jsonDataContent[indexOfItem].isEnabled,
+          message: "Succesfully!!!"
+        })
+      } else {
+        res.status(400).json({
+          isEnabled: jsonDataContent[indexOfItem].isEnabled,
+          message: "Failed!!!"
+        })
+      }
+    }else {
+      res.json({
+        message: "product not found!!!"
+      })
+
+    }
+  } catch (e) {
+    if (e.name == 'Error') {
+      res.status(500).json({
+  			message: e.message
+      });
+    }else {
+      res.status(500).json({
+  			message: "Something wrong!!!"
+      });
+    }
+  }
 })
 
 app.get('/products/json', checkingData, (req, res) => {
@@ -320,127 +390,103 @@ app.get('/products/json', checkingData, (req, res) => {
 	}
 })
 
-// app.post('/migrate', (req, res) => {
-// 	try {
-// 			let formData = req.body
-//
-// 			jsonDataContent = formData
-//
-// 			res.json({
-// 				message: "Migrating successfully!!!"
-// 			});
-//
-// 	} catch (e) {
-//
-// 		res.status(500).json({
-// 			message: "Something Wrong!!!"
-// 		});
-// 	}
-// })
-
-// app.get('/export', (req, res) => {
-// 	res.json(jsonDataContent)
-// })
-
 app.post('/upload', (req, res) => {
 
-	function cancelled (value, property) {
+  	function cancelled (value, property) {
 
-    let valueToLower = value.toLowerCase()
+      let valueToLower = value.toLowerCase()
 
-    if (cancelDataArr[property].findIndex(item => valueToLower.includes(item.toLowerCase())) != -1) {
-      // console.log(valueToLower);
-     return true;
-   }
+      if (cancelDataArr[property].findIndex(item => valueToLower.includes(item.toLowerCase())) != -1) {
+        // console.log(valueToLower);
+       return true;
+     }
 
-    return false;
+      return false;
 
-	}
+  	}
 
-	function dataNomination (value) {
+  	function dataNomination (value) {
 
-    let valueToLower = value.toLowerCase()
+      let valueToLower = value.toLowerCase()
 
-    let index = jsonDataContent.findIndex(item => valueToLower.includes(item.name.toLowerCase()))
+      let index = jsonDataContent.findIndex(item => valueToLower.includes(item.name.toLowerCase()))
 
-		if (index != -1) {
-      let pricesData = jsonDataContent[index].sizes
-			return pricesData;
-		}
+  		if (index != -1) {
+        let pricesData = jsonDataContent[index].sizes
+  			return pricesData;
+  		}
 
-    return false;
+      return false;
 
-	}
+  	}
 
-	decompress(req.files.ZipFile.data).then(files => {
-		workbook.xlsx.load(files[0].data)
-		    .then(async function () {
-		        const worksheet = workbook.getWorksheet('Sheet1');
+  	decompress(req.files.ZipFile.data).then(files => {
+  		workbook.xlsx.load(files[0].data)
+  		    .then(async function () {
+  		        const worksheet = workbook.getWorksheet('Sheet1');
 
-		        worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+  		        worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
 
-	            if (row.values[7] == 0 && row.values[11] == "Menunggu Konfirmasimu") {
-	                row.getCell(12).value = 'Tolak'
-	            }
+  	            if (row.values[7] == 0 && row.values[11] == "Menunggu Konfirmasimu") {
+  	                row.getCell(12).value = 'Tolak'
+  	            }
 
 
-				if (pricesData = dataNomination(row.values[1])) {
-              if (row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-                if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
+  				if (pricesData = dataNomination(row.values[1])) {
+                if (row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
+                  if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
 
-      						if (pricesData.S !== undefined) {
-                    row.getCell(6).value = pricesData.S
-        						row.getCell(7).value = pricesData.S
-                    row.getCell(12).value = 'Ubah'
-                  }
-      					} else if (row.values[3].toLowerCase().includes(",m") || row.values[3].toLowerCase().includes("m,")) {
+        						if (pricesData.S !== undefined) {
+                      row.getCell(6).value = pricesData.S
+          						row.getCell(7).value = pricesData.S
+                      row.getCell(12).value = 'Ubah'
+                    }
+        					} else if (row.values[3].toLowerCase().includes(",m") || row.values[3].toLowerCase().includes("m,")) {
 
-                  if (pricesData.M !== undefined) {
-                    row.getCell(6).value = pricesData.M
-        						row.getCell(7).value = pricesData.M
-                    row.getCell(12).value = 'Ubah'
-                  }
-      					} else if (row.values[3].toLowerCase().includes(",l") || row.values[3].toLowerCase().includes("l,")) {
+                    if (pricesData.M !== undefined) {
+                      row.getCell(6).value = pricesData.M
+          						row.getCell(7).value = pricesData.M
+                      row.getCell(12).value = 'Ubah'
+                    }
+        					} else if (row.values[3].toLowerCase().includes(",l") || row.values[3].toLowerCase().includes("l,")) {
 
-                  if (pricesData.L !== undefined) {
-                    row.getCell(6).value = pricesData.L
-        						row.getCell(7).value = pricesData.L
-                    row.getCell(12).value = 'Ubah'
-                  }
-      					}else if (row.values[3].toLowerCase().includes(",xl") || row.values[3].toLowerCase().includes("xl,")) {
-                  if (pricesData.XL !== undefined) {
-                    row.getCell(6).value = pricesData.XL
-                    row.getCell(7).value = pricesData.XL
-                    row.getCell(12).value = 'Ubah'
-                  }
-      					}
+                    if (pricesData.L !== undefined) {
+                      row.getCell(6).value = pricesData.L
+          						row.getCell(7).value = pricesData.L
+                      row.getCell(12).value = 'Ubah'
+                    }
+        					}else if (row.values[3].toLowerCase().includes(",xl") || row.values[3].toLowerCase().includes("xl,")) {
+                    if (pricesData.XL !== undefined) {
+                      row.getCell(6).value = pricesData.XL
+                      row.getCell(7).value = pricesData.XL
+                      row.getCell(12).value = 'Ubah'
+                    }
+        					}
+                }
+  				  }
+
+            if (cancelled(row.values[1], "nameProduct")) {
+              if (row.values[11] == "Menunggu Konfirmasimu") {
+                      row.getCell(12).value = 'Tolak'
               }
-				  }
-
-          if (cancelled(row.values[1], "nameProduct")) {
-            if (row.values[11] == "Menunggu Konfirmasimu") {
-                    row.getCell(12).value = 'Tolak'
             }
-          }
-          if (cancelled(row.values[3], "nameSize")) {
-            if (row.values[11] == "Menunggu Konfirmasimu") {
-                    row.getCell(12).value = 'Tolak'
+            if (cancelled(row.values[3], "nameSize")) {
+              if (row.values[11] == "Menunggu Konfirmasimu") {
+                      row.getCell(12).value = 'Tolak'
+              }
             }
-          }
 
-		        });
+  		        });
 
-		        const buffer = await workbook.xlsx.writeBuffer();
+  		        const buffer = await workbook.xlsx.writeBuffer();
 
-		        res.status(200)
-		        res.send(buffer)
-		        });
-
-
-	});
+  		        res.status(200)
+  		        res.send(buffer)
+  		        });
 
 
-    })
+  	});
+})
 
 const port = 3002;
 

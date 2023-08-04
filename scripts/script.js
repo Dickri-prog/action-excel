@@ -3,11 +3,11 @@ const btn = document.getElementById("btnUpload"),
     loading = document.getElementById("loading"),
     process = document.getElementById("process"),
     productsEditBtn = document.getElementById("productsEditBtn"),
-    // exportJsonBtn = document.getElementById("exportJson"),
     productDetailBody = document.getElementById("product-detail-body"),
     uploadFileDetailBody = document.getElementById("product-detail-body"),
     cancelledProductBtn = document.getElementById("cancelledProductBtn"),
     backToProductBtn = document.querySelectorAll(".backToProductBtn"),
+    isEnabledBtn = document.getElementById("#product-detail #isEnabledBtn")
     apiEndpoint = '/products'; // Replace with your API endpoint
 let itemsPerPage = 5, // Number of items to display per page
     currentPage = 1, // Initial page number
@@ -70,13 +70,105 @@ cancelledProductBtn.addEventListener('click', () => {
   fetchDataCancelledProducts(currentPageCancelled)
 })
 
+isEnabledBtn.addEventListener('click', (e) => {
+  const id = e.target.dataset.id
+  const isEnabled = e.target.dataset.isEnabled
+  const alert = document.querySelector('#product-detail .alert')
 
-// uploadFileBtn.addEventListener('click', fetchDataUpload)
 
-// exportJsonBtn.addEventListener('click', exportJsonData)
+  let values = {
+    isEnabled
+  }
+
+  let formBody = [];
+  for (let property in values) {
+    let encodedKey = encodeURIComponent(property);
+    let encodedValue = encodeURIComponent(values[property]);
+    formBody.push(encodedKey + "=" + encodedValue);
+  }
+  formBody = formBody.join("&");
+
+  fetch(`${apiEndpoint}/${id}/is-enabled`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    },
+    body: formBody
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw response.json()
+    }
+
+    return response.json()
+  })
+  .then(result => {
+
+    if (result.isEnabled !== undefined) {
+      if (result.isEnabled) {
+        isEnabledBtn.innerText = "disable"
+        isEnabled.dataset.isEnabled = result.isEnabled
+      }else {
+        isEnabledBtn.innerText = "unable"
+        isEnabled.dataset.isEnabled = result.isEnabled
+      }
+
+      if (alert.classList.contains('alert-warning')) {
+          alert.classList.remove('alert-warning')
+      }
+
+      if (alert.classList.contains('alert-danger')) {
+          alert.classList.remove('alert-danger')
+      }
+
+      if (alert.classList.contains('alert-success')) {
+          alert.classList.remove('alert-success')
+      }
 
 
+      alert.classList.add('alert-success')
+      alert.classList.remove('op-0')
 
+      alert.textContent = result.message
+
+      setTimeout(() => {
+        alert.classList.remove('alert-success')
+        alert.classList.add('op-0')
+        alert.textContent = ""
+      }, 1500)
+    }
+  })
+  .catch(error => {
+    if (!error.name) {
+      error.then(result => {
+        if (alert.classList.contains('alert-warning')) {
+            alert.classList.remove('alert-warning')
+        }
+
+        if (alert.classList.contains('alert-danger')) {
+            alert.classList.remove('alert-danger')
+        }
+
+        if (alert.classList.contains('alert-success')) {
+            alert.classList.remove('alert-success')
+        }
+
+
+        alert.classList.add('alert-danger')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+
+        setTimeout(() => {
+          alert.classList.remove('alert-danger')
+          alert.classList.add('op-0')
+          alert.textContent = ""
+        }, 1500)
+      })
+    }
+  })
+
+})
 
 if (backToProductBtn.length > 0) {
   for (var i = 0; i < backToProductBtn.length; i++) {
@@ -86,125 +178,6 @@ if (backToProductBtn.length > 0) {
   }
 }
 
-
-
-// function exportJsonData(e) {
-//   e.target.disabled = true
-//
-//   const alert = document.querySelector('#pagination-container-upload .alert')
-//
-//   fetch(`${apiEndpoint}/json`)
-//   .then(res => {
-//     if (!res.ok) {
-//       throw res.json()
-//     }
-//
-//     return res.json()
-//   })
-//   .then(result => {
-//     try {
-//       e.target.disabled = false
-//
-//       let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result.data));
-//       let dlAnchorElem = document.createElement('a');
-//       dlAnchorElem.href = dataStr;
-//       dlAnchorElem.setAttribute("download", "products.json");
-//       dlAnchorElem.click();
-//
-//       alert.classList.add('alert-success')
-//       alert.classList.remove('op-0')
-//
-//       alert.textContent = "Succesfully exported!!!"
-//
-//       setTimeout(() => {
-//         alert.classList.remove('alert-success')
-//         alert.classList.add('op-0')
-//         alert.textContent = ""
-//       }, 1500)
-//     } catch (e) {
-//       alert.classList.add('alert-danger')
-//       alert.classList.remove('op-0')
-//
-//       alert.textContent = "Something wrong!!!"
-//
-//       setTimeout(() => {
-//         alert.classList.remove('alert-danger')
-//         alert.classList.add('op-0')
-//         alert.textContent = ""
-//       }, 1500)
-//     }
-//   })
-//   .catch(error => {
-//     e.target.disabled = false
-//     if (!error.message) {
-//       alert.classList.add('alert-danger')
-//       alert.classList.remove('op-0')
-//
-//       alert.textContent = error.message
-//
-//       setTimeout(() => {
-//         alert.classList.remove('alert-danger')
-//         alert.classList.add('op-0')
-//         alert.textContent = ""
-//       }, 1500)
-//     }
-//   })
-// }
-
-// function fetchDataUpload() {
-//   const url = `${apiEndpoint}/json`;
-//   const dataContainer = document.getElementById('data-container-upload');
-//   const alert = document.querySelector('#pagination-container-upload .alert')
-//
-//   if (alert.classList.contains('alert-danger')) {
-//     alert.classList.remove('alert-danger')
-//   }
-//
-//   if (alert.classList.contains('alert-success')) {
-//     alert.classList.remove('alert-success')
-//   }
-//
-//
-//   showLoadingImportExport();
-//
-//   fetch(url)
-//     .then(res => {
-//       if (res.ok) {
-//         return res.json()
-//       }else {
-//       throw res.json();
-//       }
-//     })
-//     .then(result => {
-//         hideLoadingImportExport()
-//
-//         const textareaElement = dataContainer.querySelector('.form-group > textarea#jsonTextarea')
-//
-//         displayDataImportExport(result.data)
-//     })
-//     .catch(error => {
-//       displayDataImportExport()
-//
-//       error.then(function(json) {
-//         hideLoadingImportExport();
-//
-//         alert.classList.add('alert-danger')
-//         alert.classList.remove('op-0')
-//
-//         alert.textContent = json.message
-//
-//         setTimeout(() => {
-//           alert.classList.remove('alert-danger')
-//           alert.classList.add('op-0')
-//           alert.textContent = ""
-//         }, 1500)
-//
-//        });
-//
-//
-//     });
-//
-// }
 
 function fetchDataProducts(page) {
   const url = `${apiEndpoint}?page=${page}&limit=${itemsPerPage}`;
@@ -342,6 +315,14 @@ function displayDetailProduct(item) {
   productnameP.textContent = "Sizes :"
   productnameP.style = `margin-top: 10px;`
 
+  if (item.isEnabled) {
+    isEnabledBtn.innerText = "Disable"
+    isEnabledBtn.dataset.isEnabled = true
+  }else {
+    isEnabledBtn.innerText = "Enable"
+    isEnabledBtn.dataset.isEnabled = false
+  }
+
 
 
   productnameForm.appendChild(productnameInput)
@@ -417,7 +398,6 @@ function displayDetailProduct(item) {
       productnameEditBtn.classList.add('active')
       productnameForwardBtn.classList.remove('active')
       productnameCloseBtn.classList.remove('active')
-
 
         alert.classList.add('alert-success')
         alert.classList.remove('op-0')
@@ -721,141 +701,3 @@ function hideLoadingProduct() {
     }
   }
 }
-
-// function displayDataImportExport(items = "") {
-//   const dataContainer = document.getElementById('data-container-upload'),
-//         textareaElement = dataContainer.querySelector('.form-group textarea#jsonTextarea'),
-//         divBtns = dataContainer.querySelector('.form-group > .btns')
-//
-//
-//     if (items != "") {
-//       const stringVariable = items.map(obj => JSON.stringify(obj)).join(', \n');
-//
-//       textareaElement.value = `[${stringVariable}]`
-//     }
-//
-//
-//   const textareaEditBtn = document.createElement('img')
-//   const textareaCloseBtn = document.createElement('img')
-//   const textareaForwardBtn = document.createElement('img')
-//
-//   textareaEditBtn.classList.add('active')
-//   textareaEditBtn.src =  '../public/img/pencil-square.svg'
-//   textareaEditBtn.width = 20
-//   textareaEditBtn.alt = "Edit button"
-//
-//   textareaForwardBtn.src =  '../public/img/forward-fill.svg'
-//   textareaForwardBtn.width = 25
-//   textareaForwardBtn.alt = "Forward button"
-//
-//   textareaCloseBtn.src =  '../public/img/x-circle.svg'
-//   textareaCloseBtn.width = 20
-//   textareaCloseBtn.alt = "close button"
-//
-//   if (divBtns.querySelectorAll('img').length === 0) {
-//     divBtns.appendChild(textareaEditBtn)
-//     divBtns.appendChild(textareaForwardBtn)
-//     divBtns.appendChild(textareaCloseBtn)
-//   }
-//
-//   textareaEditBtn.addEventListener('click', (e) => {
-//     e.target.disabled = true
-//     e.target.classList.remove('active')
-//     textareaCloseBtn.classList.add('active')
-//     textareaForwardBtn.classList.add('active')
-//     textareaCloseBtn.disabled = false
-//     textareaForwardBtn.disabled = false
-//     textareaElement.disabled = false
-//   })
-//
-//   textareaCloseBtn.addEventListener('click', (e) => {
-//     e.target.classList.remove('active')
-//     e.target.disabled = true
-//     textareaForwardBtn.disabled = true
-//     textareaEditBtn.disabled = false
-//     textareaForwardBtn.classList.remove('active')
-//     textareaEditBtn.classList.add('active')
-//     textareaElement.disabled = true
-//   })
-//
-//   textareaForwardBtn.addEventListener('click', () => {
-//     textareaElement.disabled = true
-//
-//     const alert = document.querySelector('#pagination-container-upload .alert')
-//
-//     if (textareaElement.value == "" && textareaElement.value == " ") {
-//       alert.classList.add('alert-danger')
-//       alert.classList.remove('op-0')
-//
-//       alert.textContent = "No json!!!"
-//
-//       textareaElement.disabled = false;
-//
-//       setTimeout(() => {
-//         alert.classList.remove('alert-danger')
-//         alert.classList.add('op-0')
-//         alert.textContent = ""
-//       }, 1500)
-//
-//       return;
-//     }
-//
-//       const data = textareaElement.value
-//
-//       let xhr = new XMLHttpRequest();
-//       xhr.open("POST", "migrate");
-//       xhr.setRequestHeader("Accept", "application/json");
-//       xhr.setRequestHeader("Content-Type", "application/json");
-//
-//       xhr.responseType = 'json';
-//
-//       xhr.onreadystatechange = function () {
-//         if (xhr.readyState === 4) {
-//
-//           textareaEditBtn.classList.add('active')
-//           textareaForwardBtn.classList.remove('active')
-//           textareaCloseBtn.classList.remove('active')
-//           textareaForwardBtn.disabled = true
-//           textareaCloseBtn.disabled = true
-//           textareaEditBtn.disabled = false
-//
-//           let jsonResponse = xhr.response
-//
-//           if (xhr.status === 200) {
-//             alert.classList.add('alert-success')
-//             alert.classList.remove('op-0')
-//             alert.textContent = jsonResponse.message
-//
-//             setTimeout(() => {
-//               alert.classList.remove('alert-success')
-//               alert.classList.add('op-0')
-//               alert.textContent = ""
-//             }, 1500)
-//           }else {
-//             alert.classList.add('alert-danger')
-//             alert.classList.remove('op-0')
-//
-//             alert.textContent = jsonResponse.message
-//
-//             setTimeout(() => {
-//               alert.classList.remove('alert-danger')
-//               alert.classList.add('op-0')
-//               alert.textContent = ""
-//             }, 1500)
-//
-//           }
-//         }};
-//
-//       xhr.send(data);
-//   })
-// }
-
-// function showLoadingImportExport() {
-//   const loadingElement = document.getElementById('loading-upload');
-//   loadingElement.style.display = 'block';
-// }
-//
-// function hideLoadingImportExport() {
-//   const loadingElement = document.getElementById('loading-upload');
-//   loadingElement.style.display = 'none';
-// }

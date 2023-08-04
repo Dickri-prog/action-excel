@@ -76,6 +76,10 @@
   background: #a9a9a9;
   cursor: pointer
 }
+#product-detail #isEnabledBtn {
+  position: relative;
+  right: -40%;
+}
 
 #product-detail .alert.op-0 {
   opacity: !important 0;
