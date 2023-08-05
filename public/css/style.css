@@ -189,6 +189,10 @@ i.excla-action {
   opacity: !important 0;
 }
 
+#pagination-container-cancelled-product .alert.op-0 {
+  opacity: !important 0;
+}
+
 #data-container-cancelled-product ul {
 
 }

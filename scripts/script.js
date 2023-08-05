@@ -280,6 +280,8 @@ function displayDataCancelledProducts(items) {
   const ul = document.createElement('ul')
   dataContainer.innerHTML = '';
 
+
+
   items.forEach((item, index) => {
     const li = document.createElement('li')
     const button = document.createElement('button')
@@ -294,7 +296,100 @@ function displayDataCancelledProducts(items) {
     button.dataset.isEnabled = item.isEnabled
     button.addEventListener('click', (e) => {
       console.log('clicked!!!');
-      console.log(e.target)
+      e.target.disabled = true
+      const alert = document.querySelector('#pagination-container-cancelled-product .alert')
+      try {
+        const isEnabled = e.target.dataset.isEnabled
+
+        let values = {
+          isEnabled
+        }
+
+        let formBody = [];
+        for (let property in values) {
+          let encodedKey = encodeURIComponent(property);
+          let encodedValue = encodeURIComponent(values[property]);
+          formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
+        fetch(`${apiEndpoint}/${id}/is-enabled`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: formBody
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw response.json()
+          }
+
+          return response.json()
+        })
+        .then(result => {
+
+          if (result.isEnabled) {
+            const element = e.target.parentElement
+            element.remove()
+
+            if (alert.classList.contains('alert-warning')) {
+                alert.classList.remove('alert-warning')
+            }
+
+            if (alert.classList.contains('alert-danger')) {
+                alert.classList.remove('alert-danger')
+            }
+
+            if (alert.classList.contains('alert-success')) {
+                alert.classList.remove('alert-success')
+            }
+      
+              alert.classList.add('alert-success')
+              alert.classList.remove('op-0')
+
+              alert.textContent = result.message
+
+              setTimeout(() => {
+                alert.classList.remove('alert-success')
+                alert.classList.add('op-0')
+                alert.textContent = ""
+              }, 1500)
+          }
+          e.target.disabled = true
+        })
+        .catch(error => {
+          e.target.disabled = true
+          if (!error.name) {
+            error.then(result => {
+              if (alert.classList.contains('alert-warning')) {
+                  alert.classList.remove('alert-warning')
+              }
+
+              if (alert.classList.contains('alert-danger')) {
+                  alert.classList.remove('alert-danger')
+              }
+
+              if (alert.classList.contains('alert-success')) {
+                  alert.classList.remove('alert-success')
+              }
+
+                alert.classList.add('alert-danger')
+                alert.classList.remove('op-0')
+
+                alert.textContent = result.message
+
+                setTimeout(() => {
+                  alert.classList.remove('alert-danger')
+                  alert.classList.add('op-0')
+                  alert.textContent = ""
+                }, 1500)
+            })
+          }
+        })
+      } catch (e) {
+
+      }
     })
     li.appendChild(p)
     li.appendChild(button)
@@ -794,7 +889,7 @@ function createPaginationCancellingProducts(totalPages) {
           previousActiveButton.classList.remove('active');
         }
         currentPageCancelled = page;
-        displayDataCancelledProducts(currentPageCancelled);
+        fetchDataCancelledProducts(currentPageCancelled);
       });
       ul.appendChild(li);
 
