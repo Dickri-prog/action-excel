@@ -301,6 +301,7 @@ function displayDataCancelledProducts(items) {
       const alert = document.querySelector('#pagination-container-cancelled-product .alert')
       try {
         const isEnabled = e.target.dataset.isEnabled
+        const id = e.target.dataset.id
 
         let values = {
           isEnabled
@@ -345,7 +346,7 @@ function displayDataCancelledProducts(items) {
             if (alert.classList.contains('alert-success')) {
                 alert.classList.remove('alert-success')
             }
-      
+
               alert.classList.add('alert-success')
               alert.classList.remove('op-0')
 
