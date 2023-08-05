@@ -11,18 +11,10 @@ bodyParser = require('body-parser'),
 
 let shaData = null
 let fetchedData = false
+// let fetchedDataCancel = false
 
 let jsonDataContent = []
-let cancelDataArr = {
-    nameSize: [
-      "kuning",
-      "turkis"
-    ],
-    nameProduct: [
-      "kurta",
-      "Kaos Polos Bahan Cotton, Combad 30s Unisex Cewek Cowok Casua"
-    ]
-}
+let cancelDataArr = []
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
 app.use("/public", express.static(path.join(__dirname, 'public')))
@@ -51,7 +43,7 @@ async function fetchContentFile() {
     const originalString = buffer.toString();
     //
     jsonDataContent = JSON.parse(originalString)
-    console.log("fetched")
+    console.log("fetched!!!")
     return true
   }).catch(error => {
     console.error(error)
@@ -103,6 +95,53 @@ async function updateFile() {
   return updatedData
 }
 
+// async function fetchFilteringData() {
+//   const fetchingData = await octokit.request('GET /repos/Dickri-prog/jsonData/contents/product-price/products.json', {
+//     owner: 'Dickri-prog',
+//     repo: 'jsonData',
+//     path: 'product-price/products.json',
+//     headers: {
+//       'X-GitHub-Api-Version': '2022-11-28'
+//     }
+//   }).then((result) => {
+//     shaData = result['data']['sha']
+//     const base64Data = result['data']['content']
+//     const buffer = Buffer.from(base64Data, 'base64');
+//     const originalString = buffer.toString();
+//
+//     cancelDataArr = JSON.parse(originalString)
+//     cancelDataArr = cancelDataArr.filter(item => item.isEnabled === false)
+//     console.log("filtering fetched!!!")
+//     return true
+//   }).catch(error => {
+//     console.error(error)
+//     return false
+//   })
+//
+//   return fetchingData
+// }
+
+function checkingDataCancelled(req, res, next) {
+  if (fetchedData === false) {
+    fetchedData = fetchContentFile().then(result => {
+      if (result) {
+        cancelDataArr = jsonDataContent.filter(item => item.isEnabled === false)
+        next()
+      }else {
+        return res.json({
+          message: "Something Wrong, contact us!!!"
+        })
+      }
+    })
+  }else {
+    if (cancelDataArr.length <= 0) {
+      cancelDataArr = jsonDataContent.filter(item => item.isEnabled === false)
+    }
+
+    next()
+  }
+}
+
 app.get('/', (req, res) => {
 	res.render('index')
 });
@@ -142,31 +181,31 @@ app.get('/products', checkingData , (req, res) => {
 	}
 })
 
-app.get('/products/cancelled', (req, res) => {
+app.get('/products/cancelled', checkingDataCancelled, (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
-  let data = null;
+  // let data = null;
+  //
+  // if (cancelDataArr["nameSize"].length > 0 && cancelDataArr["nameProduct"].length > 0) {
+  //    data = cancelDataArr["nameSize"].concat(cancelDataArr["nameProduct"])
+  // }else if (cancelDataArr["nameSize"].length > 0) {
+  //   data = cancelDataArr["nameSize"]
+  // }else if (cancelDataArr["nameProduct"].length > 0) {
+  //   data = cancelDataArr["nameProduct"]
+  // }
 
-  if (cancelDataArr["nameSize"].length > 0 && cancelDataArr["nameProduct"].length > 0) {
-     data = cancelDataArr["nameSize"].concat(cancelDataArr["nameProduct"])
-  }else if (cancelDataArr["nameSize"].length > 0) {
-    data = cancelDataArr["nameSize"]
-  }else if (cancelDataArr["nameProduct"].length > 0) {
-    data = cancelDataArr["nameProduct"]
-  }
-
-	if (data.length > 0) {
+	if (cancelDataArr.length > 0) {
 
 		// Calculate the starting and ending index for the current page
 		const startIndex = (page - 1) * limit;
 		const endIndex = startIndex + limit;
 
 		// Slice the items array based on the calculated indices
-		const paginatedItems = data.slice(startIndex, endIndex);
+		const paginatedItems = cancelDataArr.slice(startIndex, endIndex);
 
 		// Calculate the total number of pages
-		const totalPages = Math.ceil(data.length / limit);
+		const totalPages = Math.ceil(cancelDataArr.length / limit);
 
 		// Prepare the response object
 		const response = {
@@ -175,7 +214,7 @@ app.get('/products/cancelled', (req, res) => {
 		};
 
 		res.json(response);
-	}else if (jsonDataContent.length <= 0) {
+	}else if (cancelDataArr.length <= 0) {
 		const response = {
 			items: 0,
 			totalPages: 0,
