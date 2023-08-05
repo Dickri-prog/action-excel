@@ -389,7 +389,7 @@ function displayDataCancelledProducts(items) {
           }
         })
       } catch (e) {
-
+        console.log(e)
       }
     })
     li.appendChild(p)
