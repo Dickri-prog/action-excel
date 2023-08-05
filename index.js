@@ -125,7 +125,11 @@ function checkingDataCancelled(req, res, next) {
   if (fetchedData === false) {
     fetchedData = fetchContentFile().then(result => {
       if (result) {
-        cancelDataArr = jsonDataContent.filter(item => item.isEnabled === false)
+        jsonDataContent.filter(item => {
+          if (item.isEnabled === false) {
+            cancelDataArr.push({id: item.id, name: item.name, isEnabled: item.isEnabled})
+          }
+        })
         next()
       }else {
         return res.json({
@@ -135,7 +139,11 @@ function checkingDataCancelled(req, res, next) {
     })
   }else {
     if (cancelDataArr.length <= 0) {
-      cancelDataArr = jsonDataContent.filter(item => item.isEnabled === false)
+      jsonDataContent.filter(item => {
+        if (item.isEnabled === false) {
+          cancelDataArr.push({id: item.id, name: item.name, isEnabled: item.isEnabled})
+        }
+      })
     }
 
     next()
@@ -224,6 +232,8 @@ app.get('/products/cancelled', checkingDataCancelled, (req, res) => {
 		res.json(response)
 	}
 })
+
+
 
 app.post('/products/:id/name', checkingData,  async (req, res) => {
   try {

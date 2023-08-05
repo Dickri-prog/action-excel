@@ -192,19 +192,28 @@ function fetchDataProducts(page) {
     .then(response => response.json())
     .then(data => {
       hideLoadingProduct();
-      if (data.items.length > 0) {
-        displayDataProducts(data.items); // Assume the API response contains an 'items' array
-        createPaginationProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+      if (!data.items) {
+        throw new Error('No items!!!')
       }else {
+        if (data.items.length > 0) {
+          displayDataProducts(data.items); // Assume the API response contains an 'items' array
+          createPaginationProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+        }else {
+          throw new Error('No items!!!')
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      if (error.name == 'Error') {
+        console.log(error.message)
+
         const dataContainer = document.getElementById('data-container-product');
 
         dataContainer.innerHTML = `
             <h2>No data item</h2>
         `
       }
-    })
-    .catch(error => {
-      console.error('Error:', error);
       hideLoadingProduct();
     });
 }
@@ -218,19 +227,28 @@ function fetchDataCancelledProducts(page) {
     .then(response => response.json())
     .then(data => {
       hideLoadingProduct();
-      if (data.items.length > 0) {
-        displayDataCancelledProducts(data.items); // Assume the API response contains an 'items' array
-        // createPaginationProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+      if (!data.items) {
+        throw new Error('No items!!!')
       }else {
+        if (data.items.length > 0) {
+          displayDataCancelledProducts(data.items); // Assume the API response contains an 'items' array
+          createPaginationCancellingProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+        }else {
+          throw new Error('No items!!!')
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      if (error.name == 'Error') {
+        console.log(error.message)
+
         const dataContainer = document.getElementById('data-container-product');
 
         dataContainer.innerHTML = `
             <h2>No data item</h2>
         `
       }
-    })
-    .catch(error => {
-      console.error('Error:', error);
       hideLoadingProduct();
     });
 }
@@ -270,12 +288,13 @@ function displayDataCancelledProducts(items) {
     button.type = 'button'
     button.classList.add('btn')
     button.classList.add('btn-primary')
-    p.textContent = item; // Display the item property you want
     button.textContent = "Enable"; // Display the item property you want
-    button.addEventListener('click', () => {
-
+    p.textContent = item.name; // Display the item property you want
+    button.dataset.id = item.id
+    button.dataset.isEnabled = item.isEnabled
+    button.addEventListener('click', (e) => {
       console.log('clicked!!!');
-
+      console.log(e.target)
     })
     li.appendChild(p)
     li.appendChild(button)
@@ -684,6 +703,98 @@ function createPaginationProducts(totalPages) {
         }
         currentPage = page;
         fetchDataProducts(currentPage);
+      });
+      ul.appendChild(li);
+
+
+  }
+
+  paginationContainer.appendChild(ul)
+
+}
+function createPaginationCancellingProducts(totalPages) {
+  const paginationContainer = document.getElementById('pagination-container-cancelled-product');
+  paginationContainer.innerHTML = '';
+
+  const maxVisiblePages = 5; // Maximum number of visible pagination buttons
+  const halfVisiblePages = Math.floor(maxVisiblePages / 2);
+  let startPage;
+  let endPage;
+
+  if (totalPages <= maxVisiblePages) {
+    // Show all pages if the total number of pages is less than or equal to maxVisiblePages
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    // Determine startPage and endPage based on the current page position
+    if (currentPageCancelled <= halfVisiblePages) {
+      startPage = 1;
+      endPage = maxVisiblePages;
+    } else if (currentPageCancelled + halfVisiblePages >= totalPages) {
+      startPage = totalPages - maxVisiblePages + 1;
+      endPage = totalPages;
+    } else {
+      startPage = currentPageCancelled - halfVisiblePages;
+      endPage = currentPageCancelled + halfVisiblePages;
+    }
+  }
+
+  const nav = document.createElement('nav')
+  const ul = document.createElement('ul')
+
+  ul.classList.add('pagination')
+
+  nav.appendChild(ul)
+
+  // Add previous button if not on the first page
+  if (currentPageCancelled !== 1) {
+    addButton('Previous', currentPageCancelled - 1);
+  }
+
+  // Add dots if startPage is greater than 1
+  if (startPage > 1) {
+    addButton('...', startPage - 1);
+  }
+
+  // Add pagination buttons for the range of pages
+  for (let i = startPage; i <= endPage; i++) {
+    addButton(i, i, i === currentPageCancelled);
+  }
+
+  // Add dots if endPage is less than totalPages
+  if (endPage < totalPages) {
+    addButton('...', endPage + 1);
+  }
+
+  // Add next button if not on the last page
+  if (currentPageCancelled !== totalPages) {
+    addButton('Next', currentPageCancelled + 1);
+  }
+
+
+  function addButton(text, page, isActive) {
+
+
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      li.classList.add('page-item')
+      a.classList.add('page-link')
+      a.href = '#'
+      a.textContent = text;
+
+      if (isActive) {
+        li.classList.add('active')
+      }
+
+      li.appendChild(a)
+
+      li.addEventListener('click', () => {
+        const previousActiveButton = document.querySelector('#pagination-container-cancelled-product .active');
+        if (previousActiveButton) {
+          previousActiveButton.classList.remove('active');
+        }
+        currentPageCancelled = page;
+        displayDataCancelledProducts(currentPageCancelled);
       });
       ul.appendChild(li);
 
