@@ -294,7 +294,7 @@ function displayDataCancelledProducts(items) {
     button.textContent = "Enable"; // Display the item property you want
     p.textContent = item.name; // Display the item property you want
     button.dataset.id = item.id
-    button.dataset.isEnabled = item.isEnabled
+    button.dataset.isEnabled = true
     button.addEventListener('click', (e) => {
       console.log('clicked!!!');
       e.target.disabled = true
@@ -358,7 +358,7 @@ function displayDataCancelledProducts(items) {
                 alert.textContent = ""
               }, 1500)
           }
-          e.target.disabled = true
+          e.target.disabled = false
         })
         .catch(error => {
           e.target.disabled = true

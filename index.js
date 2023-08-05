@@ -127,7 +127,7 @@ function checkingDataCancelled(req, res, next) {
       if (result) {
         jsonDataContent.filter(item => {
           if (item.isEnabled === false) {
-            cancelDataArr.push({id: item.id, name: item.name, isEnabled: item.isEnabled})
+            cancelDataArr.push({id: item.id, name: item.name})
           }
         })
         next()
@@ -141,7 +141,7 @@ function checkingDataCancelled(req, res, next) {
     if (cancelDataArr.length <= 0) {
       jsonDataContent.filter(item => {
         if (item.isEnabled === false) {
-          cancelDataArr.push({id: item.id, name: item.name, isEnabled: item.isEnabled})
+          cancelDataArr.push({id: item.id, name: item.name})
         }
       })
     }
