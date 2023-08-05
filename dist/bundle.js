@@ -302,9 +302,11 @@ function displayDataCancelledProducts(items) {
       try {
         const isEnabled = e.target.dataset.isEnabled
         const id = e.target.dataset.id
+        const isCancel = true
 
         let values = {
-          isEnabled
+          isEnabled,
+          isCancel
         }
 
         let formBody = [];
@@ -331,9 +333,8 @@ function displayDataCancelledProducts(items) {
         })
         .then(result => {
 
-          if (result.isEnabled) {
-            const element = e.target.parentElement
-            element.remove()
+          // if (result.isEnabled) {
+            fetchDataCancelledProducts(currentPageCancelled)
 
             if (alert.classList.contains('alert-warning')) {
                 alert.classList.remove('alert-warning')
@@ -357,8 +358,7 @@ function displayDataCancelledProducts(items) {
                 alert.classList.add('op-0')
                 alert.textContent = ""
               }, 1500)
-          }
-          e.target.disabled = false
+          // }
         })
         .catch(error => {
           e.target.disabled = true

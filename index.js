@@ -430,6 +430,15 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
     let isEnabled = req.body.isEnabled
     const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
 
+    if (cancelDataArr.length > 0) {
+      if (req.body.isCancel == 'true') {
+        const indexOfCancel = cancelDataArr.findIndex(item => item.id === id)
+        if (indexOfCancel != -1) {
+          cancelDataArr.splice(indexOfCancel, 1)
+        }
+      }
+    }
+
     if (indexOfItem != -1) {
       // isEnabled = ();
       if (isEnabled !== undefined) {
