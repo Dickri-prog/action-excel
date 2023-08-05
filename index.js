@@ -14,7 +14,9 @@ let fetchedData = false
 // let fetchedDataCancel = false
 
 let jsonDataContent = []
-let cancelDataArr = []
+let cancelProductDataArr = []
+let productDataArr = []
+
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
 app.use("/public", express.static(path.join(__dirname, 'public')))
@@ -43,6 +45,14 @@ async function fetchContentFile() {
     const originalString = buffer.toString();
     //
     jsonDataContent = JSON.parse(originalString)
+
+    jsonDataContent.forEach(item => {
+      if (item.isEnabled) {
+        productDataArr.push(item.id)
+      }else {
+        cancelProductDataArr.push(item.id)
+      }
+    })
     console.log("fetched!!!")
     return true
   }).catch(error => {
@@ -109,8 +119,8 @@ async function updateFile() {
 //     const buffer = Buffer.from(base64Data, 'base64');
 //     const originalString = buffer.toString();
 //
-//     cancelDataArr = JSON.parse(originalString)
-//     cancelDataArr = cancelDataArr.filter(item => item.isEnabled === false)
+//     cancelProductDataArr = JSON.parse(originalString)
+//     cancelProductDataArr = cancelProductDataArr.filter(item => item.isEnabled === false)
 //     console.log("filtering fetched!!!")
 //     return true
 //   }).catch(error => {
@@ -121,34 +131,34 @@ async function updateFile() {
 //   return fetchingData
 // }
 
-function checkingDataCancelled(req, res, next) {
-  if (fetchedData === false) {
-    fetchedData = fetchContentFile().then(result => {
-      if (result) {
-        jsonDataContent.filter(item => {
-          if (item.isEnabled === false) {
-            cancelDataArr.push({id: item.id, name: item.name})
-          }
-        })
-        next()
-      }else {
-        return res.json({
-          message: "Something Wrong, contact us!!!"
-        })
-      }
-    })
-  }else {
-    if (cancelDataArr.length <= 0) {
-      jsonDataContent.filter(item => {
-        if (item.isEnabled === false) {
-          cancelDataArr.push({id: item.id, name: item.name})
-        }
-      })
-    }
-
-    next()
-  }
-}
+// function checkingDataCancelled(req, res, next) {
+//   if (fetchedData === false) {
+//     fetchedData = fetchContentFile().then(result => {
+//       if (result) {
+//         jsonDataContent.filter(item => {
+//           if (item.isEnabled === false) {
+//             cancelProductDataArr.push({id: item.id, name: item.name})
+//           }
+//         })
+//         next()
+//       }else {
+//         return res.json({
+//           message: "Something Wrong, contact us!!!"
+//         })
+//       }
+//     })
+//   }else {
+//     if (cancelProductDataArr.length <= 0) {
+//       jsonDataContent.filter(item => {
+//         if (item.isEnabled === false) {
+//           cancelProductDataArr.push({id: item.id, name: item.name})
+//         }
+//       })
+//     }
+//
+//     next()
+//   }
+// }
 
 app.get('/', (req, res) => {
 	res.render('index')
@@ -189,31 +199,40 @@ app.get('/products', checkingData , (req, res) => {
 	}
 })
 
-app.get('/products/cancelled', checkingDataCancelled, (req, res) => {
+app.get('/products/cancelled', checkingData, (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
   // let data = null;
   //
-  // if (cancelDataArr["nameSize"].length > 0 && cancelDataArr["nameProduct"].length > 0) {
-  //    data = cancelDataArr["nameSize"].concat(cancelDataArr["nameProduct"])
-  // }else if (cancelDataArr["nameSize"].length > 0) {
-  //   data = cancelDataArr["nameSize"]
-  // }else if (cancelDataArr["nameProduct"].length > 0) {
-  //   data = cancelDataArr["nameProduct"]
+  // if (cancelProductDataArr["nameSize"].length > 0 && cancelProductDataArr["nameProduct"].length > 0) {
+  //    data = cancelProductDataArr["nameSize"].concat(cancelProductDataArr["nameProduct"])
+  // }else if (cancelProductDataArr["nameSize"].length > 0) {
+  //   data = cancelProductDataArr["nameSize"]
+  // }else if (cancelProductDataArr["nameProduct"].length > 0) {
+  //   data = cancelProductDataArr["nameProduct"]
   // }
 
-	if (cancelDataArr.length > 0) {
+	if (cancelProductDataArr.length > 0) {
 
 		// Calculate the starting and ending index for the current page
 		const startIndex = (page - 1) * limit;
 		const endIndex = startIndex + limit;
 
 		// Slice the items array based on the calculated indices
-		const paginatedItems = cancelDataArr.slice(startIndex, endIndex);
+		let dataIndexItems = cancelProductDataArr.slice(startIndex, endIndex);
+
+    const paginatedItems = []
+
+    dataIndexItems.forEach((item) => {
+      paginatedItems.push({
+        id: jsonDataContent[item].id, name: jsonDataContent[item].name
+      })
+    });
+
 
 		// Calculate the total number of pages
-		const totalPages = Math.ceil(cancelDataArr.length / limit);
+		const totalPages = Math.ceil(cancelProductDataArr.length / limit);
 
 		// Prepare the response object
 		const response = {
@@ -222,7 +241,7 @@ app.get('/products/cancelled', checkingDataCancelled, (req, res) => {
 		};
 
 		res.json(response);
-	}else if (cancelDataArr.length <= 0) {
+	}else if (cancelProductDataArr.length <= 0) {
 		const response = {
 			items: 0,
 			totalPages: 0,
@@ -232,8 +251,6 @@ app.get('/products/cancelled', checkingDataCancelled, (req, res) => {
 		res.json(response)
 	}
 })
-
-
 
 app.post('/products/:id/name', checkingData,  async (req, res) => {
   try {
@@ -426,48 +443,98 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 
 app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
   try {
-    const id = parseInt(req.params.id)
+    // const isCancel = req.body.isCancel
     let isEnabled = req.body.isEnabled
-    const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
+    const id = parseInt(req.params.id)
 
-    if (cancelDataArr.length > 0) {
-      if (req.body.isCancel == 'true') {
-        const indexOfCancel = cancelDataArr.findIndex(item => item.id === id)
-        if (indexOfCancel != -1) {
-          cancelDataArr.splice(indexOfCancel, 1)
-        }
-      }
-    }
+    // if (isEnabled !== undefined || isCancel !== undefined) {
 
-    if (indexOfItem != -1) {
-      // isEnabled = ();
+      // if (isCancel !== undefined) {
+      // if (cancelProductDataArr.length > 0) {
+      //     const indexOfCancel = cancelProductDataArr.findIndex(item => item === id)
+      //     if (indexOfCancel != -1) {
+      //       cancelProductDataArr.splice(indexOfCancel, 1)
+      //     }
+      //   }else {
+      //     throw new Error('Something Wrong!!!')
+      //   }
+      // }
+
+
+
       if (isEnabled !== undefined) {
-        if (isEnabled == 'true' || isEnabled == 'false') {
-          jsonDataContent[indexOfItem].isEnabled = (isEnabled == 'true')
+        const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
+        if (indexOfItem != -1) {
 
-          const updatedContent = await updateFile()
+          if (isEnabled == 'true' || isEnabled == 'false') {
+            isEnabled = (isEnabled == 'true')
+            if (isEnabled) {
+              const indexOfCancel = cancelProductDataArr.findIndex(item => item === indexOfItem)
+              if (indexOfCancel != -1) {
+                cancelProductDataArr.splice(indexOfCancel, 1)
+              }
 
-          if (updatedContent) {
-            res.json({
-              isEnabled: jsonDataContent[indexOfItem].isEnabled,
-              message: "Succesfully!!!"
-            })
-          } else {
-            res.status(400).json({
-              isEnabled: jsonDataContent[indexOfItem].isEnabled,
-              message: "Failed!!!"
-            })
+              const indexOfItemProductArr = productDataArr.findIndex(item => item === indexOfItem)
+
+              if (indexOfItemProductArr != -1) {
+                throw new Error('Product Already Enabled!!!')
+              }else {
+                productDataArr.push(indexOfItem)
+                jsonDataContent[indexOfItem].isEnabled = isEnabled
+
+                const updatedContent = await updateFile()
+
+                if (updatedContent) {
+                  res.json({
+                    isEnabled: jsonDataContent[indexOfItem].isEnabled,
+                    message: "Succesfully!!!"
+                  })
+                } else {
+                  res.status(400).json({
+                    isEnabled: jsonDataContent[indexOfItem].isEnabled,
+                    message: "Failed!!!"
+                  })
+                }
+              }
+            }else {
+              const indexOfItemProductArr = productDataArr.findIndex(item => item === indexOfItem)
+              if (indexOfItemProductArr != -1) {
+                productDataArr.splice(indexOfItemProductArr, 1)
+              }
+
+              const indexOfCancel = cancelProductDataArr.findIndex(item => item === indexOfItem)
+
+              if (indexOfCancel != -1) {
+                throw new Error('Product Already Disabled!!!')
+              }else {
+                cancelProductDataArr.push(indexOfItem)
+                jsonDataContent[indexOfItem].isEnabled = isEnabled
+
+                const updatedContent = await updateFile()
+
+                if (updatedContent) {
+                  res.json({
+                    isEnabled: jsonDataContent[indexOfItem].isEnabled,
+                    message: "Succesfully!!!"
+                  })
+                } else {
+                  res.status(400).json({
+                    isEnabled: jsonDataContent[indexOfItem].isEnabled,
+                    message: "Failed!!!"
+                  })
+                }
+              }
+            }
+          }else {
+            throw new Error('Something Wrong input!!!')
           }
         }else {
-          throw new Error('Something Wrong input!!!')
+          throw new Error('product not found!!!')
         }
       }else {
         throw new Error('Something Wrong input!!!')
       }
-    }else {
-      throw new Error('product not found!!!')
-
-    }
+    // }
   } catch (e) {
     console.log(e)
     if (e.name == 'Error') {
@@ -507,7 +574,7 @@ app.post('/upload', (req, res) => {
 
       let valueToLower = value.toLowerCase()
 
-      if (cancelDataArr[property].findIndex(item => valueToLower.includes(item.toLowerCase())) != -1) {
+      if (cancelProductDataArr[property].findIndex(item => valueToLower.includes(item.toLowerCase())) != -1) {
         // console.log(valueToLower);
        return true;
      }
