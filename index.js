@@ -570,7 +570,7 @@ app.post('/upload', (req, res) => {
 
   		if (index != -1) {
         let pricesData = nominationData[index].sizes
-        console.log(pricesData)
+        // console.log(pricesData)
   			return pricesData;
   		}
 
@@ -595,6 +595,7 @@ app.post('/upload', (req, res) => {
                   if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
 
         						if (pricesData.S !== undefined) {
+                      console.log("S");
                       row.getCell(6).value = pricesData.S
           						row.getCell(7).value = pricesData.S
                       row.getCell(12).value = 'Ubah'
@@ -602,6 +603,7 @@ app.post('/upload', (req, res) => {
         					} else if (row.values[3].toLowerCase().includes(",m") || row.values[3].toLowerCase().includes("m,")) {
 
                     if (pricesData.M !== undefined) {
+                      console.log("M");
                       row.getCell(6).value = pricesData.M
           						row.getCell(7).value = pricesData.M
                       row.getCell(12).value = 'Ubah'
@@ -609,12 +611,14 @@ app.post('/upload', (req, res) => {
         					} else if (row.values[3].toLowerCase().includes(",l") || row.values[3].toLowerCase().includes("l,")) {
 
                     if (pricesData.L !== undefined) {
+                      console.log("L");
                       row.getCell(6).value = pricesData.L
           						row.getCell(7).value = pricesData.L
                       row.getCell(12).value = 'Ubah'
                     }
         					}else if (row.values[3].toLowerCase().includes(",xl") || row.values[3].toLowerCase().includes("xl,")) {
                     if (pricesData.XL !== undefined) {
+                      console.log("XL");
                       row.getCell(6).value = pricesData.XL
                       row.getCell(7).value = pricesData.XL
                       row.getCell(12).value = 'Ubah'
