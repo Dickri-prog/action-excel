@@ -227,7 +227,7 @@ app.get('/products/cancelled', checkingData, (req, res) => {
     console.log(dataIndexItems)
 
     dataIndexItems.forEach((item) => {
-      console.log(item, jsonDataContent[item].id, jsonDataContent[item]);
+      console.log(item, jsonDataContent[item]);
       paginatedItems.push({
         id: jsonDataContent[item].id, name: jsonDataContent[item].name
       })
