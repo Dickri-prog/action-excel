@@ -11,11 +11,13 @@ bodyParser = require('body-parser'),
 
 let shaData = null
 let fetchedData = false
-// let fetchedDataCancel = false
 
 let jsonDataContent = []
 let cancelProductDataArr = []
 let productDataArr = []
+
+const cancelData = []
+const nominationData = []
 
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
@@ -105,60 +107,6 @@ async function updateFile() {
   return updatedData
 }
 
-// async function fetchFilteringData() {
-//   const fetchingData = await octokit.request('GET /repos/Dickri-prog/jsonData/contents/product-price/products.json', {
-//     owner: 'Dickri-prog',
-//     repo: 'jsonData',
-//     path: 'product-price/products.json',
-//     headers: {
-//       'X-GitHub-Api-Version': '2022-11-28'
-//     }
-//   }).then((result) => {
-//     shaData = result['data']['sha']
-//     const base64Data = result['data']['content']
-//     const buffer = Buffer.from(base64Data, 'base64');
-//     const originalString = buffer.toString();
-//
-//     cancelProductDataArr = JSON.parse(originalString)
-//     cancelProductDataArr = cancelProductDataArr.filter(item => item.isEnabled === false)
-//     console.log("filtering fetched!!!")
-//     return true
-//   }).catch(error => {
-//     console.error(error)
-//     return false
-//   })
-//
-//   return fetchingData
-// }
-
-// function checkingDataCancelled(req, res, next) {
-//   if (fetchedData === false) {
-//     fetchedData = fetchContentFile().then(result => {
-//       if (result) {
-//         jsonDataContent.filter(item => {
-//           if (item.isEnabled === false) {
-//             cancelProductDataArr.push({id: item.id, name: item.name})
-//           }
-//         })
-//         next()
-//       }else {
-//         return res.json({
-//           message: "Something Wrong, contact us!!!"
-//         })
-//       }
-//     })
-//   }else {
-//     if (cancelProductDataArr.length <= 0) {
-//       jsonDataContent.filter(item => {
-//         if (item.isEnabled === false) {
-//           cancelProductDataArr.push({id: item.id, name: item.name})
-//         }
-//       })
-//     }
-//
-//     next()
-//   }
-// }
 
 app.get('/', (req, res) => {
 	res.render('index')
@@ -169,13 +117,10 @@ app.get('/products', checkingData , (req, res) => {
   const limit = parseInt(req.query.limit);
 
 	if (productDataArr.length > 0) {
-		// const jsonData = jsonDataContent;
 
 		// Calculate the starting and ending index for the current page
 		const startIndex = (page - 1) * limit;
 		const endIndex = startIndex + limit;
-
-    productDataArr.sort()
 
     let dataIndexItems = productDataArr.slice(startIndex, endIndex);
 
@@ -228,23 +173,12 @@ app.get('/products/cancelled', checkingData, (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
-  // let data = null;
-  //
-  // if (cancelProductDataArr["nameSize"].length > 0 && cancelProductDataArr["nameProduct"].length > 0) {
-  //    data = cancelProductDataArr["nameSize"].concat(cancelProductDataArr["nameProduct"])
-  // }else if (cancelProductDataArr["nameSize"].length > 0) {
-  //   data = cancelProductDataArr["nameSize"]
-  // }else if (cancelProductDataArr["nameProduct"].length > 0) {
-  //   data = cancelProductDataArr["nameProduct"]
-  // }
 
 	if (cancelProductDataArr.length > 0) {
 
 		// Calculate the starting and ending index for the current page
 		const startIndex = (page - 1) * limit;
 		const endIndex = startIndex + limit;
-
-    cancelProductDataArr.sort()
 
 		// Slice the items array based on the calculated indices
 		let dataIndexItems = cancelProductDataArr.slice(startIndex, endIndex);
@@ -486,21 +420,6 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
     let isEnabled = req.body.isEnabled
     const id = parseInt(req.params.id)
 
-    // if (isEnabled !== undefined || isCancel !== undefined) {
-
-      // if (isCancel !== undefined) {
-      // if (cancelProductDataArr.length > 0) {
-      //     const indexOfCancel = cancelProductDataArr.findIndex(item => item === id)
-      //     if (indexOfCancel != -1) {
-      //       cancelProductDataArr.splice(indexOfCancel, 1)
-      //     }
-      //   }else {
-      //     throw new Error('Something Wrong!!!')
-      //   }
-      // }
-
-
-
       if (isEnabled !== undefined) {
         const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
         if (indexOfItem != -1) {
@@ -573,7 +492,6 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
       }else {
         throw new Error('Something Wrong input!!!')
       }
-    // }
   } catch (e) {
     console.log(e)
     if (e.name == 'Error') {
@@ -609,12 +527,31 @@ app.get('/products/json', checkingData, (req, res) => {
 
 app.post('/upload', (req, res) => {
 
-  	function cancelled (value, property) {
+  if (cancelProductDataArr.length > 0) {
+    if (cancelData.length === 0) {
+      cancelProductDataArr.forEach((item) => {
+        cancelData.push(jsonDataContent[item].name)
+      });
+    }
+  }
+
+  if (productDataArr.length > 0) {
+    productDataArr.forEach((item) => {
+      if (nominationData.length === 0) {
+        nominationData.push({
+          name: jsonDataContent[item].name,
+          sizes: jsonDataContent[item].sizes
+        })
+      }
+    });
+  }
+
+  	function cancelled (value) {
 
       let valueToLower = value.toLowerCase()
+      const checkIndex =  cancelProductDataArr.findIndex(item => item.toLowerCase().includes(valueToLower))
 
-      if (cancelProductDataArr[property].findIndex(item => valueToLower.includes(item.toLowerCase())) != -1) {
-        // console.log(valueToLower);
+      if (checkIndex != -1) {
        return true;
      }
 
@@ -626,10 +563,10 @@ app.post('/upload', (req, res) => {
 
       let valueToLower = value.toLowerCase()
 
-      let index = jsonDataContent.findIndex(item => valueToLower.includes(item.name.toLowerCase()))
+      let index = nominationData.findIndex(item => item.name.toLowerCase().includes(valueToLower))
 
   		if (index != -1) {
-        let pricesData = jsonDataContent[index].sizes
+        let pricesData = nominationData[index].sizes
   			return pricesData;
   		}
 
@@ -649,7 +586,7 @@ app.post('/upload', (req, res) => {
   	            }
 
 
-  				if (pricesData = dataNomination(row.values[1])) {
+  				if (pricesData = dataNomination(row.values[1]) && pricesData !== false) {
                 if (row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
                   if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
 
@@ -682,12 +619,7 @@ app.post('/upload', (req, res) => {
                 }
   				  }
 
-            if (cancelled(row.values[1], "nameProduct")) {
-              if (row.values[11] == "Menunggu Konfirmasimu") {
-                      row.getCell(12).value = 'Tolak'
-              }
-            }
-            if (cancelled(row.values[3], "nameSize")) {
+            if (cancelled(row.values[1])) {
               if (row.values[11] == "Menunggu Konfirmasimu") {
                       row.getCell(12).value = 'Tolak'
               }
