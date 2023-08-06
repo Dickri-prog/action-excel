@@ -168,18 +168,27 @@ app.get('/products', checkingData , (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
-	if (jsonDataContent.length > 0) {
-		const jsonData = jsonDataContent;
+	if (productDataArr.length > 0) {
+		// const jsonData = jsonDataContent;
 
 		// Calculate the starting and ending index for the current page
 		const startIndex = (page - 1) * limit;
 		const endIndex = startIndex + limit;
 
-		// Slice the items array based on the calculated indices
-		const paginatedItems = jsonData.slice(startIndex, endIndex);
+    let dataIndexItems = productDataArr.slice(startIndex, endIndex);
 
+    const paginatedItems = []
+
+    dataIndexItems.forEach((item) => {
+      paginatedItems.push({
+        id: jsonDataContent[item].id,
+        name: jsonDataContent[item].name,
+        sizes: jsonDataContent[item].sizes,
+        isEnabled: jsonDataContent[item].isEnabled
+      })
+    });
 		// Calculate the total number of pages
-		const totalPages = Math.ceil(jsonData.length / limit);
+		const totalPages = Math.ceil(productDataArr.length / limit);
 
 		// Prepare the response object
 		const response = {
@@ -188,7 +197,7 @@ app.get('/products', checkingData , (req, res) => {
 		};
 
 		res.json(response);
-	}else if (jsonDataContent.length <= 0) {
+	}else if (productDataArr.length <= 0) {
 		const response = {
 			items: 0,
 			totalPages: 0,
@@ -224,12 +233,7 @@ app.get('/products/cancelled', checkingData, (req, res) => {
 
     const paginatedItems = []
 
-    console.log(dataIndexItems, typeof dataIndexItems)
-
-
     dataIndexItems.forEach((item) => {
-      // const index = parseInt(item)
-      console.log(item, typeof item, jsonDataContent[item]);
       paginatedItems.push({
         id: jsonDataContent[item].id, name: jsonDataContent[item].name
       })
