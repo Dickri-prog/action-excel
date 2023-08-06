@@ -551,7 +551,7 @@ app.post('/upload', (req, res) => {
   	function cancelled (value) {
 
       let valueToLower = value.toLowerCase()
-      const checkIndex =  cancelProductDataArr.findIndex(item => valueToLower.includes(item.toLowerCase()))
+      const checkIndex =  cancelProductDataArr.findIndex(item => valueToLower.includes(item.toString().toLowerCase()))
 
       if (checkIndex != -1) {
         cancelProductDataArr[checkIndex]
@@ -566,7 +566,7 @@ app.post('/upload', (req, res) => {
 
       let valueToLower = value.toLowerCase()
 
-      let index = nominationData.findIndex(item => valueToLower.includes(item['name'].toLowerCase()))
+      let index = nominationData.findIndex(item => valueToLower.includes(item['name'].toString().toLowerCase()))
 
   		if (index != -1) {
         let pricesData = nominationData[index].sizes
