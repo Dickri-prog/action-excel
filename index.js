@@ -175,6 +175,8 @@ app.get('/products', checkingData , (req, res) => {
 		const startIndex = (page - 1) * limit;
 		const endIndex = startIndex + limit;
 
+    productDataArr.sort()
+
     let dataIndexItems = productDataArr.slice(startIndex, endIndex);
 
     const paginatedItems = []
@@ -241,6 +243,8 @@ app.get('/products/cancelled', checkingData, (req, res) => {
 		// Calculate the starting and ending index for the current page
 		const startIndex = (page - 1) * limit;
 		const endIndex = startIndex + limit;
+
+    cancelProductDataArr.sort()
 
 		// Slice the items array based on the calculated indices
 		let dataIndexItems = cancelProductDataArr.slice(startIndex, endIndex);
