@@ -188,8 +188,19 @@ app.get('/products', checkingData , (req, res) => {
       })
     });
 
-    paginatedItems.sort()
-    
+
+    function compare( a, b ) {
+      if ( a.name < b.name ){
+        return -1;
+      }
+      if ( a.name > b.name ){
+        return 1;
+      }
+      return 0;
+    }
+
+    paginatedItems.sort(compare)
+
 		// Calculate the total number of pages
 		const totalPages = Math.ceil(productDataArr.length / limit);
 
@@ -242,11 +253,17 @@ app.get('/products/cancelled', checkingData, (req, res) => {
       })
     });
 
-    // function compareNumbers(a, b) {
-    //   return a. - b;
-    // }
+    function compare( a, b ) {
+      if ( a.name < b.name ){
+        return -1;
+      }
+      if ( a.name > b.name ){
+        return 1;
+      }
+      return 0;
+    }
 
-    paginatedItems.sort()
+    paginatedItems.sort(compare)
 
 
 		// Calculate the total number of pages
