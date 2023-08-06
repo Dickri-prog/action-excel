@@ -563,7 +563,7 @@ app.post('/upload', (req, res) => {
 
       let valueToLower = value.toLowerCase()
 
-      let index = nominationData.findIndex(item => item.name.toLowerCase().includes(valueToLower))
+      let index = nominationData.findIndex(item => item['name'].toLowerCase().includes(valueToLower))
 
   		if (index != -1) {
         let pricesData = nominationData[index].sizes
