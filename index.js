@@ -592,6 +592,7 @@ app.post('/upload', (req, res) => {
 
   				if (pricesData = dataNomination(row.values[1]) && pricesData !== false) {
                 if (row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
+                  console.log("in")
                   if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
 
         						if (pricesData.S !== undefined) {
