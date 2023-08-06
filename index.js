@@ -46,11 +46,11 @@ async function fetchContentFile() {
     //
     jsonDataContent = JSON.parse(originalString)
 
-    jsonDataContent.forEach(item => {
+    jsonDataContent.forEach((item, index) => {
       if (item.isEnabled) {
-        productDataArr.push(item.id)
+        productDataArr.push(index)
       }else {
-        cancelProductDataArr.push(item.id)
+        cancelProductDataArr.push(index)
       }
     })
     console.log("fetched!!!")
