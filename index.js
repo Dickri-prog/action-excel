@@ -187,6 +187,9 @@ app.get('/products', checkingData , (req, res) => {
         isEnabled: jsonDataContent[item].isEnabled
       })
     });
+
+    paginatedItems.sort()
+    
 		// Calculate the total number of pages
 		const totalPages = Math.ceil(productDataArr.length / limit);
 
@@ -238,6 +241,12 @@ app.get('/products/cancelled', checkingData, (req, res) => {
         id: jsonDataContent[item].id, name: jsonDataContent[item].name
       })
     });
+
+    // function compareNumbers(a, b) {
+    //   return a. - b;
+    // }
+
+    paginatedItems.sort()
 
 
 		// Calculate the total number of pages
