@@ -529,6 +529,7 @@ app.post('/upload', (req, res) => {
 
   if (cancelProductDataArr.length > 0) {
     if (cancelData.length === 0) {
+      console.log("cancelData")
       cancelProductDataArr.forEach((item) => {
         cancelData.push(jsonDataContent[item].name)
       });
@@ -536,22 +537,24 @@ app.post('/upload', (req, res) => {
   }
 
   if (productDataArr.length > 0) {
+    console.log("nominationData")
+    if (nominationData.length === 0) {
     productDataArr.forEach((item) => {
-      if (nominationData.length === 0) {
         nominationData.push({
           name: jsonDataContent[item].name,
           sizes: jsonDataContent[item].sizes
         })
-      }
     });
+  }
   }
 
   	function cancelled (value) {
 
       let valueToLower = value.toLowerCase()
-      const checkIndex =  cancelProductDataArr.findIndex(item => item.toLowerCase().includes(valueToLower))
+      const checkIndex =  cancelProductDataArr.findIndex(item => valueToLower.includes(item.toLowerCase()))
 
       if (checkIndex != -1) {
+        cancelProductDataArr[checkIndex]
        return true;
      }
 
@@ -563,10 +566,11 @@ app.post('/upload', (req, res) => {
 
       let valueToLower = value.toLowerCase()
 
-      let index = nominationData.findIndex(item => item['name'].toLowerCase().includes(valueToLower))
+      let index = nominationData.findIndex(item => valueToLower.includes(item['name'].toLowerCase()))
 
   		if (index != -1) {
         let pricesData = nominationData[index].sizes
+        console.log(pricesData)
   			return pricesData;
   		}
 
