@@ -17,14 +17,14 @@ let itemsPerPage = 5, // Number of items to display per page
 
 let header = null
 
-inpFile.addEventListener('click' , () => {
-    document.getElementById("loading").classList.add("active")
-    process.classList.remove("active")
+inpFile.addEventListener('click' , (e) => {
+      e.target.parentElement.querySelector("#loading").classList.add("active")
+      e.target.parentElement.querySelector("#process").classList.remove("active")
 })
 
-inpFile.addEventListener('change' , () => {
-    document.getElementById("loading").classList.remove("active")
-    document.getElementById("error").classList.remove("active")
+inpFile.addEventListener('change' , (e) => {
+      e.target.parentElement.querySelector("#loading").classList.remove("active")
+      e.target.parentElement.querySelector("#error").classList.remove("active")
 })
 
 btn.addEventListener('click', async () => {
@@ -45,7 +45,15 @@ btn.addEventListener('click', async () => {
         await fetch('/upload', {
             method: 'POST',
             body: formData
-        }).then(response => response.arrayBuffer()).then(array => {
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw response.json()
+          }
+
+          return response.arrayBuffer()
+        })
+        .then(array => {
     		const blob = new Blob([array], {
     			type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     		}),
@@ -55,15 +63,25 @@ btn.addEventListener('click', async () => {
 
           process.classList.add("active")
           process.textContent = "Success..."
-    	}).catch((error) => {
-        process.classList.remove("active")
-        process.textContent = "Failed..."
-      })
+    	   })
+        .catch((error) => {
+          if (!error.name) {
+            error.then(result => {
+              process.classList.remove("active")
+              process.textContent = result.data
+            })
+          }else {
+            process.classList.remove("active")
+            process.textContent = "Failed..."
+          }
+        })
     }
 })
 
 
 productsEditBtn.addEventListener('click', () => {
+  addProductDefault()
+  backToProduct()
   fetchDataProducts(currentPage)
 })
 
@@ -174,6 +192,8 @@ isEnabledBtn.addEventListener('click', (e) => {
 
 })
 
+document.querySelector("#addSizeBtn").addEventListener('click', createInputSizeElement)
+
 if (backToProductBtn.length > 0) {
   for (var i = 0; i < backToProductBtn.length; i++) {
     backToProductBtn[i].addEventListener('click', () => {
@@ -181,6 +201,265 @@ if (backToProductBtn.length > 0) {
     })
   }
 }
+
+function createInputSizeElement() {
+  const productDiv = document.createElement('div')
+  const productPricesDiv = document.createElement('div')
+  const productPricesForm = document.createElement('form')
+  const productPricesLabel = document.createElement('label')
+  const productPricesInput = document.createElement('input')
+  // const productPricesEditBtn = document.createElement('img')
+  const productPricesForwardBtn = document.createElement('img')
+  const productPricesCloseBtn = document.createElement('img')
+  const productLabelDiv = document.createElement('div')
+  // const productLabelForm = document.createElement('form')
+  const productLabelSelect = document.createElement('select')
+  const productLabel = document.createElement('label')
+
+  let divContainer
+
+  // if (document.querySelector('#product-sizes') !== undefined) {
+  //    divContainer = document.querySelector('#product-sizes')
+  // }else {
+    divContainer = document.createElement('div')
+    divContainer.id = 'add-product-sizes'
+  // }
+
+  productDiv.style = `
+    display: flex;
+    margin-top: 10px;
+  `
+
+
+  productPricesInput.type = 'number'
+  // productLabelInput.type = 'text'
+
+  // productPricesEditBtn.classList.add('active')
+  // productPricesEditBtn.src =  '../public/img/pencil-square.svg'
+  // productPricesEditBtn.width = 20
+  // productPricesEditBtn.alt = "Edit button"
+
+  productPricesForwardBtn.src =  '../public/img/forward-fill.svg'
+  productPricesForwardBtn.width = 25
+  productPricesForwardBtn.alt = "Forward button"
+  productPricesForwardBtn.classList.add('active')
+
+  productPricesCloseBtn.src =  '../public/img/x-circle.svg'
+  productPricesCloseBtn.width = 20
+  productPricesCloseBtn.alt = "close button"
+  productPricesCloseBtn.classList.add('active')
+
+  productLabel.textContent = "Size  :  "
+  productPricesLabel.textContent = "Price  :  "
+
+  productLabelSelect.innerHTML = `
+    <option value="S">S</option>
+    <option value="M">M</option>
+    <option value="L">L</option>
+    <option value="XL">XL</option>
+    <option value="XXL">XXL</option>
+  `
+
+  productLabelDiv.appendChild(productLabel)
+  productLabelDiv.appendChild(productLabelSelect)
+  productPricesDiv.appendChild(productPricesLabel)
+  productPricesDiv.appendChild(productPricesInput)
+  productPricesForm.appendChild(productLabelDiv)
+  productPricesForm.appendChild(productPricesDiv)
+  productDiv.appendChild(productPricesForm)
+  // productPricesDiv.appendChild(productLabelForm)
+  // productDiv.appendChild(productPricesEditBtn)
+  productDiv.appendChild(productPricesForwardBtn)
+  productDiv.appendChild(productPricesCloseBtn)
+
+  divContainer.appendChild(productDiv)
+  // divContainer.appendChild(productLabelDiv)
+
+  productDetailBody.appendChild(divContainer)
+
+  // productPricesEditBtn.addEventListener('click', (e) => {
+  //   e.target.classList.remove('active')
+  //   productPricesCloseBtn.classList.add('active')
+  //   productPricesForwardBtn.classList.add('active')
+  //   productPricesInput.disabled = false
+  // })
+
+  productPricesCloseBtn.addEventListener('click', (e) => {
+    e.target.parentElement.remove()
+  })
+
+  productPricesForwardBtn.addEventListener('click', (e) => {
+    console.log('click');
+
+    console.log(e.target.parentElement.querySelector('select').value);
+    console.log(e.target.parentElement.querySelector('input').value);
+    // productPricesInput.disabled = true
+    // const values = {}
+    //
+    // const label = productPricesInput.parentElement.querySelector('label')
+    // const alert = document.querySelector('#product-detail .alert')
+    //
+    // let labelSplit = label.textContent.split(' ')
+    //
+    // labelSplit = "priceProductSize" + labelSplit[0]
+    //
+    // values[labelSplit] = productPricesInput.value
+    //
+    // var formBody = [];
+    // for (var property in values) {
+    //   var encodedKey = encodeURIComponent(property);
+    //   var encodedValue = encodeURIComponent(values[property]);
+    //   formBody.push(encodedKey + "=" + encodedValue);
+    // }
+    // formBody = formBody.join("&");
+    //
+    // fetch(`product/edit`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    //   },
+    //   body: formBody
+    // })
+    //   .then(res => {
+    //     if (res.ok) {
+    //       return res.json()
+    //     }else {
+    //       throw res.json()
+    //     }
+    //   })
+    //   .then(result => {
+    //   productPricesEditBtn.classList.add('active')
+    //   productPricesForwardBtn.classList.remove('active')
+    //   productPricesCloseBtn.classList.remove('active')
+    //
+    //     alert.classList.add('alert-success')
+    //     alert.classList.remove('op-0')
+    //
+    //     alert.textContent = result.message
+    //
+    //     setTimeout(() => {
+    //       alert.classList.remove('alert-success')
+    //       alert.classList.add('op-0')
+    //       alert.textContent = ""
+    //     }, 1500)
+    //   })
+    //   .catch(error => {
+    //     error.then(function(json) {
+    //       if (json.status === 404) {
+    //         alert.classList.add('alert-warning')
+    //       }else {
+    //         alert.classList.add('alert-danger')
+    //       }
+    //       alert.classList.remove('op-0')
+    //
+    //       alert.textContent = json.message
+    //
+    //       setTimeout(() => {
+    //         if (json.status === 404) {
+    //           alert.classList.remove('alert-warning')
+    //         }else {
+    //           alert.classList.remove('alert-danger')
+    //         }
+    //         alert.classList.add('op-0')
+    //         alert.textContent = ""
+    //       }, 1500)
+    //
+    //
+    //      });
+    // })
+  })
+}
+
+function backToProduct() {
+  document.querySelector('#products .add-product-section').classList.remove('show')
+  document.querySelector('#products .modal-footer .btns').classList.remove('show')
+  document.querySelector('#products #data-container-product').classList.add('show')
+  document.querySelector('#products .modal-footer #pagination-container-product').classList.add('show')
+}
+
+function addProduct() {
+  document.querySelector('#products #data-container-product').classList.remove('show')
+  document.querySelector('#products .modal-footer #pagination-container-product').classList.remove('show')
+  document.querySelector('#products .add-product-section').classList.add('show')
+  document.querySelector('#products .modal-footer .btns').classList.add('show')
+}
+
+function addProductDefault() {
+  document.querySelector('#products #addProduct').dataset.type = 'add-product'
+  document.querySelector('#products #addProduct').innerText = 'add'
+}
+
+document.querySelector('#products #addProduct').addEventListener('click', (e) => {
+  if (e.target.dataset.type == 'add-product') {
+    e.target.dataset.type = 'back-To-Product'
+    e.target.innerText = 'back'
+    addProduct()
+  }else {
+    addProductDefault()
+    backToProduct()
+  }
+})
+
+document.querySelector('#products #add-product-input').addEventListener('click' , (e) => {
+    e.target.parentElement.querySelector("#loading").classList.add("active")
+    e.target.parentElement.querySelector("#process").classList.remove("active")
+})
+
+document.querySelector('#products #add-product-input').addEventListener('change' , (e) => {
+    e.target.parentElement.querySelector("#loading").classList.remove("active")
+    e.target.parentElement.querySelector("#error").classList.remove("active")
+})
+
+document.querySelector('#products #add-product-btn').addEventListener('click', async (e) => {
+  e.target.parentElement.querySelector("#error").classList.remove("active")
+  e.target.parentElement.querySelector("#loading").classList.remove("active")
+  e.target.parentElement.querySelector("#process").classList.remove("active")
+    if (e.target.parentElement.querySelector('#products #add-product-input').files.length === 0) {
+      e.target.parentElement.querySelector("#error").classList.add("active")
+      e.target.parentElement.querySelector("#error").textContent = "No file change"
+      setTimeout(() => {
+        e.target.parentElement.querySelector("#error").classList.remove("active")
+      }, 3000)
+    }else {
+        const formData = new FormData()
+
+        formData.append("ZipFile", e.target.parentElement.querySelector('#products #add-product-input').files[0])
+
+        e.target.parentElement.querySelector("#process").classList.add("active")
+        e.target.parentElement.querySelector("#process").textContent = "Processing..."
+
+        await fetch('/mass-add-product', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+          if (!response.ok) {
+            throw response.json()
+          }
+
+          return response.json()
+        }).then(result => {
+    	     console.log(result);
+          e.target.parentElement.querySelector("#process").classList.add("active")
+          e.target.parentElement.querySelector("#process").textContent = "Success..."
+
+    	}).catch((error) => {
+        console.log(error)
+        if (!error.name) {
+          error.then(result => {
+            e.target.parentElement.querySelector("#error").textContent = result.data
+          })
+        }else {
+          e.target.parentElement.querySelector("#error").textContent = "Failed..."
+        }
+
+        e.target.parentElement.querySelector("#error").classList.add("active")
+
+        setTimeout(() => {
+          e.target.parentElement.querySelector("#error").classList.remove("active")
+        }, 3000)
+      })
+    }
+})
 
 
 function fetchDataProducts(page) {
@@ -255,6 +534,7 @@ function fetchDataCancelledProducts(page) {
 
 function displayDataProducts(items) {
   const dataContainer = document.getElementById('data-container-product');
+  const paginationContainer = document.getElementById('pagination-container-product')
   dataContainer.innerHTML = '';
 
   items.forEach((item, index) => {
@@ -272,6 +552,9 @@ function displayDataProducts(items) {
       displayDetailProduct(items[index])
     })
     dataContainer.appendChild(button);
+
+    dataContainer.classList.add('show')
+    paginationContainer.classList.add('show')
   });
 }
 
@@ -564,155 +847,182 @@ function displayDetailProduct(item) {
 
 
 
+try {
   const divContainer = document.createElement('div')
 
   divContainer.id = 'product-sizes'
 
   const sizes = ['S', 'M', 'L', 'XL']
 
-  for (var i = 0; i < sizes.length; i++) {
-    if (item['sizes'][sizes[i]] !== undefined) {
-      addInputSize(i)
+  if (item['sizes'] !== undefined) {
+    for (var i = 0; i < sizes.length; i++) {
+      if (item['sizes'][sizes[i]] !== undefined) {
+        console.log(item['sizes'][sizes[i]]);
+        addInputSize(i)
 
-    }
-  }
-
-  function addInputSize(i) {
-    const productPricesDiv = document.createElement('div')
-    const productPricesForm = document.createElement('form')
-    const productPricesInput = document.createElement('input')
-    const productPricesEditBtn = document.createElement('img')
-    const productPricesForwardBtn = document.createElement('img')
-    const productPricesCloseBtn = document.createElement('img')
-    const productPricesLabel = document.createElement('label')
-
-
-    productPricesInput.type = 'number'
-    productPricesInput.name = 'priceProductSize' + sizes[i]
-    productPricesInput.value = item['sizes'][sizes[i]]
-    productPricesInput.disabled = true
-
-    productPricesEditBtn.classList.add('active')
-    productPricesEditBtn.src =  '../public/img/pencil-square.svg'
-    productPricesEditBtn.width = 20
-    productPricesEditBtn.alt = "Edit button"
-
-    productPricesForwardBtn.src =  '../public/img/forward-fill.svg'
-    productPricesForwardBtn.width = 25
-    productPricesForwardBtn.alt = "Forward button"
-
-    productPricesCloseBtn.src =  '../public/img/x-circle.svg'
-    productPricesCloseBtn.width = 20
-    productPricesCloseBtn.alt = "close button"
-
-    productPricesLabel.textContent = sizes[i] + "  :"
-
-    productPricesForm.appendChild(productPricesLabel)
-    productPricesForm.appendChild(productPricesInput)
-    productPricesDiv.appendChild(productPricesForm)
-    productPricesDiv.appendChild(productPricesEditBtn)
-    productPricesDiv.appendChild(productPricesForwardBtn)
-    productPricesDiv.appendChild(productPricesCloseBtn)
-
-    divContainer.appendChild(productPricesDiv)
-
-    if (i == sizes.length - 1) {
-      productDetailBody.appendChild(divContainer)
-    }
-
-    productPricesEditBtn.addEventListener('click', (e) => {
-      e.target.classList.remove('active')
-      productPricesCloseBtn.classList.add('active')
-      productPricesForwardBtn.classList.add('active')
-      productPricesInput.disabled = false
-    })
-
-    productPricesCloseBtn.addEventListener('click', (e) => {
-      e.target.classList.remove('active')
-      productPricesForwardBtn.classList.remove('active')
-      productPricesEditBtn.classList.add('active')
-      productPricesInput.disabled = true
-    })
-
-    productPricesForwardBtn.addEventListener('click', () => {
-      productPricesInput.disabled = true
-
-
-      const values = {}
-
-      const label = productPricesInput.parentElement.querySelector('label')
-      const alert = document.querySelector('#product-detail .alert')
-
-      let labelSplit = label.textContent.split(' ')
-
-      labelSplit = "priceProductSize" + labelSplit[0]
-
-      values[labelSplit] = productPricesInput.value
-
-      var formBody = [];
-      for (var property in values) {
-        var encodedKey = encodeURIComponent(property);
-        var encodedValue = encodeURIComponent(values[property]);
-        formBody.push(encodedKey + "=" + encodedValue);
       }
-      formBody = formBody.join("&");
+    }
+    productDetailBody.appendChild(divContainer)
 
-      fetch(`${apiEndpoint}/${item['id']}/edit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: formBody
+    function  addInputSize(i){
+      const productPricesDiv = document.createElement('div')
+      const productPricesForm = document.createElement('form')
+      const productPricesInput = document.createElement('input')
+      const productPricesEditBtn = document.createElement('img')
+      const productPricesForwardBtn = document.createElement('img')
+      const productPricesCloseBtn = document.createElement('img')
+      const productPricesLabel = document.createElement('label')
+
+
+      productPricesInput.type = 'number'
+      productPricesInput.name = 'priceProductSize' + sizes[i]
+      productPricesInput.value = item['sizes'][sizes[i]]
+      productPricesInput.disabled = true
+
+      productPricesEditBtn.classList.add('active')
+      productPricesEditBtn.src =  '../public/img/pencil-square.svg'
+      productPricesEditBtn.width = 20
+      productPricesEditBtn.alt = "Edit button"
+
+      productPricesForwardBtn.src =  '../public/img/forward-fill.svg'
+      productPricesForwardBtn.width = 25
+      productPricesForwardBtn.alt = "Forward button"
+
+      productPricesCloseBtn.src =  '../public/img/x-circle.svg'
+      productPricesCloseBtn.width = 20
+      productPricesCloseBtn.alt = "close button"
+
+      productPricesLabel.textContent = sizes[i] + "  :"
+
+      productPricesForm.appendChild(productPricesLabel)
+      productPricesForm.appendChild(productPricesInput)
+      productPricesDiv.appendChild(productPricesForm)
+      productPricesDiv.appendChild(productPricesEditBtn)
+      productPricesDiv.appendChild(productPricesForwardBtn)
+      productPricesDiv.appendChild(productPricesCloseBtn)
+
+      divContainer.appendChild(productPricesDiv)
+
+      productPricesEditBtn.addEventListener('click', (e) => {
+        e.target.classList.remove('active')
+        productPricesCloseBtn.classList.add('active')
+        productPricesForwardBtn.classList.add('active')
+        productPricesInput.disabled = false
       })
-        .then(res => {
-          if (res.ok) {
-            return res.json()
-          }else {
-            throw res.json()
-          }
-        })
-        .then(result => {
-        productPricesEditBtn.classList.add('active')
+
+      productPricesCloseBtn.addEventListener('click', (e) => {
+        e.target.classList.remove('active')
         productPricesForwardBtn.classList.remove('active')
-        productPricesCloseBtn.classList.remove('active')
+        productPricesEditBtn.classList.add('active')
+        productPricesInput.disabled = true
+      })
 
-          alert.classList.add('alert-success')
-          alert.classList.remove('op-0')
+      productPricesForwardBtn.addEventListener('click', () => {
+        productPricesInput.disabled = true
 
-          alert.textContent = result.message
 
-          setTimeout(() => {
-            alert.classList.remove('alert-success')
-            alert.classList.add('op-0')
-            alert.textContent = ""
-          }, 1500)
+        const values = {}
+
+        const label = productPricesInput.parentElement.querySelector('label')
+        const alert = document.querySelector('#product-detail .alert')
+
+        let labelSplit = label.textContent.split(' ')
+
+        labelSplit = "priceProductSize" + labelSplit[0]
+
+        values[labelSplit] = productPricesInput.value
+
+        var formBody = [];
+        for (var property in values) {
+          var encodedKey = encodeURIComponent(property);
+          var encodedValue = encodeURIComponent(values[property]);
+          formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
+        fetch(`${apiEndpoint}/${item['id']}/edit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: formBody
         })
-        .catch(error => {
-          error.then(function(json) {
-            if (json.status === 404) {
-              alert.classList.add('alert-warning')
+          .then(res => {
+            if (res.ok) {
+              return res.json()
             }else {
-              alert.classList.add('alert-danger')
+              throw res.json()
             }
+          })
+          .then(result => {
+          productPricesEditBtn.classList.add('active')
+          productPricesForwardBtn.classList.remove('active')
+          productPricesCloseBtn.classList.remove('active')
+
+            alert.classList.add('alert-success')
             alert.classList.remove('op-0')
 
-            alert.textContent = json.message
+            alert.textContent = result.message
 
             setTimeout(() => {
-              if (json.status === 404) {
-                alert.classList.remove('alert-warning')
-              }else {
-                alert.classList.remove('alert-danger')
-              }
+              alert.classList.remove('alert-success')
               alert.classList.add('op-0')
               alert.textContent = ""
             }, 1500)
+          })
+          .catch(error => {
+            error.then(function(json) {
+              if (json.status === 404) {
+                alert.classList.add('alert-warning')
+              }else {
+                alert.classList.add('alert-danger')
+              }
+              alert.classList.remove('op-0')
+
+              alert.textContent = json.message
+
+              setTimeout(() => {
+                if (json.status === 404) {
+                  alert.classList.remove('alert-warning')
+                }else {
+                  alert.classList.remove('alert-danger')
+                }
+                alert.classList.add('op-0')
+                alert.textContent = ""
+              }, 1500)
 
 
-           });
+             });
+        })
       })
-    })
+    }
   }
+
+
+} catch (e) {
+  if (alert.classList.contains('alert-warning')) {
+      alert.classList.remove('alert-warning')
+  }
+
+  if (alert.classList.contains('alert-danger')) {
+      alert.classList.remove('alert-danger')
+  }
+
+  if (alert.classList.contains('alert-success')) {
+      alert.classList.remove('alert-success')
+  }
+
+  alert.classList.add('alert-danger')
+  alert.classList.remove('op-0')
+
+  alert.textContent = "Something wrong!!!"
+
+  setTimeout(() => {
+    alert.classList.remove('alert-danger')
+    alert.classList.add('op-0')
+    alert.textContent = ""
+  }, 1500)
+}
 
 }
 

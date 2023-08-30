@@ -52,17 +52,38 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="product-edit">Products</h5>
-            <button type="button" class="btn btn-primary ms-5" id="addProduct">add</button>
+            <button type="button" class="btn btn-primary ms-5" data-type='add-product' id="addProduct">add</button>
             <button type="button" class="btn btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#cancelled-products" style="width: 200px; text-align: center" id="cancelledProductBtn">
                                   cancelled </button>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body" id="data-container-product">
+          <div class="modal-body">
+              <div id="data-container-product">
 
+              </div>
+              <div class="add-product-section">
+
+                <section id="fileUploaderAddProduct">
+                    <h4>Add Product</h4>
+
+                    <div class="error">
+                      <h4 id="error" style="color: red"></h4>
+                    </div>
+
+                      <input type="file" id="add-product-input">
+                      <button type="submit" id="add-product-btn">Upload!</button>
+                      <p id="loading">Loading...</p>
+                      <p id="process"></p>
+              </section>
+              </div>
           </div>
           <div class="loading-product">Loading...</div>
-          <div class="modal-footer" id="pagination-container-product">
-
+          <div class="modal-footer" >
+              <div id="pagination-container-product">
+              </div>
+              <div class="btns">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
           </div>
         </div>
       </div>
@@ -133,6 +154,9 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="product-detail-label">Product Detail</h5>
+            <button type="button" class="btn btn-primary" id="addSizeBtn">
+              add
+            </button>
             <button type="button" class="btn btn-primary" id="isEnabledBtn">
             </button>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

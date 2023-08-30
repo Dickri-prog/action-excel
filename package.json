@@ -4,7 +4,7 @@
   "description": "action-excel-tools shopee",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "author": "m.d",
   "license": "ISC",
@@ -16,5 +16,8 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
     "octokit": "^3.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

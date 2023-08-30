@@ -39,6 +39,19 @@
   background: #0d45a5;
 }
 
+#add-product-btn {
+  border: none;
+  border-radius: 15px;
+  padding: 10px;
+  background: #084cdf;
+  color: #fff;
+  cursor: pointer;
+}
+
+#add-product-btn:hover {
+  background: #0d45a5;
+}
+
 #inpFile {
   margin-right: 10px;
 }
@@ -56,10 +69,48 @@
   background: #a9a9a9;
 }
 
+#add-product-input {
+  margin-right: 10px;
+}
 
+#add-product-input::file-selector-button {
+  margin-right: 20px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+}
+
+#add-product-input::file-selector-button:hover {
+  background: #a9a9a9;
+}
 
 .active {
     display: block !important;
+}
+
+#products .modal-body {
+  overflow: hidden;
+}
+
+#products .modal-footer .btns {
+  display: flex;
+  transform: scale(0);
+  transition: all .3s linear;
+}
+
+#products .modal-footer .btns.show {
+  transform: scale(1) !important;
+}
+
+#data-container-product {
+    transform: translateX(700px);
+    transition: all .3s linear;
+}
+
+#data-container-product.show {
+  transform: translateX(0) !important;
 }
 
 #data-container-product button {
@@ -76,10 +127,24 @@
   background: #a9a9a9;
   cursor: pointer
 }
+
+#pagination-container-product {
+  transform: scale(0);
+  transition: all .3s linear;
+}
+#pagination-container-product.show {
+  transform: scale(1) !important;
+}
+
 #product-detail #isEnabledBtn {
   position: relative;
-  right: -40%;
+  right: -35%;
 }
+#product-detail #addSizeBtn {
+  position: relative;
+  right: -30%;
+}
+
 
 #product-detail .alert.op-0 {
   opacity: !important 0;
@@ -205,4 +270,16 @@ i.excla-action {
 
 #data-container-cancelled-product ul li button {
   height: 35px;
+}
+
+
+.add-product-section {
+  position: absolute;
+  top: 5%;
+  transform: translate(-400px);
+  transition: all .3s linear;
+}
+
+.add-product-section.show{
+  transform: translate(5px) !important;
 }
