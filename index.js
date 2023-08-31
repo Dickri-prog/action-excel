@@ -905,7 +905,7 @@ app.post('/upload', checkingData, (req, res) => {
 
                         if (row.values[3].toLowerCase().includes("xxl")) {
                           if (pricesData.XXL !== undefined) {
-                            
+
                             row.getCell(6).value = pricesData.XXL
                             row.getCell(7).value = pricesData.XXL
                             row.getCell(12).value = 'Ubah'
@@ -915,7 +915,7 @@ app.post('/upload', checkingData, (req, res) => {
                     }
       				  }
 
-                if (row.values[7] == 0 && row.values[11] == "Menunggu Konfirmasimu") {
+                if (row.values[8] == 0 && row.values[11] == "Menunggu Konfirmasimu") {
                   row.getCell(12).value = 'Tolak'
                 }
 
