@@ -43,8 +43,16 @@ async function fetchContentFile() {
     const base64Data = result['data']['content']
     const buffer = Buffer.from(base64Data, 'base64');
     const originalString = buffer.toString();
-    //
+
     jsonDataContent = JSON.parse(originalString)
+
+    jsonDataContent.forEach((item, index) => {
+      if (item.isEnabled) {
+        productDataArr.push(index)
+      }else{
+        cancelProductDataArr.push(index)
+      }
+    })
 
     console.log("fetched!!!")
     return true
@@ -107,14 +115,6 @@ app.get('/', (req, res) => {
 app.get('/products', checkingData , (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
-
-  if (productDataArr.length === 0) {
-    jsonDataContent.forEach((item, index) => {
-      if (item.isEnabled) {
-        productDataArr.push(index)
-      }
-    })
-  }
 
 	if (productDataArr.length > 0) {
 
@@ -180,14 +180,6 @@ app.get('/products', checkingData , (req, res) => {
 app.get('/products/cancelled', checkingData, (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
-
-  if (cancelProductDataArr.length === 0) {
-    jsonDataContent.forEach((item, index) => {
-      if (item.isEnabled === false) {
-        cancelProductDataArr.push(index)
-      }
-    })
-  }
 
 
 	if (cancelProductDataArr.length > 0) {
@@ -297,21 +289,23 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 		let priceProductSizeM = null;
 		let priceProductSizeL = null;
 		let priceProductSizeXL = null;
+		let priceProductSizeXXL = null;
 
-    // console.log(formData);
 
 		let priceProduct = {
 			S: null,
 			M: null,
 			L: null,
-			XL: null
+			XL: null,
+      XXL: null
 		}
 
 		let formSize = [
 			"priceProductSizeS",
 			"priceProductSizeM",
 			"priceProductSizeL",
-			"priceProductSizeXL"
+			"priceProductSizeXL",
+			"priceProductSizeXXL"
 		]
 
 		if (formData[formSize[0]]) {
@@ -343,6 +337,14 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 				throw new Error("Input is not a number")
 			}else {
 				priceProduct.XL = parseInt(formData[formSize[3]])
+			}
+		}
+
+		if (formData[formSize[4]]) {
+			if (isNaN(parseInt(formData[formSize[4]]))) {
+				throw new Error("Input is not a number")
+			}else {
+				priceProduct.XXL = parseInt(formData[formSize[4]])
 			}
 		}
 
@@ -421,20 +423,20 @@ app.post('/products/:id/add', checkingData,  async (req, res) => {
 		let priceProductSizeL = null;
 		let priceProductSizeXL = null;
 
-    console.log(formData);
-
 		let priceProduct = {
 			S: null,
 			M: null,
 			L: null,
-			XL: null
+			XL: null,
+      XXL: null
 		}
 
 		let formSize = [
 			"priceProductSizeS",
 			"priceProductSizeM",
 			"priceProductSizeL",
-			"priceProductSizeXL"
+			"priceProductSizeXL",
+			"priceProductSizeXXL"
 		]
 
 		if (formData[formSize[0]]) {
@@ -468,6 +470,13 @@ app.post('/products/:id/add', checkingData,  async (req, res) => {
 				priceProduct.XL = parseInt(formData[formSize[3]])
 			}
 		}
+		if (formData[formSize[4]]) {
+			if (isNaN(parseInt(formData[formSize[4]]))) {
+				throw new Error("Input is not a number")
+			}else {
+				priceProduct.XXL = parseInt(formData[formSize[4]])
+			}
+		}
 
 
 		let index = null;
@@ -484,12 +493,18 @@ app.post('/products/:id/add', checkingData,  async (req, res) => {
 
 					if (index != -1) {
 						for (var key in priceProduct) {
-							if (jsonDataContent[index]["sizes"][key] === undefined) {
-							 delete	priceProduct[key]
+							if (jsonDataContent[index]["sizes"][key] !== undefined) {
+                if (priceProduct[key] !== null) {
+                  priceProduct[key] = parseInt(priceProduct[key]);
+                }else {
+                  priceProduct[key] = parseInt(jsonDataContent[index]["sizes"][key]);
+                }
 							}
-							if (priceProduct[key] === null) {
-								priceProduct[key] = parseInt(jsonDataContent[index]["sizes"][key])
+
+              if (priceProduct[key] === null) {
+                  delete priceProduct[key];
 							}
+
 						}
 
 							jsonDataContent[index].sizes = priceProduct
@@ -706,43 +721,10 @@ app.post('/mass-add-product', checkingData, (req, res) => {
                           isEnabled: false
                         })
                       }
-
-                      // if (isCheckId === false) {
-                      //   id++
-                      // }
-                      //
-                      // if (isCheckId) {
-                      //   const checkingBiggestId = checkJsonData(row.values[1])
-                      //   console.log(checkingBiggestId);
-                      //   if (checkingBiggestId !== false) {
-                      //     id = checkingBiggestId
-                      //     isCheckId = false
-                      //   }
-                      // }
-                      //
-                      // data.push({
-                      //   id,
-                      //   name: row.values[1],
-                      //   isEnabled: false
-                      // })
-
-
-                      // titleData.add(row.values[1])
                     }
                     index++
                   });
 
-                  // if (titleData.size > 0) {
-                  //   titleData.forEach((item) => {
-                  //     data.push({
-                  //       id,
-                  //       name: item,
-                  //       isEnabled: false
-                  //     })
-                  //     id++
-                  //   });
-                  //
-                  // }
                   res.json({
                     data: jsonDataContent
                   })
@@ -767,31 +749,34 @@ app.post('/upload', checkingData, (req, res) => {
   const cancelData = []
   const nominationData = []
 
-  if (cancelProductDataArr.length > 0) {
-    if (cancelData.length === 0) {
-      console.log("cancelData")
+    if (cancelProductDataArr.length > 0) {
       cancelProductDataArr.forEach((item) => {
-        cancelData.push(jsonDataContent[item].name)
+        const data = jsonDataContent[item];
+
+        if (data.isEnabled === false) {
+          cancelData.push(data.name)
+        }
       });
     }
-  }
 
-  if (productDataArr.length > 0) {
-    console.log("nominationData")
-    if (nominationData.length === 0) {
-    productDataArr.forEach((item) => {
-        nominationData.push({
-          name: jsonDataContent[item].name,
-          sizes: jsonDataContent[item].sizes
-        })
-    });
-  }
-  }
+    if (productDataArr.length > 0) {
+      productDataArr.forEach((item) => {
+        const data = jsonDataContent[item];
+
+        if (data.isEnabled) {
+          nominationData.push({
+            name: jsonDataContent[item].name,
+            sizes: jsonDataContent[item].sizes
+          })
+        }
+      });
+    }
 
   	function cancelled (value) {
 
       let valueToLower = value.toLowerCase()
       const formattedSearch = valueToLower.replace(/\s+/g, '');
+
 
       const checkIndex =  cancelData.findIndex(item => {
         const formattedTarget = item.toString().toLowerCase().replace(/\s+/g, '');
@@ -842,11 +827,11 @@ app.post('/upload', checkingData, (req, res) => {
 
       				  if (pricesData = dataNomination(row.values[1])) {
                     if (row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-                      // console.log("in")
+
                       if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
 
             						if (pricesData.S !== undefined) {
-                          // console.log("S");
+
                           row.getCell(6).value = pricesData.S
               						row.getCell(7).value = pricesData.S
                           row.getCell(12).value = 'Ubah'
@@ -854,7 +839,7 @@ app.post('/upload', checkingData, (req, res) => {
             					} else if (row.values[3].toLowerCase().includes(",m") || row.values[3].toLowerCase().includes("m,")) {
 
                         if (pricesData.M !== undefined) {
-                          // console.log("M");
+
                           row.getCell(6).value = pricesData.M
               						row.getCell(7).value = pricesData.M
                           row.getCell(12).value = 'Ubah'
@@ -862,19 +847,71 @@ app.post('/upload', checkingData, (req, res) => {
             					} else if (row.values[3].toLowerCase().includes(",l") || row.values[3].toLowerCase().includes("l,")) {
 
                         if (pricesData.L !== undefined) {
-                          // console.log("L");
+
                           row.getCell(6).value = pricesData.L
               						row.getCell(7).value = pricesData.L
                           row.getCell(12).value = 'Ubah'
                         }
             					}else if (row.values[3].toLowerCase().includes(",xl") || row.values[3].toLowerCase().includes("xl,")) {
                         if (pricesData.XL !== undefined) {
-                          // console.log("XL");
+
                           row.getCell(6).value = pricesData.XL
                           row.getCell(7).value = pricesData.XL
                           row.getCell(12).value = 'Ubah'
                         }
-            					}
+            					}else if (row.values[3].toLowerCase().includes(",xxl") || row.values[3].toLowerCase().includes("xxl,")) {
+                        if (pricesData.XXL !== undefined) {
+
+                          row.getCell(6).value = pricesData.XXL
+                          row.getCell(7).value = pricesData.XXL
+                          row.getCell(12).value = 'Ubah'
+                        }
+            					}else {
+                        if (row.values[3].toLowerCase().includes("s")) {
+                          if (pricesData.S !== undefined) {
+
+                            row.getCell(6).value = pricesData.S
+                            row.getCell(7).value = pricesData.S
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (row.values[3].toLowerCase().includes("m")) {
+                          if (pricesData.M !== undefined) {
+
+                            row.getCell(6).value = pricesData.M
+                            row.getCell(7).value = pricesData.M
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (row.values[3].toLowerCase().includes("l")) {
+                          if (pricesData.L !== undefined) {
+
+                            row.getCell(6).value = pricesData.L
+                            row.getCell(7).value = pricesData.L
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (row.values[3].toLowerCase().includes("xl")) {
+                          if (pricesData.XL !== undefined) {
+
+                            row.getCell(6).value = pricesData.XL
+                            row.getCell(7).value = pricesData.XL
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (row.values[3].toLowerCase().includes("xxl")) {
+                          if (pricesData.XXL !== undefined) {
+                            
+                            row.getCell(6).value = pricesData.XXL
+                            row.getCell(7).value = pricesData.XXL
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+                      }
                     }
       				  }
 

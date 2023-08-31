@@ -94,6 +94,8 @@ isEnabledBtn.addEventListener('click', (e) => {
   const isEnabled = e.target.dataset.isEnabled
   const alert = document.querySelector('#product-detail .alert')
 
+  e.target.disabled = true;
+
   let values = {
     isEnabled
   }
@@ -121,6 +123,7 @@ isEnabledBtn.addEventListener('click', (e) => {
     return response.json()
   })
   .then(result => {
+    e.target.disabled = false;
 
     if (result.isEnabled !== undefined) {
       if (result.isEnabled) {
@@ -161,20 +164,22 @@ isEnabledBtn.addEventListener('click', (e) => {
     }
   })
   .catch(error => {
+    e.target.disabled = false;
+
+    if (alert.classList.contains('alert-warning')) {
+      alert.classList.remove('alert-warning')
+    }
+
+    if (alert.classList.contains('alert-danger')) {
+      alert.classList.remove('alert-danger')
+    }
+
+    if (alert.classList.contains('alert-success')) {
+      alert.classList.remove('alert-success')
+    }
+
     if (!error.name) {
       error.then(result => {
-        if (alert.classList.contains('alert-warning')) {
-            alert.classList.remove('alert-warning')
-        }
-
-        if (alert.classList.contains('alert-danger')) {
-            alert.classList.remove('alert-danger')
-        }
-
-        if (alert.classList.contains('alert-success')) {
-            alert.classList.remove('alert-success')
-        }
-
 
         alert.classList.add('alert-danger')
         alert.classList.remove('op-0')
@@ -187,6 +192,18 @@ isEnabledBtn.addEventListener('click', (e) => {
           alert.textContent = ""
         }, 1500)
       })
+    }else {
+      console.log(error);
+      alert.classList.add('alert-danger')
+      alert.classList.remove('op-0')
+
+      alert.textContent = "Something wrong!!!"
+
+      setTimeout(() => {
+        alert.classList.remove('alert-danger')
+        alert.classList.add('op-0')
+        alert.textContent = ""
+      }, 1500)
     }
   })
 
@@ -202,28 +219,24 @@ if (backToProductBtn.length > 0) {
   }
 }
 
-function createInputSizeElement() {
+function createInputSizeElement(e) {
+  const id = e.target.dataset.id;
   const productDiv = document.createElement('div')
   const productPricesDiv = document.createElement('div')
   const productPricesForm = document.createElement('form')
   const productPricesLabel = document.createElement('label')
   const productPricesInput = document.createElement('input')
-  // const productPricesEditBtn = document.createElement('img')
+  const productPricesEditBtn = document.createElement('img')
   const productPricesForwardBtn = document.createElement('img')
   const productPricesCloseBtn = document.createElement('img')
   const productLabelDiv = document.createElement('div')
-  // const productLabelForm = document.createElement('form')
   const productLabelSelect = document.createElement('select')
   const productLabel = document.createElement('label')
 
   let divContainer
 
-  // if (document.querySelector('#product-sizes') !== undefined) {
-  //    divContainer = document.querySelector('#product-sizes')
-  // }else {
     divContainer = document.createElement('div')
     divContainer.id = 'add-product-sizes'
-  // }
 
   productDiv.style = `
     display: flex;
@@ -232,12 +245,9 @@ function createInputSizeElement() {
 
 
   productPricesInput.type = 'number'
-  // productLabelInput.type = 'text'
-
-  // productPricesEditBtn.classList.add('active')
-  // productPricesEditBtn.src =  '../public/img/pencil-square.svg'
-  // productPricesEditBtn.width = 20
-  // productPricesEditBtn.alt = "Edit button"
+  productPricesEditBtn.src =  '../public/img/pencil-square.svg'
+  productPricesEditBtn.width = 20
+  productPricesEditBtn.alt = "Edit button"
 
   productPricesForwardBtn.src =  '../public/img/forward-fill.svg'
   productPricesForwardBtn.width = 25
@@ -267,22 +277,21 @@ function createInputSizeElement() {
   productPricesForm.appendChild(productLabelDiv)
   productPricesForm.appendChild(productPricesDiv)
   productDiv.appendChild(productPricesForm)
-  // productPricesDiv.appendChild(productLabelForm)
-  // productDiv.appendChild(productPricesEditBtn)
+  productDiv.appendChild(productPricesEditBtn)
   productDiv.appendChild(productPricesForwardBtn)
   productDiv.appendChild(productPricesCloseBtn)
 
   divContainer.appendChild(productDiv)
-  // divContainer.appendChild(productLabelDiv)
 
   productDetailBody.appendChild(divContainer)
 
-  // productPricesEditBtn.addEventListener('click', (e) => {
-  //   e.target.classList.remove('active')
-  //   productPricesCloseBtn.classList.add('active')
-  //   productPricesForwardBtn.classList.add('active')
-  //   productPricesInput.disabled = false
-  // })
+  productPricesEditBtn.addEventListener('click', (e) => {
+    e.target.classList.remove('active')
+    productPricesCloseBtn.classList.add('active')
+    productPricesForwardBtn.classList.add('active')
+    productPricesInput.disabled = false
+    productLabelSelect.disabled = false
+  })
 
   productPricesCloseBtn.addEventListener('click', (e) => {
     e.target.parentElement.remove()
@@ -291,82 +300,84 @@ function createInputSizeElement() {
   productPricesForwardBtn.addEventListener('click', (e) => {
     console.log('click');
 
-    console.log(e.target.parentElement.querySelector('select').value);
-    console.log(e.target.parentElement.querySelector('input').value);
-    // productPricesInput.disabled = true
-    // const values = {}
-    //
-    // const label = productPricesInput.parentElement.querySelector('label')
-    // const alert = document.querySelector('#product-detail .alert')
-    //
-    // let labelSplit = label.textContent.split(' ')
-    //
-    // labelSplit = "priceProductSize" + labelSplit[0]
-    //
-    // values[labelSplit] = productPricesInput.value
-    //
-    // var formBody = [];
-    // for (var property in values) {
-    //   var encodedKey = encodeURIComponent(property);
-    //   var encodedValue = encodeURIComponent(values[property]);
-    //   formBody.push(encodedKey + "=" + encodedValue);
-    // }
-    // formBody = formBody.join("&");
-    //
-    // fetch(`product/edit`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-    //   },
-    //   body: formBody
-    // })
-    //   .then(res => {
-    //     if (res.ok) {
-    //       return res.json()
-    //     }else {
-    //       throw res.json()
-    //     }
-    //   })
-    //   .then(result => {
-    //   productPricesEditBtn.classList.add('active')
-    //   productPricesForwardBtn.classList.remove('active')
-    //   productPricesCloseBtn.classList.remove('active')
-    //
-    //     alert.classList.add('alert-success')
-    //     alert.classList.remove('op-0')
-    //
-    //     alert.textContent = result.message
-    //
-    //     setTimeout(() => {
-    //       alert.classList.remove('alert-success')
-    //       alert.classList.add('op-0')
-    //       alert.textContent = ""
-    //     }, 1500)
-    //   })
-    //   .catch(error => {
-    //     error.then(function(json) {
-    //       if (json.status === 404) {
-    //         alert.classList.add('alert-warning')
-    //       }else {
-    //         alert.classList.add('alert-danger')
-    //       }
-    //       alert.classList.remove('op-0')
-    //
-    //       alert.textContent = json.message
-    //
-    //       setTimeout(() => {
-    //         if (json.status === 404) {
-    //           alert.classList.remove('alert-warning')
-    //         }else {
-    //           alert.classList.remove('alert-danger')
-    //         }
-    //         alert.classList.add('op-0')
-    //         alert.textContent = ""
-    //       }, 1500)
-    //
-    //
-    //      });
-    // })
+    const productInput = e.target.parentElement.querySelector('input')
+    const values = {}
+    const alert = document.querySelector('#product-detail .alert')
+
+    let label = e.target.parentElement.querySelector('select').value
+
+    productInput.disabled = true
+
+    label = "priceProductSize" + label
+
+    values[label] = productInput.value
+
+    var formBody = [];
+    for (var property in values) {
+      var encodedKey = encodeURIComponent(property);
+      var encodedValue = encodeURIComponent(values[property]);
+      formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
+
+    fetch(`${apiEndpoint}/${id}/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: formBody
+    })
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        }else {
+          throw res.json()
+        }
+      })
+      .then(result => {
+      productPricesEditBtn.classList.add('active')
+      productPricesForwardBtn.classList.remove('active')
+      productPricesCloseBtn.classList.remove('active')
+
+      productLabelSelect.disabled = true
+
+        alert.classList.add('alert-success')
+        alert.classList.remove('op-0')
+
+        alert.textContent = result.message
+
+        setTimeout(() => {
+          alert.classList.remove('alert-success')
+          alert.classList.add('op-0')
+          alert.textContent = ""
+        }, 1500)
+      })
+      .catch(error => {
+        console.log(error);
+        productLabelSelect.disabled = true
+        error.then(function(json) {
+          if (json.status === 404) {
+            alert.classList.add('alert-warning')
+          }else {
+            alert.classList.add('alert-danger')
+          }
+          alert.classList.remove('op-0')
+
+          alert.textContent = json.message
+
+          setTimeout(() => {
+            if (json.status === 404) {
+              alert.classList.remove('alert-warning')
+            }else {
+              alert.classList.remove('alert-danger')
+            }
+            alert.classList.add('op-0')
+            alert.textContent = ""
+          }, 1500)
+
+
+         });
+    })
   })
 }
 
@@ -692,6 +703,8 @@ function displayDetailProduct(item) {
   const productnameForwardBtn = document.createElement('img')
   const productnameP = document.createElement('p')
 
+  const addSizeBtn = document.querySelector('#addSizeBtn');
+
 
 
   productnameDiv.id = 'product-name'
@@ -716,6 +729,8 @@ function displayDetailProduct(item) {
 
   productnameP.textContent = "Sizes :"
   productnameP.style = `margin-top: 10px;`
+
+  addSizeBtn.dataset.id = item.id
 
   if (item.isEnabled) {
     isEnabledBtn.innerText = "Disable"
@@ -852,7 +867,7 @@ try {
 
   divContainer.id = 'product-sizes'
 
-  const sizes = ['S', 'M', 'L', 'XL']
+  const sizes = ['S', 'M', 'L', 'XL', 'XXL']
 
   if (item['sizes'] !== undefined) {
     for (var i = 0; i < sizes.length; i++) {
