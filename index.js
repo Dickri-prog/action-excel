@@ -363,7 +363,7 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 
 					if (index != -1) {
 						for (var key in priceProduct) {
-							if (jsonDataContent[index]["sizes"][key] === undefined) {
+							if (typeof jsonDataContent[index]["sizes"][key] === undefined) {
 							 delete	priceProduct[key]
 							}
 							if (priceProduct[key] === null) {
@@ -493,7 +493,7 @@ app.post('/products/:id/add', checkingData,  async (req, res) => {
 
 					if (index != -1) {
 						for (var key in priceProduct) {
-							if (jsonDataContent[index]["sizes"][key] !== undefined) {
+							if (typeof jsonDataContent[index]["sizes"][key] !== undefined) {
                 if (priceProduct[key] !== null) {
                   priceProduct[key] = parseInt(priceProduct[key]);
                 }else {
