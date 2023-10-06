@@ -363,7 +363,7 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 
 					if (index != -1) {
 						for (var key in priceProduct) {
-							if (typeof jsonDataContent[index]["sizes"][key] === undefined) {
+							if (jsonDataContent[index]["sizes"][key] === undefined) {
 							 delete	priceProduct[key]
 							}
 							if (priceProduct[key] === null) {
@@ -374,6 +374,7 @@ app.post('/products/:id/edit', checkingData,  async (req, res) => {
 							jsonDataContent[index].sizes = priceProduct
 
             const updatedContent = await updateFile()
+
 
             if (updatedContent) {
               res.json({
@@ -493,7 +494,7 @@ app.post('/products/:id/add', checkingData,  async (req, res) => {
 
 					if (index != -1) {
 						for (var key in priceProduct) {
-							if (typeof jsonDataContent[index]["sizes"][key] !== undefined) {
+							if (jsonDataContent[index]["sizes"][key] !== undefined) {
                 if (priceProduct[key] !== null) {
                   priceProduct[key] = parseInt(priceProduct[key]);
                 }else {
@@ -693,10 +694,9 @@ app.post('/mass-add-product', checkingData, (req, res) => {
       if (req.files.ZipFile.mimetype == 'application/zip' || req.files.ZipFile.mimetype == 'application/x-zip-compressed') {
         decompress(req.files.ZipFile.data).then(files => {
           workbook.xlsx.load(files[0].data)
-              .then(function () {
+              .then(async function () {
                   const worksheet = workbook.getWorksheet('Sheet1');
-                  // jsonDataContent = []
-                  // let titleData = new Set()
+                  
                   let data = []
                   let id = 1
                   let index = 0
@@ -718,16 +718,28 @@ app.post('/mass-add-product', checkingData, (req, res) => {
                         jsonDataContent.push({
                           id,
                           name: row.values[1],
-                          isEnabled: false
+                          isEnabled: false,
+                          sizes: {
+
+                          }
                         })
                       }
                     }
                     index++
                   });
 
-                  res.json({
-                    data: jsonDataContent
-                  })
+                  const updatedContent = await updateFile()
+
+                  if (updatedContent) {
+                    res.json({
+                      message: "Updated successfully!!!"
+                    })
+                    console.log(`Updated successfully.`);
+                  } else {
+                    throw new Error('Updated Failed!!!')
+
+                    console.log(`Updated Failed!!!.`);
+                  }
         });
       })
     }else {

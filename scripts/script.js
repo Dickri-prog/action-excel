@@ -77,7 +77,6 @@ btn.addEventListener('click', async () => {
     }
 })
 
-
 productsEditBtn.addEventListener('click', () => {
   addProductDefault()
   backToProduct()
@@ -209,6 +208,78 @@ isEnabledBtn.addEventListener('click', (e) => {
 })
 
 document.querySelector("#addSizeBtn").addEventListener('click', createInputSizeElement)
+
+document.querySelector('#products #addProduct').addEventListener('click', (e) => {
+  if (e.target.dataset.type == 'add-product') {
+    e.target.dataset.type = 'back-To-Product'
+    e.target.innerText = 'back'
+    addProduct()
+  }else {
+    addProductDefault()
+    backToProduct()
+  }
+})
+
+document.querySelector('#products #add-product-input').addEventListener('click' , (e) => {
+    e.target.parentElement.querySelector("#loading").classList.add("active")
+    e.target.parentElement.querySelector("#process").classList.remove("active")
+})
+
+document.querySelector('#products #add-product-input').addEventListener('change' , (e) => {
+    e.target.parentElement.querySelector("#loading").classList.remove("active")
+    e.target.parentElement.querySelector("#error").classList.remove("active")
+})
+
+document.querySelector('#products #add-product-btn').addEventListener('click', async (e) => {
+  e.target.parentElement.querySelector("#error").classList.remove("active")
+  e.target.parentElement.querySelector("#loading").classList.remove("active")
+  e.target.parentElement.querySelector("#process").classList.remove("active")
+    if (e.target.parentElement.querySelector('#products #add-product-input').files.length === 0) {
+      e.target.parentElement.querySelector("#error").classList.add("active")
+      e.target.parentElement.querySelector("#error").textContent = "No file change"
+      setTimeout(() => {
+        e.target.parentElement.querySelector("#error").classList.remove("active")
+      }, 3000)
+    }else {
+        const formData = new FormData()
+
+        formData.append("ZipFile", e.target.parentElement.querySelector('#products #add-product-input').files[0])
+
+        e.target.parentElement.querySelector("#process").classList.add("active")
+        e.target.parentElement.querySelector("#process").textContent = "Processing..."
+
+        await fetch('/mass-add-product', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+          if (!response.ok) {
+            throw response.json()
+          }
+
+          return response.json()
+        }).then(result => {
+    	     console.log(result);
+          e.target.parentElement.querySelector("#process").classList.add("active")
+          e.target.parentElement.querySelector("#process").textContent = "Success..."
+
+    	}).catch((error) => {
+        console.log(error)
+        if (!error.name) {
+          error.then(result => {
+            e.target.parentElement.querySelector("#error").textContent = result.data
+          })
+        }else {
+          e.target.parentElement.querySelector("#error").textContent = "Failed..."
+        }
+
+        e.target.parentElement.querySelector("#error").classList.add("active")
+
+        setTimeout(() => {
+          e.target.parentElement.querySelector("#error").classList.remove("active")
+        }, 3000)
+      })
+    }
+})
 
 if (backToProductBtn.length > 0) {
   for (var i = 0; i < backToProductBtn.length; i++) {
@@ -399,78 +470,6 @@ function addProductDefault() {
   document.querySelector('#products #addProduct').innerText = 'add'
 }
 
-document.querySelector('#products #addProduct').addEventListener('click', (e) => {
-  if (e.target.dataset.type == 'add-product') {
-    e.target.dataset.type = 'back-To-Product'
-    e.target.innerText = 'back'
-    addProduct()
-  }else {
-    addProductDefault()
-    backToProduct()
-  }
-})
-
-document.querySelector('#products #add-product-input').addEventListener('click' , (e) => {
-    e.target.parentElement.querySelector("#loading").classList.add("active")
-    e.target.parentElement.querySelector("#process").classList.remove("active")
-})
-
-document.querySelector('#products #add-product-input').addEventListener('change' , (e) => {
-    e.target.parentElement.querySelector("#loading").classList.remove("active")
-    e.target.parentElement.querySelector("#error").classList.remove("active")
-})
-
-document.querySelector('#products #add-product-btn').addEventListener('click', async (e) => {
-  e.target.parentElement.querySelector("#error").classList.remove("active")
-  e.target.parentElement.querySelector("#loading").classList.remove("active")
-  e.target.parentElement.querySelector("#process").classList.remove("active")
-    if (e.target.parentElement.querySelector('#products #add-product-input').files.length === 0) {
-      e.target.parentElement.querySelector("#error").classList.add("active")
-      e.target.parentElement.querySelector("#error").textContent = "No file change"
-      setTimeout(() => {
-        e.target.parentElement.querySelector("#error").classList.remove("active")
-      }, 3000)
-    }else {
-        const formData = new FormData()
-
-        formData.append("ZipFile", e.target.parentElement.querySelector('#products #add-product-input').files[0])
-
-        e.target.parentElement.querySelector("#process").classList.add("active")
-        e.target.parentElement.querySelector("#process").textContent = "Processing..."
-
-        await fetch('/mass-add-product', {
-            method: 'POST',
-            body: formData
-        }).then(response => {
-          if (!response.ok) {
-            throw response.json()
-          }
-
-          return response.json()
-        }).then(result => {
-    	     console.log(result);
-          e.target.parentElement.querySelector("#process").classList.add("active")
-          e.target.parentElement.querySelector("#process").textContent = "Success..."
-
-    	}).catch((error) => {
-        console.log(error)
-        if (!error.name) {
-          error.then(result => {
-            e.target.parentElement.querySelector("#error").textContent = result.data
-          })
-        }else {
-          e.target.parentElement.querySelector("#error").textContent = "Failed..."
-        }
-
-        e.target.parentElement.querySelector("#error").classList.add("active")
-
-        setTimeout(() => {
-          e.target.parentElement.querySelector("#error").classList.remove("active")
-        }, 3000)
-      })
-    }
-})
-
 
 function fetchDataProducts(page) {
   const url = `${apiEndpoint}?page=${page}&limit=${itemsPerPage}`;
@@ -487,41 +486,6 @@ function fetchDataProducts(page) {
         if (data.items.length > 0) {
           displayDataProducts(data.items); // Assume the API response contains an 'items' array
           createPaginationProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
-        }else {
-          throw new Error('No items!!!')
-        }
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      if (error.name == 'Error') {
-        console.log(error.message)
-
-        const dataContainer = document.getElementById('data-container-product');
-
-        dataContainer.innerHTML = `
-            <h2>No data item</h2>
-        `
-      }
-      hideLoadingProduct();
-    });
-}
-
-function fetchDataCancelledProducts(page) {
-  const url = `${apiEndpoint}/cancelled/?page=${page}&limit=${itemsPerPage}`;
-
-  showLoadingProduct();
-
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      hideLoadingProduct();
-      if (!data.items) {
-        throw new Error('No items!!!')
-      }else {
-        if (data.items.length > 0) {
-          displayDataCancelledProducts(data.items); // Assume the API response contains an 'items' array
-          createPaginationCancellingProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
         }else {
           throw new Error('No items!!!')
         }
@@ -566,130 +530,6 @@ function displayDataProducts(items) {
     dataContainer.classList.add('show')
     paginationContainer.classList.add('show')
   });
-}
-
-function displayDataCancelledProducts(items) {
-  const dataContainer = document.getElementById('data-container-cancelled-product');
-  const ul = document.createElement('ul')
-  dataContainer.innerHTML = '';
-
-
-
-  items.forEach((item, index) => {
-    const li = document.createElement('li')
-    const button = document.createElement('button')
-    const p = document.createElement('p')
-
-    button.type = 'button'
-    button.classList.add('btn')
-    button.classList.add('btn-primary')
-    button.textContent = "Enable"; // Display the item property you want
-    p.textContent = item.name; // Display the item property you want
-    button.dataset.id = item.id
-    button.dataset.isEnabled = true
-    button.addEventListener('click', (e) => {
-      console.log('clicked!!!');
-      e.target.disabled = true
-      const alert = document.querySelector('#pagination-container-cancelled-product .alert')
-      try {
-        const isEnabled = e.target.dataset.isEnabled
-        const id = e.target.dataset.id
-        const isCancel = true
-
-        let values = {
-          isEnabled,
-          isCancel
-        }
-
-        let formBody = [];
-        for (let property in values) {
-          let encodedKey = encodeURIComponent(property);
-          let encodedValue = encodeURIComponent(values[property]);
-          formBody.push(encodedKey + "=" + encodedValue);
-        }
-        formBody = formBody.join("&");
-
-        fetch(`${apiEndpoint}/${id}/is-enabled`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-          },
-          body: formBody
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw response.json()
-          }
-
-          return response.json()
-        })
-        .then(result => {
-
-          // if (result.isEnabled) {
-            fetchDataCancelledProducts(currentPageCancelled)
-
-            if (alert.classList.contains('alert-warning')) {
-                alert.classList.remove('alert-warning')
-            }
-
-            if (alert.classList.contains('alert-danger')) {
-                alert.classList.remove('alert-danger')
-            }
-
-            if (alert.classList.contains('alert-success')) {
-                alert.classList.remove('alert-success')
-            }
-
-              alert.classList.add('alert-success')
-              alert.classList.remove('op-0')
-
-              alert.textContent = result.message
-
-              setTimeout(() => {
-                alert.classList.remove('alert-success')
-                alert.classList.add('op-0')
-                alert.textContent = ""
-              }, 1500)
-          // }
-        })
-        .catch(error => {
-          e.target.disabled = true
-          if (!error.name) {
-            error.then(result => {
-              if (alert.classList.contains('alert-warning')) {
-                  alert.classList.remove('alert-warning')
-              }
-
-              if (alert.classList.contains('alert-danger')) {
-                  alert.classList.remove('alert-danger')
-              }
-
-              if (alert.classList.contains('alert-success')) {
-                  alert.classList.remove('alert-success')
-              }
-
-                alert.classList.add('alert-danger')
-                alert.classList.remove('op-0')
-
-                alert.textContent = result.message
-
-                setTimeout(() => {
-                  alert.classList.remove('alert-danger')
-                  alert.classList.add('op-0')
-                  alert.textContent = ""
-                }, 1500)
-            })
-          }
-        })
-      } catch (e) {
-        console.log(e)
-      }
-    })
-    li.appendChild(p)
-    li.appendChild(button)
-    ul.appendChild(li);
-  });
-  dataContainer.appendChild(ul)
 }
 
 function displayDetailProduct(item) {
@@ -1132,6 +972,166 @@ function createPaginationProducts(totalPages) {
   paginationContainer.appendChild(ul)
 
 }
+
+function fetchDataCancelledProducts(page) {
+  const url = `${apiEndpoint}/cancelled/?page=${page}&limit=${itemsPerPage}`;
+
+  showLoadingProduct();
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      hideLoadingProduct();
+      if (!data.items) {
+        throw new Error('No items!!!')
+      }else {
+        if (data.items.length > 0) {
+          displayDataCancelledProducts(data.items); // Assume the API response contains an 'items' array
+          createPaginationCancellingProducts(data.totalPages); // Assume the API response contains a 'totalPages' field
+        }else {
+          throw new Error('No items!!!')
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      if (error.name == 'Error') {
+        console.log(error.message)
+
+        const dataContainer = document.getElementById('data-container-product');
+
+        dataContainer.innerHTML = `
+            <h2>No data item</h2>
+        `
+      }
+      hideLoadingProduct();
+    });
+}
+
+function displayDataCancelledProducts(items) {
+  const dataContainer = document.getElementById('data-container-cancelled-product');
+  const ul = document.createElement('ul')
+  dataContainer.innerHTML = '';
+
+
+
+  items.forEach((item, index) => {
+    const li = document.createElement('li')
+    const button = document.createElement('button')
+    const p = document.createElement('p')
+
+    button.type = 'button'
+    button.classList.add('btn')
+    button.classList.add('btn-primary')
+    button.textContent = "Enable"; // Display the item property you want
+    p.textContent = item.name; // Display the item property you want
+    button.dataset.id = item.id
+    button.dataset.isEnabled = true
+    button.addEventListener('click', (e) => {
+      console.log('clicked!!!');
+      e.target.disabled = true
+      const alert = document.querySelector('#pagination-container-cancelled-product .alert')
+      try {
+        const isEnabled = e.target.dataset.isEnabled
+        const id = e.target.dataset.id
+        const isCancel = true
+
+        let values = {
+          isEnabled,
+          isCancel
+        }
+
+        let formBody = [];
+        for (let property in values) {
+          let encodedKey = encodeURIComponent(property);
+          let encodedValue = encodeURIComponent(values[property]);
+          formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
+        fetch(`${apiEndpoint}/${id}/is-enabled`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: formBody
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw response.json()
+          }
+
+          return response.json()
+        })
+        .then(result => {
+
+          // if (result.isEnabled) {
+            fetchDataCancelledProducts(currentPageCancelled)
+
+            if (alert.classList.contains('alert-warning')) {
+                alert.classList.remove('alert-warning')
+            }
+
+            if (alert.classList.contains('alert-danger')) {
+                alert.classList.remove('alert-danger')
+            }
+
+            if (alert.classList.contains('alert-success')) {
+                alert.classList.remove('alert-success')
+            }
+
+              alert.classList.add('alert-success')
+              alert.classList.remove('op-0')
+
+              alert.textContent = result.message
+
+              setTimeout(() => {
+                alert.classList.remove('alert-success')
+                alert.classList.add('op-0')
+                alert.textContent = ""
+              }, 1500)
+          // }
+        })
+        .catch(error => {
+          e.target.disabled = true
+          if (!error.name) {
+            error.then(result => {
+              if (alert.classList.contains('alert-warning')) {
+                  alert.classList.remove('alert-warning')
+              }
+
+              if (alert.classList.contains('alert-danger')) {
+                  alert.classList.remove('alert-danger')
+              }
+
+              if (alert.classList.contains('alert-success')) {
+                  alert.classList.remove('alert-success')
+              }
+
+                alert.classList.add('alert-danger')
+                alert.classList.remove('op-0')
+
+                alert.textContent = result.message
+
+                setTimeout(() => {
+                  alert.classList.remove('alert-danger')
+                  alert.classList.add('op-0')
+                  alert.textContent = ""
+                }, 1500)
+            })
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    })
+    li.appendChild(p)
+    li.appendChild(button)
+    ul.appendChild(li);
+  });
+  dataContainer.appendChild(ul)
+}
+
 function createPaginationCancellingProducts(totalPages) {
   const paginationContainer = document.getElementById('pagination-container-cancelled-product');
   paginationContainer.innerHTML = '';
