@@ -15,6 +15,7 @@ let fetchedData = false
 let jsonDataContent = []
 let cancelProductDataArr = []
 let productDataArr = []
+let scrapeData = []
 
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
@@ -43,6 +44,9 @@ async function fetchContentFile() {
     const base64Data = result['data']['content']
     const buffer = Buffer.from(base64Data, 'base64');
     const originalString = buffer.toString();
+
+    cancelProductDataArr = []
+    productDataArr = []
 
     jsonDataContent = JSON.parse(originalString)
 
@@ -645,7 +649,7 @@ app.get('/products/json', checkingData, (req, res) => {
 	try {
 				if (jsonDataContent.length > 0) {
           res.json({
-  					data: jsonDataContent
+  					message: jsonDataContent
   				})
         }else {
           throw new Error('No data')
@@ -659,6 +663,17 @@ app.get('/products/json', checkingData, (req, res) => {
 		});
 	}
 })
+
+// app.get('/products/proceed', (req, res) => {
+//
+//   if (proce.length > 0) {
+//     res.json({
+//       message: proce
+//     })
+//   }else {
+//     throw new Error('No data')
+//   }
+// })
 
 app.post('/mass-add-product', checkingData, (req, res) => {
 
@@ -690,13 +705,13 @@ app.post('/mass-add-product', checkingData, (req, res) => {
     return maxId;
   }
 
-  	if (req.files.ZipFile !== undefined) {
-      if (req.files.ZipFile.mimetype == 'application/zip' || req.files.ZipFile.mimetype == 'application/x-zip-compressed') {
-        decompress(req.files.ZipFile.data).then(files => {
+  	if (req.files.docFile !== undefined) {
+      if (req.files.docFile.mimetype == 'application/zip' || req.files.docFile.mimetype == 'application/x-zip-compressed') {
+        decompress(req.files.docFile.data).then(files => {
           workbook.xlsx.load(files[0].data)
               .then(async function () {
                   const worksheet = workbook.getWorksheet('Sheet1');
-                  
+
                   let data = []
                   let id = 1
                   let index = 0
@@ -704,9 +719,6 @@ app.post('/mass-add-product', checkingData, (req, res) => {
                   worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
                     if (index >= 3) {
                       if (checkJsonData(row.values[1])) {
-                        if (isCheckId === false) {
-                          id++
-                        }
                         if (isCheckId) {
                           const checkingBiggestId = findIndexOfMaxId()
                           if (checkingBiggestId !== -1) {
@@ -714,15 +726,17 @@ app.post('/mass-add-product', checkingData, (req, res) => {
                             isCheckId = false
                           }
                         }
+                        if (isCheckId === false) {
+                          jsonDataContent.push({
+                            id,
+                            name: row.values[1],
+                            isEnabled: false,
+                            sizes: {
 
-                        jsonDataContent.push({
-                          id,
-                          name: row.values[1],
-                          isEnabled: false,
-                          sizes: {
-
-                          }
-                        })
+                            }
+                          })
+                          id++
+                        }
                       }
                     }
                     index++
@@ -735,6 +749,7 @@ app.post('/mass-add-product', checkingData, (req, res) => {
                       message: "Updated successfully!!!"
                     })
                     console.log(`Updated successfully.`);
+                    fetchedData = false
                   } else {
                     throw new Error('Updated Failed!!!')
 
@@ -742,14 +757,63 @@ app.post('/mass-add-product', checkingData, (req, res) => {
                   }
         });
       })
+    }else if (req.files.docFile.mimetype == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      workbook.xlsx.load(req.files.docFile.data)
+          .then(async function () {
+              const worksheet = workbook.getWorksheet('Sheet1');
+
+              let data = []
+              let id = 1
+              let index = 0
+              let isCheckId = true
+              worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+                if (index >= 3) {
+                  if (checkJsonData(row.values[1])) {
+                    if (isCheckId) {
+                      const checkingBiggestId = findIndexOfMaxId()
+                      if (checkingBiggestId !== -1) {
+                        id = checkingBiggestId + 1
+                        isCheckId = false
+                      }
+                    }
+                    if (isCheckId === false) {
+                      jsonDataContent.push({
+                        id,
+                        name: row.values[1],
+                        isEnabled: false,
+                        sizes: {
+
+                        }
+                      })
+                      id++
+                    }
+                  }
+                }
+                index++
+              });
+
+              const updatedContent = await updateFile()
+
+              if (updatedContent) {
+                res.json({
+                  message: "Updated successfully!!!"
+                })
+                console.log(`Updated successfully.`);
+                fetchedData = false
+              } else {
+                throw new Error('Updated Failed!!!')
+
+                console.log(`Updated Failed!!!.`);
+              }
+    })
     }else {
-      res.status(400).json({
-        data: "File should be zip file!!!"
-      })
+        res.status(400).json({
+          message: "File should be zip or excel file!!!"
+        })
     }
 }else {
   res.status(400).json({
-    data: "No data File!!!"
+    message: "No data File!!!"
   })
 }
 
@@ -792,7 +856,7 @@ app.post('/upload', checkingData, (req, res) => {
 
       const checkIndex =  cancelData.findIndex(item => {
         const formattedTarget = item.toString().toLowerCase().replace(/\s+/g, '');
-        if (formattedSearch.includes(formattedTarget)) {
+        if (formattedSearch == formattedTarget) {
           return true
         }
       })
@@ -812,7 +876,7 @@ app.post('/upload', checkingData, (req, res) => {
 
       const index =  nominationData.findIndex(item => {
         const formattedTarget = item['name'].toString().toLowerCase().replace(/\s+/g, '');
-        if (formattedSearch.includes(formattedTarget)) {
+        if (formattedSearch == formattedTarget) {
           return true
         }
       })
@@ -827,10 +891,11 @@ app.post('/upload', checkingData, (req, res) => {
   	}
 
 
-    if (req.files.ZipFile !== undefined) {
+    if (req.files.docFile !== undefined) {
 
-      if (req.files.ZipFile.mimetype == 'application/zip' || req.files.ZipFile.mimetype == 'application/x-zip-compressed') {
-        decompress(req.files.ZipFile.data).then(files => {
+      if (req.files.docFile.mimetype == 'application/zip' || req.files.docFile.mimetype == 'application/x-zip-compressed') {
+
+        decompress(req.files.docFile.data).then(files => {
       		workbook.xlsx.load(files[0].data)
       		    .then(async function () {
       		        const worksheet = workbook.getWorksheet('Sheet1');
@@ -838,8 +903,7 @@ app.post('/upload', checkingData, (req, res) => {
       		        worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
 
       				  if (pricesData = dataNomination(row.values[1])) {
-                    if (row.values[11] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
-
+                    if (row.values[11] == "Menunggu Konfirmasimu" && row.values[8] != 0) {
                       if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
 
             						if (pricesData.S !== undefined) {
@@ -947,16 +1011,125 @@ app.post('/upload', checkingData, (req, res) => {
 
 
       	});
+      }else if (req.files.docFile.mimetype == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+
+
+                workbook.xlsx.load(req.files.docFile.data)
+            		    .then(async function () {
+            		        const worksheet = workbook.getWorksheet('Sheet1');
+
+            		        worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+
+            				  if (pricesData = dataNomination(row.values[1])) {
+                          if (row.values[10] == "Menunggu Konfirmasimu" && row.values[7] != 0) {
+
+                            if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
+
+                  						if (pricesData.S !== undefined) {
+
+                                row.getCell(6).value = pricesData.S
+                                row.getCell(11).value = 'Saran'
+                              }
+                  					} else if (row.values[3].toLowerCase().includes(",m") || row.values[3].toLowerCase().includes("m,")) {
+
+                              if (pricesData.M !== undefined) {
+
+                                row.getCell(6).value = pricesData.M
+                                row.getCell(11).value = 'Saran'
+                              }
+                  					} else if (row.values[3].toLowerCase().includes(",l") || row.values[3].toLowerCase().includes("l,")) {
+
+                              if (pricesData.L !== undefined) {
+
+                                row.getCell(6).value = pricesData.L
+                                row.getCell(11).value = 'Saran'
+                              }
+                  					}else if (row.values[3].toLowerCase().includes(",xl") || row.values[3].toLowerCase().includes("xl,")) {
+                              if (pricesData.XL !== undefined) {
+
+                                row.getCell(6).value = pricesData.XL
+                                row.getCell(11).value = 'Saran'
+                              }
+                  					}else if (row.values[3].toLowerCase().includes(",xxl") || row.values[3].toLowerCase().includes("xxl,")) {
+                              if (pricesData.XXL !== undefined) {
+
+                                row.getCell(6).value = pricesData.XXL
+                                row.getCell(11).value = 'Saran'
+                              }
+                  					}else {
+                              if (row.values[3].toLowerCase().includes("s")) {
+                                if (pricesData.S !== undefined) {
+
+                                  row.getCell(6).value = pricesData.S
+                                  row.getCell(11).value = 'Saran'
+                                }
+                              }
+
+                              if (row.values[3].toLowerCase().includes("m")) {
+                                if (pricesData.M !== undefined) {
+
+                                  row.getCell(6).value = pricesData.M
+                                  row.getCell(11).value = 'Saran'
+                                }
+                              }
+
+                              if (row.values[3].toLowerCase().includes("l")) {
+                                if (pricesData.L !== undefined) {
+
+                                  row.getCell(6).value = pricesData.L
+                                  row.getCell(11).value = 'Saran'
+                                }
+                              }
+
+                              if (row.values[3].toLowerCase().includes("xl")) {
+                                if (pricesData.XL !== undefined) {
+
+                                  row.getCell(6).value = pricesData.XL
+                                  row.getCell(11).value = 'Saran'
+                                }
+                              }
+
+                              if (row.values[3].toLowerCase().includes("xxl")) {
+                                if (pricesData.XXL !== undefined) {
+
+                                  row.getCell(6).value = pricesData.XXL
+                                  row.getCell(11).value = 'Saran'
+                                }
+                              }
+                            }
+                          }
+            				  }
+
+                      if (row.values[7] == 0 && row.values[10] == "Menunggu Konfirmasimu") {
+                        row.getCell(11).value = 'Tolak'
+                      }
+
+                      if (cancelled(row.values[1])) {
+                        if (row.values[10] == "Menunggu Konfirmasimu") {
+                                row.getCell(11).value = 'Tolak'
+                        }
+                      }
+
+            		        });
+
+            		        const buffer = await workbook.xlsx.writeBuffer();
+
+            		        res.status(200)
+            		        res.send(buffer)
+            		        });
+      }else {
+        res.status(400)
+        .json({
+          message: "File should be zip or excel file!!!"
+        })
+      }
+
     }else {
-      res.status(400).json({
-        data: "File should be zip file!!!"
+      res.status(400)
+      .json({
+        message: "No data File!!!"
       })
     }
-}else {
-  res.status(400).json({
-    data: "No data File!!!"
-  })
-}
 
 
 })

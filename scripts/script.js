@@ -1,3 +1,5 @@
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const btn = document.getElementById("btnUpload"),
     inpFile = document.getElementById("inpFile"),
     loading = document.getElementById("loading"),
@@ -32,11 +34,11 @@ btn.addEventListener('click', async () => {
   process.classList.remove("active")
     if (inpFile.files.length === 0) {
       document.getElementById("error").classList.add("active")
-      document.getElementById("error").textContent = "No file change"
+      document.getElementById("error").textContent = "No file changes"
     }else {
         const formData = new FormData()
 
-        formData.append("ZipFile", inpFile.files[0])
+        formData.append("docFile", inpFile.files[0])
 
         process.classList.add("active")
         process.textContent = "Processing..."
@@ -66,13 +68,15 @@ btn.addEventListener('click', async () => {
         .catch((error) => {
           if (!error.name) {
             error.then(result => {
-              process.classList.remove("active")
-              process.textContent = result.data
+              document.getElementById("error").classList.add("active")
+              document.getElementById("error").textContent = result.message
             })
           }else {
-            process.classList.remove("active")
-            process.textContent = "Failed..."
+            document.getElementById("error").classList.add("active")
+            document.getElementById("error").textContent = "Failed..."
           }
+
+          process.classList.remove('active')
         })
     }
 })
@@ -243,7 +247,7 @@ document.querySelector('#products #add-product-btn').addEventListener('click', a
     }else {
         const formData = new FormData()
 
-        formData.append("ZipFile", e.target.parentElement.querySelector('#products #add-product-input').files[0])
+        formData.append("docFile", e.target.parentElement.querySelector('#products #add-product-input').files[0])
 
         e.target.parentElement.querySelector("#process").classList.add("active")
         e.target.parentElement.querySelector("#process").textContent = "Processing..."
@@ -266,13 +270,15 @@ document.querySelector('#products #add-product-btn').addEventListener('click', a
         console.log(error)
         if (!error.name) {
           error.then(result => {
-            e.target.parentElement.querySelector("#error").textContent = result.data
+            e.target.parentElement.querySelector("#error").textContent = result.message
           })
         }else {
           e.target.parentElement.querySelector("#error").textContent = "Failed..."
         }
 
         e.target.parentElement.querySelector("#error").classList.add("active")
+
+        e.target.parentElement.querySelector("#process").classList.remove("active")
 
         setTimeout(() => {
           e.target.parentElement.querySelector("#error").classList.remove("active")
@@ -1242,3 +1248,7 @@ function hideLoadingProduct() {
     }
   }
 }
+
+},{}]},{},[1]);
+
+},{}]},{},[1]);

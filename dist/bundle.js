@@ -33,11 +33,11 @@ btn.addEventListener('click', async () => {
   process.classList.remove("active")
     if (inpFile.files.length === 0) {
       document.getElementById("error").classList.add("active")
-      document.getElementById("error").textContent = "No file change"
+      document.getElementById("error").textContent = "No file changes"
     }else {
         const formData = new FormData()
 
-        formData.append("ZipFile", inpFile.files[0])
+        formData.append("docFile", inpFile.files[0])
 
         process.classList.add("active")
         process.textContent = "Processing..."
@@ -67,13 +67,15 @@ btn.addEventListener('click', async () => {
         .catch((error) => {
           if (!error.name) {
             error.then(result => {
-              process.classList.remove("active")
-              process.textContent = result.data
+              document.getElementById("error").classList.add("active")
+              document.getElementById("error").textContent = result.message
             })
           }else {
-            process.classList.remove("active")
-            process.textContent = "Failed..."
+            document.getElementById("error").classList.add("active")
+            document.getElementById("error").textContent = "Failed..."
           }
+
+          process.classList.remove('active')
         })
     }
 })
@@ -244,7 +246,7 @@ document.querySelector('#products #add-product-btn').addEventListener('click', a
     }else {
         const formData = new FormData()
 
-        formData.append("ZipFile", e.target.parentElement.querySelector('#products #add-product-input').files[0])
+        formData.append("docFile", e.target.parentElement.querySelector('#products #add-product-input').files[0])
 
         e.target.parentElement.querySelector("#process").classList.add("active")
         e.target.parentElement.querySelector("#process").textContent = "Processing..."
@@ -267,13 +269,15 @@ document.querySelector('#products #add-product-btn').addEventListener('click', a
         console.log(error)
         if (!error.name) {
           error.then(result => {
-            e.target.parentElement.querySelector("#error").textContent = result.data
+            e.target.parentElement.querySelector("#error").textContent = result.message
           })
         }else {
           e.target.parentElement.querySelector("#error").textContent = "Failed..."
         }
 
         e.target.parentElement.querySelector("#error").classList.add("active")
+
+        e.target.parentElement.querySelector("#process").classList.remove("active")
 
         setTimeout(() => {
           e.target.parentElement.querySelector("#error").classList.remove("active")

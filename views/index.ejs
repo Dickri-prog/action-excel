@@ -30,6 +30,11 @@
 
           </section>
 
+          <a href="#">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#look-product" style="margin-right: 50px; text-align: center" id="lookBtn">
+              Look
+            </button>
+          </a>
           <section id="action">
             <div class="dropdown-center">
               <button type="button" class="btn btn-warning dropdown-toggle action" data-bs-toggle="dropdown" aria-expanded="false">
@@ -171,6 +176,28 @@
             <button type="button" class="btn btn-primary backToProductBtn">
               Back
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="look-product" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="look-product-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="product-detail-label">Processed Data</h5>
+            <button type="button" class="btn btn-danger" id="deleteBtn">
+              Delete
+            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="look-product-detail">
+
+          </div>
+          <div class="modal-footer">
+            <div class="alert op-0" role="alert">
+            </div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>

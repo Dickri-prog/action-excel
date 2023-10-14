@@ -1,7 +1,7 @@
 .container {
   margin: 30px 20px;
   display: flex;
-  align-items: center;
+  align-items: baseline;
 }
 
 .container section {
@@ -282,4 +282,10 @@ i.excla-action {
 
 .add-product-section.show{
   transform: translate(5px) !important;
+}
+
+
+
+#look-product #deleteBtn {
+  margin-left: 50px;
 }
