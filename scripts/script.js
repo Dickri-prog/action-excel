@@ -1,5 +1,3 @@
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const btn = document.getElementById("btnUpload"),
     inpFile = document.getElementById("inpFile"),
     loading = document.getElementById("loading"),
@@ -14,6 +12,7 @@ const btn = document.getElementById("btnUpload"),
 let itemsPerPage = 5, // Number of items to display per page
     currentPage = 1, // Initial page number
     currentPageCancelled = 1,
+    currentPageHistory = 1,
     arrs = [];
 
 let header = null
@@ -294,6 +293,8 @@ if (backToProductBtn.length > 0) {
     })
   }
 }
+
+document.querySelector('#lookBtn').addEventListener('click', fetchDataHistory)
 
 function createInputSizeElement(e) {
   const id = e.target.dataset.id;
@@ -1249,6 +1250,135 @@ function hideLoadingProduct() {
   }
 }
 
-},{}]},{},[1]);
 
-},{}]},{},[1]);
+
+
+function fetchDataHistory() {
+
+  const url = '/products/history'
+
+  showLoadingHistory()
+
+  fetch(url)
+  .then(response => response.json())
+  .then(result => {
+    hideLoadingHistory()
+
+    if (result['items'].length > 0) {
+      displayDataHistory(result.items)
+    }else {
+      displayNoDataHistory()
+    }
+
+
+  })
+  .catch(error => {
+    const message = error.message
+
+    console.error(message);
+
+    hideLoadingHistory()
+
+    displayErrorDataHistory()
+
+  })
+}
+
+function displayDataHistory(items) {
+  const body = document.querySelector('#look-product #look-product-detail')
+
+  items.forEach((item, i) => {
+    const divItem = document.createElement('div')
+    const textItem = document.createTextNode(item.title)
+    const divItemActive = document.createElement('div')
+    const textItemActive = document.createTextNode(item.isEnabled ? 'Product : Active ' : 'Product : InActive ')
+
+    divItem.classList.add('item')
+
+    divItem.appendChild(textItem)
+    divItemActive.appendChild(textItemActive)
+
+      if (item.isEnabled) {
+        const sizes = `${item['sizes'].S ? ', S : ' + item['sizes'].S : ''}, ${item['sizes'].M ? 'M : ' + item['sizes'].M : ''}, ${item['sizes'].L ? 'L : ' + item['sizes'].L : ''}, ${item['sizes'].XL ? 'XL : ' + item['sizes'].XL : ''}, ${item['sizes'].XXL ? 'XXL : ' + item['sizes'].XXL : ''}`
+        const textItemChild = document.createTextNode(sizes)
+        divItemActive.appendChild(textItemChild)
+      }
+      divItem.appendChild(divItemActive)
+    body.appendChild(divItem)
+
+  });
+
+  const itemsElement = body.querySelectorAll('.item')
+
+  itemsElement.forEach(item => {
+    item.addEventListener('click', () => {
+
+        const div = item.querySelector('div')
+        if (!div.classList.contains('show')) {
+            div.classList.add('show')
+            item.classList.add('show')
+        }else {
+            div.classList.remove('show')
+            item.classList.remove('show')
+        }
+
+    })})
+
+}
+
+
+function displayNoDataHistory() {
+  const body = document.querySelector('#look-product #look-product-detail')
+
+  const div = document.createElement('div')
+  const h2 = document.createElement('h2')
+  const text = document.createTextNode('No Data')
+
+  div.style.textAlign = 'center'
+
+  h2.appendChild(text)
+  div.appendChild(h2)
+  body.appendChild(div)
+}
+
+
+function displayErrorDataHistory() {
+  const body = document.querySelector('#look-product #look-product-detail')
+
+
+  const div = document.createElement('div')
+  const h2 = document.createElement('h2')
+  const text = document.createTextNode('Something wrong!!!')
+
+  div.style.textAlign = 'center'
+
+  h2.appendChild(text)
+  div.appendChild(h2)
+  body.appendChild(div)
+}
+
+
+function showLoadingHistory() {
+  const body = document.querySelector('#look-product #look-product-detail')
+
+  const div = document.createElement('div')
+
+  div.classList.add('loading')
+
+  div.style.textAlign = 'center'
+
+  div.innerHTML = `
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  `
+
+  body.appendChild(div)
+}
+
+
+function hideLoadingHistory() {
+  const body = document.querySelector('#look-product #look-product-detail')
+
+  body.innerHTML = ''
+}

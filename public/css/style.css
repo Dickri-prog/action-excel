@@ -289,3 +289,31 @@ i.excla-action {
 #look-product #deleteBtn {
   margin-left: 50px;
 }
+
+
+#look-product #look-product-detail .item {
+    padding: 5px;
+    margin: 5px;
+    background-color: lightslategray;
+    border-radius: 5px;
+    color: #eee;
+    max-height: 55px;
+    transition: all .3s ease;
+}
+#look-product #look-product-detail .item:hover {
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+#look-product #look-product-detail .item.show {
+    max-height: 115px !important;
+}
+
+#look-product #look-product-detail .item > div {
+    transform: scale(0);
+    transition: all .3s ease;
+}
+
+#look-product #look-product-detail .item > div.show {
+    transform: scale(1) !important;
+}

@@ -15,7 +15,7 @@ let fetchedData = false
 let jsonDataContent = []
 let cancelProductDataArr = []
 let productDataArr = []
-let scrapeData = []
+let historyData = new Set()
 
 
 app.use("/dist", express.static(path.join(__dirname, 'dist')));
@@ -179,6 +179,30 @@ app.get('/products', checkingData , (req, res) => {
 
 		res.json(response)
 	}
+})
+
+app.get('/products/history', (req, res) => {
+
+  const scrapeData = []
+
+  if (historyData.size > 0) {
+    historyData.forEach((item) => {
+        const data = jsonDataContent[item];
+
+        scrapeData.push({
+          isEnabled: data.isEnabled,
+          title: data.name,
+          sizes: data.sizes
+        })
+
+    });
+  }
+
+
+      res.json({
+        items: scrapeData
+      })
+
 })
 
 app.get('/products/cancelled', checkingData, (req, res) => {
@@ -664,17 +688,6 @@ app.get('/products/json', checkingData, (req, res) => {
 	}
 })
 
-// app.get('/products/proceed', (req, res) => {
-//
-//   if (proce.length > 0) {
-//     res.json({
-//       message: proce
-//     })
-//   }else {
-//     throw new Error('No data')
-//   }
-// })
-
 app.post('/mass-add-product', checkingData, (req, res) => {
 
   function checkJsonData(data) {
@@ -825,12 +838,17 @@ app.post('/upload', checkingData, (req, res) => {
   const cancelData = []
   const nominationData = []
 
+  historyData = new Set()
+
     if (cancelProductDataArr.length > 0) {
       cancelProductDataArr.forEach((item) => {
         const data = jsonDataContent[item];
 
         if (data.isEnabled === false) {
-          cancelData.push(data.name)
+          cancelData.push({
+            index: item,
+            name: data.name
+          })
         }
       });
     }
@@ -841,6 +859,7 @@ app.post('/upload', checkingData, (req, res) => {
 
         if (data.isEnabled) {
           nominationData.push({
+            index: item,
             name: jsonDataContent[item].name,
             sizes: jsonDataContent[item].sizes
           })
@@ -854,14 +873,17 @@ app.post('/upload', checkingData, (req, res) => {
       const formattedSearch = valueToLower.replace(/\s+/g, '');
 
 
-      const checkIndex =  cancelData.findIndex(item => {
-        const formattedTarget = item.toString().toLowerCase().replace(/\s+/g, '');
+      const index =  cancelData.findIndex(item => {
+        const formattedTarget = item['name'].toString().toLowerCase().replace(/\s+/g, '');
         if (formattedSearch == formattedTarget) {
           return true
         }
       })
 
-      if (checkIndex != -1) {
+      if (index != -1) {
+        const itemIndex = cancelData[index].index
+        historyData.add(itemIndex)
+
        return true;
      }
 
@@ -883,6 +905,10 @@ app.post('/upload', checkingData, (req, res) => {
 
   		if (index != -1) {
         let pricesData = nominationData[index].sizes
+        const itemIndex = nominationData[index].index
+
+        historyData.add(itemIndex)
+
   			return pricesData;
   		}
 
