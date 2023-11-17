@@ -43,8 +43,6 @@
                 <ul class="dropdown-menu ul-action">
                       <li><a class="dropdown-item" href="#"><button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#products" style="width: 200px; text-align: center" id="productsEditBtn">
                                             products </button></a></li>
-                      <!-- <li><a class="dropdown-item" href="#"><button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadFile" style="width: 200px; text-align: center" id="uploadFileBtn">
-                                            Upload </button></a></li> -->
                 </ul>
             </div>
             <i class="fa-solid fa-exclamation excla-action"></i>
@@ -58,31 +56,17 @@
           <div class="modal-header">
             <h5 class="modal-title" id="product-edit">Products</h5>
             <button type="button" class="btn btn-primary ms-5" data-type='add-product' id="addProduct">add</button>
-            <button type="button" class="btn btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#cancelled-products" style="width: 200px; text-align: center" id="cancelledProductBtn">
+            <button type="button" class="btn btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#cancelled-products" style="width: 150px; text-align: center" id="cancelledProductBtn">
                                   cancelled </button>
+            <span class="search">
+                <i class="fa-solid fa-magnifying-glass searchBtn"></i>
+                <input type="search" placeholder="search...">
+            </span>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-              <div id="data-container-product">
-
-              </div>
-              <div class="add-product-section">
-
-                <section id="fileUploaderAddProduct">
-                    <h4>Add Product</h4>
-
-                    <div class="error">
-                      <h4 id="error" style="color: red"></h4>
-                    </div>
-
-                      <input type="file" id="add-product-input">
-                      <button type="submit" id="add-product-btn">Upload!</button>
-                      <p id="loading">Loading...</p>
-                      <p id="process"></p>
-              </section>
-              </div>
+              
           </div>
-          <div class="loading-product">Loading...</div>
           <div class="modal-footer" >
               <div id="pagination-container-product">
               </div>
@@ -99,7 +83,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <button type="button" class="btn btn-outline-primary" style="padding: 0; border: none; margin: 5px; margin-right: 12px;" data-bs-toggle="modal" data-bs-target="#products">
+            <button type="button" class="btn btn-outline-primary" style="padding: 0; border: none; margin: 5px; margin-right: 12px;" id="backProduct">
             <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" fill="currentColor" class="bi bi-backspace" viewBox="0 0 16 16">
                 <path d="M5.83 5.146a.5.5 0 0 0 0 .708L7.975 8l-2.147 2.146a.5.5 0 0 0 .707.708l2.147-2.147 2.146 2.147a.5.5 0 0 0 .707-.708L9.39 8l2.146-2.146a.5.5 0 0 0-.707-.708L8.683 7.293 6.536 5.146a.5.5 0 0 0-.707 0z"/>
                 <path d="M13.683 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1 0-1.302L5.084 1.7A2 2 0 0 1 6.603 1h7.08zm-7.08 1a1 1 0 0 0-.76.35L1 8l4.844 5.65a1 1 0 0 0 .759.35h7.08a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1h-7.08z"/>
@@ -110,47 +94,12 @@
           <div class="modal-body" id="data-container-cancelled-product">
 
           </div>
-          <div class="loading-product">Loading...</div>
           <div class="modal-footer" id="pagination-container-cancelled-product">
-            <div class="alert op-0" role="alert">
-            </div>
-            <button type="button" class="btn btn-primary backToProductBtn">
-              Back
-            </button>
 
           </div>
         </div>
       </div>
     </div>
-
-
-
-    <!-- Modal -->
-    <!-- <div class="modal fade" id="uploadFile" tabindex="-1" aria-labelledby="uploadFileLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploadFileLabel">Upload JSON</h5>
-            <button type="button" class="btn btn-primary ms-5" id="exportJson">Export</button>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="data-container-upload">
-          <div class="form-group">
-            <div class="form-floating jsonTextarea">
-              <textarea class="form-control" placeholder="Leave a JSON here" id="jsonTextarea" disabled></textarea>
-            </div>
-          <div class="btns">
-          </div>
-          </div>
-          </div>
-          <div id="loading-upload">Loading...</div>
-          <div class="modal-footer" id="pagination-container-upload">
-            <div class="alert op-0" role="alert">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
 
 
     <!-- Modal -->
@@ -192,15 +141,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" id="look-product-detail">
-              <!-- <div class="item">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-              </div>
-              <div class="item">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-              </div>
-              <div class="item">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-              </div> -->
+
           </div>
           <div class="modal-footer">
             <div class="alert op-0" role="alert">

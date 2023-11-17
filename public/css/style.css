@@ -317,3 +317,31 @@ i.excla-action {
 #look-product #look-product-detail .item > div.show {
     transform: scale(1) !important;
 }
+
+#products span.search i {
+  font-size: 1.4em;
+  margin-left: 50px;
+}
+
+#products span.search i:hover {
+  cursor: pointer;
+}
+
+#products span.search input {
+    transform: scale(0);
+    position: absolute;
+    right: 20%;
+    transition: all .3s ease;
+    width: 0;
+    top: 15px;
+    height: 40px;
+}
+
+#products span.search input.show {
+    transform: scale(1);
+    width: 200px;
+}
+
+.trashBtn:hover {
+  cursor: pointer;
+}

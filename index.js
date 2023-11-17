@@ -181,6 +181,40 @@ app.get('/products', checkingData , (req, res) => {
 	}
 })
 
+app.get('/products/search', checkingData, (req, res) => {
+  const text = req.query.q.toLowerCase()
+  const filter = jsonDataContent.filter((item) => item.isEnabled && item['name'].toLowerCase().includes(text))
+
+  if (filter.length > 0) {
+
+    function compare( a, b ) {
+      if ( a.name < b.name ){
+        return -1;
+      }
+      if ( a.name > b.name ){
+        return 1;
+      }
+      return 0;
+    }
+
+    filter.sort(compare)
+
+		// Prepare the response object
+		const response = {
+			items: filter
+		};
+
+		res.json(response);
+	}else if (filter.length <= 0) {
+		const response = {
+			items: 0,
+			message: "Json Data empty!!!"
+		}
+
+		res.json(response)
+	}
+})
+
 app.get('/products/history', (req, res) => {
 
   const scrapeData = []
@@ -205,7 +239,22 @@ app.get('/products/history', (req, res) => {
 
 })
 
-app.get('/products/cancelled', checkingData, (req, res) => {
+app.delete('/products/history', (req, res) => {
+  if (historyData.size > 0) {
+    historyData.clear()
+    if (historyData.size === 0) {
+      res.json({
+        code: 200
+      })
+    }
+  }
+
+  res.json({
+    code: 200
+  })
+})
+
+app.get('/products/cancel', checkingData, (req, res) => {
 	const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
@@ -261,184 +310,46 @@ app.get('/products/cancelled', checkingData, (req, res) => {
 	}
 })
 
-app.post('/products/:id/name', checkingData,  async (req, res) => {
-  try {
-    const productId = parseInt(req.params.id)
-    let productName = req.body.productName
-    productName = productName.trim()
-
-    const findIndexOfProduct = jsonDataContent.findIndex(item => item.id === productId)
-
-    if (findIndexOfProduct != -1) {
-      if (productName != '' && productName != ' ') {
-        jsonDataContent[findIndexOfProduct]["name"] = productName
-
-        const updatedContent = await updateFile()
-
-        if (updatedContent) {
-          res.json({
-            message: "Updated successfully!!!"
-          })
-          console.log(`Updated successfully.`);
-        } else {
-          throw new Error('Updated Failed!!!')
-
-          console.log(`Updated Failed!!!.`);
-        }
-
-      }else {
-        throw new Error('Product Name should fill!!!')
-      }
-    }else {
-      throw new Error('Product not found!!!')
-    }
-
-  } catch (e) {
-    if (e.name == 'Error') {
-      return res.status(400).json({
-        message: e.message
-      })
-    }
-    console.log(e)
-
-    res.status(500).json({
-      message: 'Something Wrong!!!'
-    })
+app.put('/products/:id', checkingData,  async (req, res) => {
+  const productId = req.params.id
+  const formData = req.body;
+  const formArray = {
+    name: null,
+    sizes: {}
   }
-})
 
-app.post('/products/:id/edit', checkingData,  async (req, res) => {
-
-	try {
-		const productId = req.params.id
-		const formData = req.body;
-
-		let priceProductSizeS = null;
-		let priceProductSizeM = null;
-		let priceProductSizeL = null;
-		let priceProductSizeXL = null;
-		let priceProductSizeXXL = null;
-
-
-		let priceProduct = {
-			S: null,
-			M: null,
-			L: null,
-			XL: null,
-      XXL: null
-		}
-
-		let formSize = [
-			"priceProductSizeS",
-			"priceProductSizeM",
-			"priceProductSizeL",
-			"priceProductSizeXL",
-			"priceProductSizeXXL"
-		]
-
-		if (formData[formSize[0]]) {
-			if (isNaN(parseInt(formData[formSize[0]]))) {
-				throw new Error("Input is not a number")
-			}else {
-				priceProduct.S = parseInt(formData[formSize[0]])
-			}
-		}
-
-		if (formData[formSize[1]]) {
-			if (isNaN(parseInt(formData[formSize[1]]))) {
-				throw new Error("Input is not a number")
-			}else {
-				priceProduct.M = parseInt(formData[formSize[1]])
-			}
-		}
-
-		if (formData[formSize[2]]) {
-			if (isNaN(parseInt(formData[formSize[2]]))) {
-				throw new Error("Input is not a number")
-			}else {
-				priceProduct.L = parseInt(formData[formSize[2]])
-			}
-		}
-
-		if (formData[formSize[3]]) {
-			if (isNaN(parseInt(formData[formSize[3]]))) {
-				throw new Error("Input is not a number")
-			}else {
-				priceProduct.XL = parseInt(formData[formSize[3]])
-			}
-		}
-
-		if (formData[formSize[4]]) {
-			if (isNaN(parseInt(formData[formSize[4]]))) {
-				throw new Error("Input is not a number")
-			}else {
-				priceProduct.XXL = parseInt(formData[formSize[4]])
-			}
-		}
-
-
-		let index = null;
-
-		for (var key in formData) {
-			index = formSize.findIndex(x => x == key)
-			if (index == -1) {
-				throw new Error("Something wrong input!!!")
-			}
-		}
-
-				if (jsonDataContent.length > 0) {
-					let index = jsonDataContent.findIndex(x => x.id == productId);
-
-					if (index != -1) {
-						for (var key in priceProduct) {
-							if (jsonDataContent[index]["sizes"][key] === undefined) {
-							 delete	priceProduct[key]
-							}
-							if (priceProduct[key] === null) {
-								priceProduct[key] = parseInt(jsonDataContent[index]["sizes"][key])
-							}
-						}
-
-							jsonDataContent[index].sizes = priceProduct
-
-            const updatedContent = await updateFile()
-
-
-            if (updatedContent) {
-              res.json({
-                message: "Updated successfully!!!"
-              })
-              console.log(`Updated successfully.`);
-            } else {
-              throw new Error('Updated Failed!!!')
-
-              console.log(`Updated Failed!!!.`);
-            }
-
-					}else {
-            throw new Error('Updated failed item not found!!!')
-
-						console.log(`Updated failed.`);
-					}
-				}else if (jsonDataContent <= 0) {
-          throw new Error('Updated failed No data!!!')
-
-					console.log(`Updated failed.`);
-				}
-
-	} catch (e) {
-		if (e.name == 'Error') {
-      return res.status(400).json({
-  			message: e.message
-      });
+  Object.keys(formData).map(function(key) {
+    if (key.toLowerCase() != 'name') {
+      formArray['sizes'][key.toUpperCase()] = formData[key]
+    }else {
+      formArray['name'] = formData[key]
     }
+  });
 
-    console.log(e)
+  if (jsonDataContent.length > 0) {
+		let index = jsonDataContent.findIndex(x => x.id == productId);
 
-      return res.status(500).json({
-  			message: "Something wrong!!!"
+    jsonDataContent[index].name = formArray['name']
+    jsonDataContent[index].sizes = formArray['sizes']
+
+    const updatedContent = await updateFile()
+
+
+    if (updatedContent) {
+      res.json({
+        message: "Updated successfully!!!"
+      })
+      console.log(`Updated successfully.`);
+    } else {
+
+      console.log(`Updated Failed!!!.`);
+    }
+  } else {
+      res.status(400).json({
+  			message: 'Updated failed No Data!!!'
       });
-	}
+  }
+
 })
 
 app.post('/products/:id/add', checkingData,  async (req, res) => {
@@ -577,9 +488,9 @@ app.post('/products/:id/add', checkingData,  async (req, res) => {
 	}
 })
 
-app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
+app.put('/products/:id/is-enabled', checkingData,  async (req, res) => {
   try {
-    // const isCancel = req.body.isCancel
+
     let isEnabled = req.body.isEnabled
     const id = parseInt(req.params.id)
 
@@ -587,6 +498,7 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
         const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
         if (indexOfItem != -1) {
 
+          console.log(isEnabled);
           if (isEnabled == 'true' || isEnabled == 'false') {
             isEnabled = (isEnabled == 'true')
             if (isEnabled) {
@@ -597,9 +509,7 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
 
               const indexOfItemProductArr = productDataArr.findIndex(item => item === indexOfItem)
 
-              if (indexOfItemProductArr != -1) {
-                throw new Error('Product Already Enabled!!!')
-              }else {
+              if (indexOfItemProductArr == -1) {
                 productDataArr.push(indexOfItem)
                 jsonDataContent[indexOfItem].isEnabled = isEnabled
 
@@ -616,7 +526,10 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
                     message: "Failed!!!"
                   })
                 }
+              }else {
+                throw new Error('Product Already Enabled!!!')
               }
+
             }else {
               const indexOfItemProductArr = productDataArr.findIndex(item => item === indexOfItem)
               if (indexOfItemProductArr != -1) {
@@ -625,9 +538,7 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
 
               const indexOfCancel = cancelProductDataArr.findIndex(item => item === indexOfItem)
 
-              if (indexOfCancel != -1) {
-                throw new Error('Product Already Disabled!!!')
-              }else {
+              if (indexOfCancel == -1) {
                 cancelProductDataArr.push(indexOfItem)
                 jsonDataContent[indexOfItem].isEnabled = isEnabled
 
@@ -644,6 +555,8 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
                     message: "Failed!!!"
                   })
                 }
+              }else {
+                throw new Error('Product Already Disabled!!!')
               }
             }
           }else {
@@ -656,12 +569,13 @@ app.post('/products/:id/is-enabled', checkingData,  async (req, res) => {
         throw new Error('Something Wrong input!!!')
       }
   } catch (e) {
-    console.log(e)
+    console.error(e)
     if (e.name == 'Error') {
       res.status(500).json({
   			message: e.message
       });
     }else {
+
       res.status(500).json({
   			message: "Something wrong!!!"
       });
@@ -674,6 +588,53 @@ app.get('/products/json', checkingData, (req, res) => {
 				if (jsonDataContent.length > 0) {
           res.json({
   					message: jsonDataContent
+  				})
+        }else {
+          throw new Error('No data')
+        }
+
+	} catch (e) {
+    console.log(e)
+
+		res.status(500).json({
+			message: "Something wrong!!!"
+		});
+	}
+})
+
+app.get('/products/enabled', checkingData, (req, res) => {
+	try {
+				if (productDataArr.length > 0) {
+          const data = []
+          productDataArr.forEach((item) => {
+            data.push(jsonDataContent[item])
+          });
+
+          res.json({
+  					message: data
+  				})
+        }else {
+          throw new Error('No data')
+        }
+
+	} catch (e) {
+    console.log(e)
+
+		res.status(500).json({
+			message: "Something wrong!!!"
+		});
+	}
+})
+
+app.get('/products/cancel-data', checkingData, (req, res) => {
+	try {
+				if (cancelProductDataArr.length > 0) {
+          const data = []
+          cancelProductDataArr.forEach((item) => {
+            data.push(jsonDataContent[item])
+          });
+          res.json({
+  					message: data
   				})
         }else {
           throw new Error('No data')
