@@ -247,10 +247,14 @@ app.delete('/products/history', (req, res) => {
         code: 200
       })
     }
+  }else {
+    res.json({
+      code: 404
+    })
   }
 
   res.json({
-    code: 200
+    code: 400
   })
 })
 
@@ -325,6 +329,7 @@ app.put('/products/:id', checkingData,  async (req, res) => {
       formArray['name'] = formData[key]
     }
   });
+
 
   if (jsonDataContent.length > 0) {
 		let index = jsonDataContent.findIndex(x => x.id == productId);
@@ -883,6 +888,22 @@ app.post('/upload', checkingData, (req, res) => {
       if (req.files.docFile.mimetype == 'application/zip' || req.files.docFile.mimetype == 'application/x-zip-compressed') {
 
         decompress(req.files.docFile.data).then(files => {
+          if (files[0].type == 'file') {
+            const path = files[0]['path'].split('.')
+
+            if (path[1] != 'xlsx') {
+              res.status(400)
+              .json({
+                message: "check in your zip file should be excel then correct data!!!"
+              })
+            }
+          }else if (files[0].type == 'directory') {
+            res.status(400)
+            .json({
+              message: "check in your zip file should be correct file not a dir"
+            })
+          }
+
       		workbook.xlsx.load(files[0].data)
       		    .then(async function () {
       		        const worksheet = workbook.getWorksheet('Sheet1');

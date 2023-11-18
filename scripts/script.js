@@ -9,6 +9,7 @@ const btn = document.getElementById("btnUpload"),
     backToProductBtn = document.querySelectorAll(".backToProductBtn"),
     closeCancelBtn = document.querySelector('#cancelled-products button#backProduct')
     isEnabledBtn = document.getElementById("isEnabledBtn"),
+    historyFilterBtn = document.querySelector("#look-product select")
     apiEndpoint = '/products'; // Replace with your API endpoint
 let itemsPerPage = 5, // Number of items to display per page
     currentPage = 1, // Initial page number
@@ -227,6 +228,21 @@ if (backToProductBtn.length > 0) {
 
 document.querySelector('#lookBtn').addEventListener('click', fetchDataHistory)
 
+historyFilterBtn.addEventListener('change', (e) => {
+  const value = e.target.value
+
+
+    if (value == '1') {
+      fetchDataHistory(null, value)
+      historyFilterBtn.children[1].selected = true
+    }else if (value == '0') {
+      historyFilterBtn.children[2].selected = true
+      fetchDataHistory(null, value)
+    }else if (value == 'filter') {
+      historyFilterBtn.children[0].selected = true
+    }
+})
+
 
 function productClassDefault() {
   const addProductEl = document.querySelector('#products .add-product-section')
@@ -398,7 +414,7 @@ function displayDetailProduct(item) {
 
 function productDetailListener(id = null) {
   const trashBtn = document.querySelectorAll('.trashBtn')
-  const labelInput = document.querySelector('#product-detail input.form-label')
+  const labelInput = document.querySelectorAll('#product-detail input.form-label')
   let submitBtn = document.querySelector('#product-detail .submitBtn')
 
   trashBtn.forEach((item) => {
@@ -410,13 +426,16 @@ function productDetailListener(id = null) {
 
 
   if (labelInput !== null) {
-    labelInput.addEventListener('keyup', (e) => {
-      const element = e.target
-      const input = element.parentElement.querySelector('input[type=number]')
+    labelInput.forEach((item) => {
+      item.addEventListener('keyup', (e) => {
+        const element = e.target
+        const input = element.parentElement.querySelector('input[type=number]')
 
-      input.id = element.value
+        input.id = element.value
 
-    })
+      })
+    });
+
   }
 
   if (id !== null) {
@@ -505,6 +524,7 @@ function uploadDataProduct(e) {
     item.disabled =  true
   });
 
+
   let formBody = [];
   for (const property in values) {
     const encodedKey = encodeURIComponent(property);
@@ -512,6 +532,7 @@ function uploadDataProduct(e) {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
+
 
   fetch(`${apiEndpoint}/${element['id']}`, {
     method: 'PUT',
@@ -1043,7 +1064,11 @@ function createPaginationCancelProducts(totalPages) {
 // History
 
 
-function fetchDataHistory() {
+function fetchDataHistory(e=null, filter=1) {
+
+  if (e !== null) {
+    historyFilterBtn.children[0].selected = true
+  }
 
   const url = '/products/history'
 
@@ -1055,9 +1080,11 @@ function fetchDataHistory() {
     hideLoadingHistory()
 
     if (result['items'].length > 0) {
-      displayDataHistory(result.items)
+      displayDataHistory(result.items, filter)
+      document.querySelector('#look-product #deleteBtn').disabled = false
     }else {
       displayNoDataHistory()
+      document.querySelector('#look-product #deleteBtn').disabled = true
     }
 
 
@@ -1071,16 +1098,20 @@ function fetchDataHistory() {
 
     displayErrorDataHistory()
 
+    document.querySelector('#look-product #deleteBtn').disabled = true
+
   })
 }
 
-function deleteDataHistory() {
+function deleteDataHistory(e) {
   const url = 'products/history'
   const option = {
     method: 'DELETE'
   }
 
-  showLoadingProduct()
+  e.target.disabled = true
+
+  showLoadingHistory()
 
 
   fetch(url, option)
@@ -1088,57 +1119,40 @@ function deleteDataHistory() {
   .then(result => {
     hideLoadingHistory()
     if (result.code === 200) {
+      e.target.disabled = true
       displayNoDataHistory()
-    }else {
-      fetchDataHistory()
+    }else{
+      throw new Error('Failed!!!')
     }
   })
   .catch(error => {
     console.log(error);
     hideLoadingHistory()
-    displayErrorDataHistory()
+    if (error.name) {
+      displayErrorDataHistory(error.message)
+      setTimeout(fetchDataHistory, 2000)
+    }else {
+      displayErrorDataHistory()
+      e.target.disabled = true
+    }
   })
 }
 
-function displayDataHistory(items) {
-  const body = document.querySelector('#look-product #look-product-detail')
+function displayDataHistory(items, filter) {
 
   items.forEach((item, i) => {
-    const divItem = document.createElement('div')
-    const textItem = document.createTextNode(item.title)
-    const divItemActive = document.createElement('div')
-    const textItemActive = document.createTextNode(item.isEnabled ? 'Product : Active ' : 'Product : InActive ')
-
-    divItem.classList.add('item')
-
-    divItem.appendChild(textItem)
-    divItemActive.appendChild(textItemActive)
-
+    if (filter == '1') {
       if (item.isEnabled) {
-        const sizes = `${item['sizes'].S ? ', S : ' + item['sizes'].S : ''}, ${item['sizes'].M ? 'M : ' + item['sizes'].M : ''}, ${item['sizes'].L ? 'L : ' + item['sizes'].L : ''}, ${item['sizes'].XL ? 'XL : ' + item['sizes'].XL : ''}, ${item['sizes'].XXL ? 'XXL : ' + item['sizes'].XXL : ''}`
-        const textItemChild = document.createTextNode(sizes)
-        divItemActive.appendChild(textItemChild)
+        createActiveOrInactiveHistoryElement(item)
       }
-      divItem.appendChild(divItemActive)
-    body.appendChild(divItem)
-
+    }else if (filter == '0') {
+      if (item.isEnabled === false) {
+        createActiveOrInactiveHistoryElement(item)
+      }
+    }
   });
 
-  const itemsElement = body.querySelectorAll('.item')
-
-  itemsElement.forEach(item => {
-    item.addEventListener('click', () => {
-
-        const div = item.querySelector('div')
-        if (!div.classList.contains('show')) {
-            div.classList.add('show')
-            item.classList.add('show')
-        }else {
-            div.classList.remove('show')
-            item.classList.remove('show')
-        }
-
-    })})
+  historyElementListener()
 
 }
 
@@ -1156,19 +1170,66 @@ function displayNoDataHistory() {
   body.appendChild(div)
 }
 
-function displayErrorDataHistory() {
+function displayErrorDataHistory(message = null) {
   const body = document.querySelector('#look-product #look-product-detail')
 
 
   const div = document.createElement('div')
   const h2 = document.createElement('h2')
-  const text = document.createTextNode('Something wrong!!!')
+  let text;
+
+  if (message !== null) {
+    text = document.createTextNode(message)
+  }else {
+    text = document.createTextNode('Something wrong!!!')
+  }
 
   div.style.textAlign = 'center'
 
   h2.appendChild(text)
   div.appendChild(h2)
   body.appendChild(div)
+}
+
+function createActiveOrInactiveHistoryElement(item) {
+
+  const body = document.querySelector('#look-product #look-product-detail')
+  const divItem = document.createElement('div')
+  const textItem = document.createTextNode(item.title)
+  const divItemActive = document.createElement('div')
+  const textItemActive = document.createTextNode(item.isEnabled ? 'Product : Active ' : 'Product : InActive ')
+
+  divItem.classList.add('item')
+
+  divItem.appendChild(textItem)
+  divItemActive.appendChild(textItemActive)
+  if (item.isEnabled) {
+    const sizes = `${item['sizes'].S ? ', S : ' + item['sizes'].S : ''}, ${item['sizes'].M ? 'M : ' + item['sizes'].M : ''}, ${item['sizes'].L ? 'L : ' + item['sizes'].L : ''}, ${item['sizes'].XL ? 'XL : ' + item['sizes'].XL : ''}, ${item['sizes'].XXL ? 'XXL : ' + item['sizes'].XXL : ''}`
+    const textItemChild = document.createTextNode(sizes)
+    divItemActive.appendChild(textItemChild)
+  }
+  divItem.appendChild(divItemActive)
+  body.appendChild(divItem)
+}
+
+
+function historyElementListener() {
+  const body = document.querySelector('#look-product #look-product-detail')
+  const itemsElement = body.querySelectorAll('.item')
+
+  itemsElement.forEach(item => {
+    item.addEventListener('click', () => {
+
+        const div = item.querySelector('div')
+        if (!div.classList.contains('show')) {
+            div.classList.add('show')
+            item.classList.add('show')
+        }else {
+            div.classList.remove('show')
+            item.classList.remove('show')
+        }
+
+    })})
 }
 
 function showLoadingHistory() {
