@@ -277,6 +277,30 @@ function textProductBtn() {
 }
 
 
+function requestData(url){
+  return new Promise((resolve, reject) => {
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        resolve(data)
+      })
+      .catch(error => {
+        console.error('Error:', error);
+
+        console.log(error.message)
+
+        const dataContainer = document.getElementById('data-container-product');
+
+        if (error.name == 'Error') {
+          dataContainer.innerHTML = `
+          <h2>No data item</h2>
+          `
+        }
+
+        resolve('failed')
+      });
+  })
+}
 
 function searchProduct(value) {
   const url = `${apiEndpoint}/search?q=${value}`;
@@ -301,31 +325,7 @@ function searchProduct(value) {
   .catch(error => {
     console.error(error);
     hideLoadingProduct('#product-detail .modal-body')
-  })
-}
-
-function requestData(url){
-  return new Promise((resolve, reject) => {
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        resolve(data)
-      })
-      .catch(error => {
-        console.error('Error:', error);
-
-        if (error.name == 'Error') {
-          console.log(error.message)
-
-          const dataContainer = document.getElementById('data-container-product');
-
-          dataContainer.innerHTML = `
-          <h2>No data item</h2>
-          `
-        }
-
-        resolve('failed')
-      });
+    displayErrorDataProduct()
   })
 }
 
@@ -357,6 +357,7 @@ function fetchDataProducts(page) {
   .catch(error => {
     console.error(error);
     hideLoadingProduct('#products .modal-body')
+    displayErrorDataProduct()
   })
 
   productsEditBtn['fromOther'] = false
@@ -411,6 +412,27 @@ function displayDetailProduct(item) {
     productDetailBody.innerHTML += '<button type="button" class="btn btn-primary float-end btn-sm submitBtn">Submit</button>'
 
     productDetailListener(item.id)
+}
+
+function displayErrorDataProduct(message = null) {
+  const body = document.querySelector('#products .modal-body')
+
+
+  const div = document.createElement('div')
+  const h2 = document.createElement('h2')
+  let text;
+
+  if (message !== null) {
+    text = document.createTextNode(message)
+  }else {
+    text = document.createTextNode('Something wrong!!!')
+  }
+
+  div.style.textAlign = 'center'
+
+  h2.appendChild(text)
+  div.appendChild(h2)
+  body.appendChild(div)
 }
 
 function productDetailListener(id = null) {
@@ -561,6 +583,8 @@ function uploadDataProduct(e) {
       error.then(function(obj) {
         alertProductEdit('danger', obj.message)
       });
+    }else {
+      alertProductEdit('danger', 'Something wrong!!!')
     }
   })
 
@@ -833,8 +857,8 @@ function fetchDataCancelProducts(page) {
         throw new Error('No items!!!')
       }else {
         if (data.items.length > 0) {
-          displayDataCancelProducts(data.items);
-          createPaginationCancelProducts(data.totalPages);
+          displayDataCancelProduct(data.items);
+          createPaginationCancelProduct(data.totalPages);
         }else {
           if (currentPageCancel > 1) {
             currentPageCancel = currentPageCancel - 1
@@ -845,20 +869,22 @@ function fetchDataCancelProducts(page) {
     })
     .catch(error => {
       console.error('Error:', error);
+      console.log(error.message)
+
+      const dataContainer = document.getElementById('data-container-product');
+      hideLoadingProduct('#cancelled-products .modal-body');
       if (error.name == 'Error') {
-        console.log(error.message)
-
-        const dataContainer = document.getElementById('data-container-product');
-
         dataContainer.innerHTML = `
             <h2>No data item</h2>
         `
+      }else {
+        displayErrorDataCancelProduct()
       }
-      hideLoadingProduct('#cancelled-products .modal-body');
+
     });
 }
 
-function displayDataCancelProducts(items) {
+function displayDataCancelProduct(items) {
   const dataContainer = document.getElementById('data-container-cancelled-product');
   const ul = document.createElement('ul')
   dataContainer.innerHTML = '';
@@ -870,6 +896,27 @@ function displayDataCancelProducts(items) {
   });
   dataContainer.appendChild(ul)
 
+}
+
+function displayErrorDataCancelProduct(message = null) {
+  const body = document.querySelector('#cancelled-products .modal-body')
+
+
+  const div = document.createElement('div')
+  const h2 = document.createElement('h2')
+  let text;
+
+  if (message !== null) {
+    text = document.createTextNode(message)
+  }else {
+    text = document.createTextNode('Something wrong!!!')
+  }
+
+  div.style.textAlign = 'center'
+
+  h2.appendChild(text)
+  div.appendChild(h2)
+  body.appendChild(div)
 }
 
 function createLiElementCancel(item) {
@@ -944,6 +991,7 @@ function cancelBtnFunc(e) {
     })
   } catch (e) {
     console.error(e)
+    alertProductEnable('danger', 'Something wrong!!!', '#pagination-container-cancelled-product .alert')
   }
 }
 
@@ -962,7 +1010,7 @@ function alertProductEnable(status, message, element) {
   }, 1500)
 }
 
-function createPaginationCancelProducts(totalPages) {
+function createPaginationCancelProduct(totalPages) {
   const paginationContainer = document.getElementById('pagination-container-cancelled-product');
   paginationContainer.innerHTML = '';
 

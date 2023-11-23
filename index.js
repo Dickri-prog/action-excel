@@ -70,16 +70,22 @@ async function fetchContentFile() {
 
 
 function checkingData(req, res, next) {
+    if (process.env.githubSecretKey === undefined) {
+      res.status(500).send('Something broke!')
+
+    }
+
     if (fetchedData === false) {
       fetchedData = fetchContentFile().then(result => {
         if (result) {
           next()
         } else {
-          return res.json({
-            isLoggedin: false,
-            message: "Something Wrong, contact us"
-          })
+          res.status(400).send('Something broke!')
         }
+      })
+      .catch(error => {
+        console.error(error);
+        res.status(400).send('Something broke!')
       })
     } else {
       next()
@@ -912,46 +918,11 @@ app.post('/upload', checkingData, (req, res) => {
 
       				  if (pricesData = dataNomination(row.values[1])) {
                     if (row.values[11] == "Menunggu Konfirmasimu" && row.values[8] != 0) {
-                      if (row.values[3].toLowerCase().includes(",s") || row.values[3].toLowerCase().includes("s,")) {
+                      const splitData = row.values[3].split(',')
 
-            						if (pricesData.S !== undefined) {
-
-                          row.getCell(6).value = pricesData.S
-              						row.getCell(7).value = pricesData.S
-                          row.getCell(12).value = 'Ubah'
-                        }
-            					} else if (row.values[3].toLowerCase().includes(",m") || row.values[3].toLowerCase().includes("m,")) {
-
-                        if (pricesData.M !== undefined) {
-
-                          row.getCell(6).value = pricesData.M
-              						row.getCell(7).value = pricesData.M
-                          row.getCell(12).value = 'Ubah'
-                        }
-            					} else if (row.values[3].toLowerCase().includes(",l") || row.values[3].toLowerCase().includes("l,")) {
-
-                        if (pricesData.L !== undefined) {
-
-                          row.getCell(6).value = pricesData.L
-              						row.getCell(7).value = pricesData.L
-                          row.getCell(12).value = 'Ubah'
-                        }
-            					}else if (row.values[3].toLowerCase().includes(",xl") || row.values[3].toLowerCase().includes("xl,")) {
-                        if (pricesData.XL !== undefined) {
-
-                          row.getCell(6).value = pricesData.XL
-                          row.getCell(7).value = pricesData.XL
-                          row.getCell(12).value = 'Ubah'
-                        }
-            					}else if (row.values[3].toLowerCase().includes(",xxl") || row.values[3].toLowerCase().includes("xxl,")) {
-                        if (pricesData.XXL !== undefined) {
-
-                          row.getCell(6).value = pricesData.XXL
-                          row.getCell(7).value = pricesData.XXL
-                          row.getCell(12).value = 'Ubah'
-                        }
-            					}else {
-                        if (row.values[3].toLowerCase().includes("s")) {
+                      if (splitData.length > 1) {
+                        
+                        if (splitData[0].toLowerCase().trim() == "s" || splitData[1].toLowerCase().trim() == "s") {
                           if (pricesData.S !== undefined) {
 
                             row.getCell(6).value = pricesData.S
@@ -960,7 +931,7 @@ app.post('/upload', checkingData, (req, res) => {
                           }
                         }
 
-                        if (row.values[3].toLowerCase().includes("m")) {
+                        if (splitData[0].toLowerCase().trim() == "m" || splitData[1].toLowerCase().trim() == "m") {
                           if (pricesData.M !== undefined) {
 
                             row.getCell(6).value = pricesData.M
@@ -969,7 +940,7 @@ app.post('/upload', checkingData, (req, res) => {
                           }
                         }
 
-                        if (row.values[3].toLowerCase().includes("l")) {
+                        if (splitData[0].toLowerCase().trim() == "l" || splitData[1].toLowerCase().trim() == "l") {
                           if (pricesData.L !== undefined) {
 
                             row.getCell(6).value = pricesData.L
@@ -978,7 +949,7 @@ app.post('/upload', checkingData, (req, res) => {
                           }
                         }
 
-                        if (row.values[3].toLowerCase().includes("xl")) {
+                        if (splitData[0].toLowerCase().trim() == "xl" || splitData[1].toLowerCase().trim() == "xl") {
                           if (pricesData.XL !== undefined) {
 
                             row.getCell(6).value = pricesData.XL
@@ -987,7 +958,53 @@ app.post('/upload', checkingData, (req, res) => {
                           }
                         }
 
-                        if (row.values[3].toLowerCase().includes("xxl")) {
+                        if (splitData[0].toLowerCase().trim() == "xxl" || splitData[1].toLowerCase().trim() == "xxl") {
+                          if (pricesData.XXL !== undefined) {
+
+                            row.getCell(6).value = pricesData.XXL
+                            row.getCell(7).value = pricesData.XXL
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+                      }else {
+                        
+                        if (splitData[0].toLowerCase().trim() == "s") {
+                          if (pricesData.S !== undefined) {
+
+                            row.getCell(6).value = pricesData.S
+                            row.getCell(7).value = pricesData.S
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (splitData[0].toLowerCase().trim() == "m") {
+                          if (pricesData.M !== undefined) {
+
+                            row.getCell(6).value = pricesData.M
+                            row.getCell(7).value = pricesData.M
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (splitData[0].toLowerCase().trim() == "l") {
+                          if (pricesData.L !== undefined) {
+
+                            row.getCell(6).value = pricesData.L
+                            row.getCell(7).value = pricesData.L
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (splitData[0].toLowerCase().trim() == "xl") {
+                          if (pricesData.XL !== undefined) {
+
+                            row.getCell(6).value = pricesData.XL
+                            row.getCell(7).value = pricesData.XL
+                            row.getCell(12).value = 'Ubah'
+                          }
+                        }
+
+                        if (splitData[0].toLowerCase().trim() == "xxl") {
                           if (pricesData.XXL !== undefined) {
 
                             row.getCell(6).value = pricesData.XXL
