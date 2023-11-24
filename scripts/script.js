@@ -93,7 +93,7 @@ productsEditBtn.addEventListener('click', () => {
     currentPage = 1
   }
 
-  fetchDataProducts(currentPage)
+  fetchDataProduct(currentPage)
 })
 
 cancelledProductBtn.addEventListener('click', () => {
@@ -176,6 +176,8 @@ isEnabledBtn.addEventListener('click', (e) => {
 document.querySelector("#addSizeBtn").addEventListener('click', createNewInputSizeElement)
 
 document.querySelector('#products #addProduct').addEventListener('click', (e) => {
+  checkProductElement()
+  
   if (e.target.dataset.type == 'add-product') {
     e.target.dataset.type = 'back-To-Product'
     e.target.innerText = 'back'
@@ -210,7 +212,7 @@ document.querySelector("span.search > input").addEventListener("keypress", funct
 
         if (value == '') {
           currentPage = 1
-          fetchDataProducts(currentPage)
+          fetchDataProduct(currentPage)
         }else {
           searchProduct(value)
         }
@@ -239,14 +241,49 @@ historyFilterBtn.addEventListener('change', (e) => {
       historyFilterBtn.children[2].selected = true
       fetchDataHistory(null, value)
     }else if (value == 'filter') {
-      historyFilterBtn.children[0].selected = true
+      fetchDataHistory(e)
     }
 })
 
+function checkProductElement() {
+  const productContainer = document.querySelector('#products .modal-body')
+  const addProductEl = productContainer.querySelector('.add-product-section')
+  const containerProduct = productContainer.querySelector('#data-container-product')
+
+  if (containerProduct === null) {
+    productContainer.innerHTML = `
+      <div id="data-container-product">
+
+      </div>
+    `
+  }
+
+  if (addProductEl === null) {
+    productContainer.innerHTML += `
+    <div class="add-product-section">
+
+        <section id="fileUploaderAddProduct">
+            <h4>Add Product</h4>
+
+            <div class="error">
+              <h4 id="error" style="color: red"></h4>
+            </div>
+
+              <input type="file" id="add-product-input">
+              <button type="submit" id="add-product-btn">Upload!</button>
+              <p id="loading">Loading...</p>
+              <p id="process"></p>
+      </section>
+      </div>
+    `
+  }
+}
+
 
 function productClassDefault() {
-  const addProductEl = document.querySelector('#products .add-product-section')
-  const containerProduct = document.querySelector('#products #data-container-product')
+  const productContainer = document.querySelector('#products .modal-body')
+  const addProductEl = productContainer.querySelector('.add-product-section')
+  const containerProduct = productContainer.querySelector('#data-container-product')
 
   if (addProductEl !== null && containerProduct !== null) {
     addProductEl.classList.remove('show')
@@ -304,17 +341,18 @@ function requestData(url){
 function searchProduct(value) {
   const url = `${apiEndpoint}/search?q=${value}`;
 
-  showLoadingProduct('#product-detail .modal-body');
+  showLoadingProduct('#products .modal-body');
+  clearPaginationProduct()
 
   requestData(url)
   .then(result => {
-    hideLoadingProduct('#product-detail .modal-body')
+    hideLoadingProduct('#products .modal-body')
 
     if (!result.items) {
       throw new Error('No items!!!')
     }else {
       if (result.items.length > 0) {
-        displayDataProducts(result.items);
+        displayDataProduct(result.items);
         clearPaginationProduct()
       }else {
         throw new Error('No items!!!')
@@ -323,12 +361,16 @@ function searchProduct(value) {
   })
   .catch(error => {
     console.error(error);
-    hideLoadingProduct('#product-detail .modal-body')
-    displayErrorDataProduct()
+    hideLoadingProduct('#products .modal-body')
+    if (error.name == 'Error') {
+      displayErrorDataProduct(error.message)
+    }else {
+      displayErrorDataProduct()
+    }
   })
 }
 
-function fetchDataProducts(page) {
+function fetchDataProduct(page) {
   const url = `${apiEndpoint}?page=${page}&limit=${itemsPerPage}`;
 
   showLoadingProduct('#products .modal-body');
@@ -336,19 +378,19 @@ function fetchDataProducts(page) {
   requestData(url)
   .then(result => {
     if (!result.items) {
-      throw new Error('No items!!!')
+      throw new Error('No Data!!!')
     }else {
       hideLoadingProduct('#products .modal-body')
 
       createElementProduct()
 
       if (result.items.length > 0) {
-        displayDataProducts(result.items);
+        displayDataProduct(result.items);
         createPaginationProducts(result.totalPages);
       }else {
         if (currentPage > 1) {
           currentPage = currentPage - 1
-          fetchDataProducts(currentPage)
+          fetchDataProduct(currentPage)
         }
       }
     }
@@ -356,16 +398,28 @@ function fetchDataProducts(page) {
   .catch(error => {
     console.error(error);
     hideLoadingProduct('#products .modal-body')
-    displayErrorDataProduct()
+
+    if (error.name == 'Error') {
+      displayErrorDataProduct(error.message)
+    }else {
+      displayErrorDataProduct()
+    }
   })
 
   productsEditBtn['fromOther'] = false
 }
 
-function displayDataProducts(items) {
-  const dataContainer = document.getElementById('data-container-product');
+function displayDataProduct(items) {
+  const body = document.querySelector('#products .modal-body');
+  body.innerHTML = `
+    <div id="data-container-product">
+
+    </div>
+  `
+
   const paginationContainer = document.getElementById('pagination-container-product')
-  dataContainer.innerHTML = '';
+  const dataContainer = body.querySelector('#data-container-product')
+
 
   items.forEach((item, index) => {
     const button = document.createElement('button');
@@ -800,7 +854,7 @@ function createPaginationProducts(totalPages) {
           previousActiveButton.classList.remove('active');
         }
         currentPage = page;
-        fetchDataProducts(currentPage);
+        fetchDataProduct(currentPage);
       });
       ul.appendChild(li);
 
@@ -1112,7 +1166,7 @@ function createPaginationCancelProduct(totalPages) {
 // History
 
 
-function fetchDataHistory(e=null, filter=1) {
+function fetchDataHistory(e=null, filter=null) {
 
   if (e !== null) {
     historyFilterBtn.children[0].selected = true
@@ -1188,19 +1242,28 @@ function deleteDataHistory(e) {
 
 function displayDataHistory(items, filter) {
 
-  items.forEach((item, i) => {
-    if (filter == '1') {
-      if (item.isEnabled) {
+  showLoadingHistory()
+  setTimeout(() => {
+    hideLoadingHistory()
+    items.forEach((item, i) => {
+      if (filter == '1') {
+        if (item.isEnabled) {
+          createActiveOrInactiveHistoryElement(item)
+        }
+      }else if (filter == '0') {
+        if (item.isEnabled === false) {
+          createActiveOrInactiveHistoryElement(item)
+        }
+      }else if (filter === null) {
         createActiveOrInactiveHistoryElement(item)
       }
-    }else if (filter == '0') {
-      if (item.isEnabled === false) {
-        createActiveOrInactiveHistoryElement(item)
-      }
-    }
-  });
+    });
 
-  historyElementListener()
+    historyElementListener()
+
+  }, 2000)
+
+
 
 }
 
@@ -1282,6 +1345,8 @@ function historyElementListener() {
 
 function showLoadingHistory() {
   const body = document.querySelector('#look-product #look-product-detail')
+
+  body.innerHTML = ''
 
   const div = document.createElement('div')
 
