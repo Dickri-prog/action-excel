@@ -177,7 +177,7 @@ document.querySelector("#addSizeBtn").addEventListener('click', createNewInputSi
 
 document.querySelector('#products #addProduct').addEventListener('click', (e) => {
   checkProductElement()
-  
+
   if (e.target.dataset.type == 'add-product') {
     e.target.dataset.type = 'back-To-Product'
     e.target.innerText = 'back'
@@ -277,6 +277,8 @@ function checkProductElement() {
       </div>
     `
   }
+
+  massAddProductListener()
 }
 
 
@@ -316,24 +318,21 @@ function textProductBtn() {
 function requestData(url){
   return new Promise((resolve, reject) => {
     fetch(url)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw response.json()
+        }
+
+        return response.json()
+      })
       .then(data => {
         resolve(data)
       })
       .catch(error => {
         console.error('Error:', error);
 
-        console.log(error.message)
+        reject(error)
 
-        const dataContainer = document.getElementById('data-container-product');
-
-        if (error.name == 'Error') {
-          dataContainer.innerHTML = `
-          <h2>No data item</h2>
-          `
-        }
-
-        resolve('failed')
       });
   })
 }
@@ -348,24 +347,20 @@ function searchProduct(value) {
   .then(result => {
     hideLoadingProduct('#products .modal-body')
 
-    if (!result.items) {
-      throw new Error('No items!!!')
-    }else {
       if (result.items.length > 0) {
         displayDataProduct(result.items);
         clearPaginationProduct()
       }else {
         throw new Error('No items!!!')
       }
-    }
   })
   .catch(error => {
     console.error(error);
     hideLoadingProduct('#products .modal-body')
     if (error.name == 'Error') {
-      displayErrorDataProduct(error.message)
+      displayErrorDataProduct(error.message, 400)
     }else {
-      displayErrorDataProduct()
+      displayErrorDataProduct(error, 500)
     }
   })
 }
@@ -377,12 +372,7 @@ function fetchDataProduct(page) {
 
   requestData(url)
   .then(result => {
-    if (!result.items) {
-      throw new Error('No Data!!!')
-    }else {
       hideLoadingProduct('#products .modal-body')
-
-      createElementProduct()
 
       if (result.items.length > 0) {
         displayDataProduct(result.items);
@@ -393,16 +383,15 @@ function fetchDataProduct(page) {
           fetchDataProduct(currentPage)
         }
       }
-    }
   })
   .catch(error => {
     console.error(error);
     hideLoadingProduct('#products .modal-body')
 
     if (error.name == 'Error') {
-      displayErrorDataProduct(error.message)
+      displayErrorDataProduct(error.message, 400)
     }else {
-      displayErrorDataProduct()
+      displayErrorDataProduct(error, 500)
     }
   })
 
@@ -467,7 +456,7 @@ function displayDetailProduct(item) {
     productDetailListener(item.id)
 }
 
-function displayErrorDataProduct(message = null) {
+function displayErrorDataProduct(message, code) {
   const body = document.querySelector('#products .modal-body')
 
 
@@ -475,15 +464,17 @@ function displayErrorDataProduct(message = null) {
   const h2 = document.createElement('h2')
   let text;
 
-  if (message !== null) {
-    text = document.createTextNode(message)
-  }else {
-    text = document.createTextNode('Something wrong!!!')
-  }
+    if (code === 400) {
+      text = document.createTextNode(message)
+      h2.appendChild(text)
+    }else {
+      message.then(result => {
+        text = document.createTextNode(result.message)
+        h2.appendChild(text)
+      })
+    }
 
   div.style.textAlign = 'center'
-
-  h2.appendChild(text)
   div.appendChild(h2)
   body.appendChild(div)
 }
@@ -672,32 +663,32 @@ function isEnabledFunc(value) {
   }
 }
 
-function createElementProduct() {
-  const body = document.querySelector('#products .modal-body')
-
-  body.innerHTML = `
-    <div id="data-container-product">
-
-    </div>
-    <div class="add-product-section">
-
-      <section id="fileUploaderAddProduct">
-          <h4>Add Product</h4>
-
-          <div class="error">
-            <h4 id="error" style="color: red"></h4>
-          </div>
-
-            <input type="file" id="add-product-input">
-            <button type="submit" id="add-product-btn">Upload!</button>
-            <p id="loading">Loading...</p>
-            <p id="process"></p>
-    </section>
-    </div>
-  `
-
-  massAddProductListener()
-}
+// function createElementProduct() {
+//   const body = document.querySelector('#products .modal-body')
+//
+//   body.innerHTML = `
+//     <div id="data-container-product">
+//
+//     </div>
+//     <div class="add-product-section">
+//
+//       <section id="fileUploaderAddProduct">
+//           <h4>Add Product</h4>
+//
+//           <div class="error">
+//             <h4 id="error" style="color: red"></h4>
+//           </div>
+//
+//             <input type="file" id="add-product-input">
+//             <button type="submit" id="add-product-btn">Upload!</button>
+//             <p id="loading">Loading...</p>
+//             <p id="process"></p>
+//     </section>
+//     </div>
+//   `
+//
+//   massAddProductListener()
+// }
 
 function createHeaderSizeElement() {
   return `

@@ -71,25 +71,36 @@ async function fetchContentFile() {
 
 function checkingData(req, res, next) {
     if (process.env.githubSecretKey === undefined) {
-      res.status(500).send('Something broke!')
+      res.status(500).json({
+        items: 0,
+        message: 'Something wrong system'
+      })
 
+    }else {
+      if (fetchedData === false) {
+        fetchedData = fetchContentFile().then(result => {
+          if (result) {
+            next()
+          } else {
+            res.status(400).json({
+              items: 0,
+              message: 'Something wrong system'
+            })
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          res.status(400).json({
+            items: 0,
+            message: 'Something wrong system'
+          })
+        })
+      } else {
+        next()
+      }
     }
 
-    if (fetchedData === false) {
-      fetchedData = fetchContentFile().then(result => {
-        if (result) {
-          next()
-        } else {
-          res.status(400).send('Something broke!')
-        }
-      })
-      .catch(error => {
-        console.error(error);
-        res.status(400).send('Something broke!')
-      })
-    } else {
-      next()
-    }
+
 }
 
 async function updateFile() {
@@ -172,15 +183,14 @@ app.get('/products', checkingData , (req, res) => {
 		// Prepare the response object
 		const response = {
 			items: paginatedItems,
-			totalPages: totalPages,
+			totalPages: totalPages
 		};
 
 		res.json(response);
 	}else if (productDataArr.length <= 0) {
 		const response = {
 			items: 0,
-			totalPages: 0,
-			message: "Json Data empty!!!"
+			totalPages: 0
 		}
 
 		res.json(response)
@@ -213,8 +223,7 @@ app.get('/products/search', checkingData, (req, res) => {
 		res.json(response);
 	}else if (filter.length <= 0) {
 		const response = {
-			items: 0,
-			message: "Json Data empty!!!"
+			items: 0
 		}
 
 		res.json(response)
@@ -508,8 +517,6 @@ app.put('/products/:id/is-enabled', checkingData,  async (req, res) => {
       if (isEnabled !== undefined) {
         const indexOfItem  = jsonDataContent.findIndex(item => item.id === id)
         if (indexOfItem != -1) {
-
-          console.log(isEnabled);
           if (isEnabled == 'true' || isEnabled == 'false') {
             isEnabled = (isEnabled == 'true')
             if (isEnabled) {
@@ -921,7 +928,7 @@ app.post('/upload', checkingData, (req, res) => {
                       const splitData = row.values[3].split(',')
 
                       if (splitData.length > 1) {
-                        
+
                         if (splitData[0].toLowerCase().trim() == "s" || splitData[1].toLowerCase().trim() == "s") {
                           if (pricesData.S !== undefined) {
 
@@ -967,7 +974,7 @@ app.post('/upload', checkingData, (req, res) => {
                           }
                         }
                       }else {
-                        
+
                         if (splitData[0].toLowerCase().trim() == "s") {
                           if (pricesData.S !== undefined) {
 
