@@ -68,7 +68,6 @@ async function fetchContentFile() {
   return fetchingData
 }
 
-
 function checkingData(req, res, next) {
     if (process.env.githubSecretKey === undefined) {
       res.status(500).json({
